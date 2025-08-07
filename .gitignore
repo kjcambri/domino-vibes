@@ -1,0 +1,10 @@
+# Node
+node_modules
+dist
+# Env
+.env*
+!.env.example
+# OS
+.DS_Store
+# Supabase local
+.supabase
