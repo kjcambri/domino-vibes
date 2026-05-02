@@ -39,6 +39,19 @@ export function useGameRealtime(gameId?: string) {
           void queryClient.invalidateQueries({ queryKey: myHandQueryKey(gameId) })
         },
       )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'game_moves',
+          filter: `game_id=eq.${gameId}`,
+        },
+        () => {
+          void queryClient.invalidateQueries({ queryKey: gameRoomQueryKey(gameId) })
+          void queryClient.invalidateQueries({ queryKey: myHandQueryKey(gameId) })
+        },
+      )
       .subscribe()
 
     return () => {

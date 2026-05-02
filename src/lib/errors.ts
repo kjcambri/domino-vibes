@@ -82,6 +82,34 @@ export function getFriendlyAuthError(error: unknown) {
     return 'Your secure hand is not available for this game yet.'
   }
 
+  if (message.includes('game_not_active')) {
+    return 'This round is not active right now.'
+  }
+
+  if (message.includes('not_your_turn')) {
+    return 'It is not your turn yet.'
+  }
+
+  if (message.includes('tile_not_owned')) {
+    return 'That tile is not in your hand.'
+  }
+
+  if (message.includes('illegal_move')) {
+    return 'That tile does not match the selected open end.'
+  }
+
+  if (
+    message.includes('first_tile_must_start') ||
+    message.includes('start_side_unavailable') ||
+    message.includes('invalid_side')
+  ) {
+    return 'Choose a valid side for this board state.'
+  }
+
+  if (message.includes('legal_move_available')) {
+    return 'You have a legal tile to play, so you cannot pass.'
+  }
+
   if (message.includes('invalid_seat')) {
     return 'Choose one of the available table seats.'
   }

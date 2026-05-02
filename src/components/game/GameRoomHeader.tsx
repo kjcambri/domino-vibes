@@ -23,7 +23,8 @@ export function GameRoomHeader({ game }: { game: GameRoomInfo }) {
           {game.tableName}
         </h1>
         <p className="mt-2 text-sm font-bold uppercase tracking-[0.14em] text-gold-200">
-          Game status: {game.status} · Round {game.currentRoundNumber}
+          Game status: {game.status} · Round {game.currentRoundNumber} · Move{' '}
+          {game.moveCount}
         </p>
       </div>
     </header>

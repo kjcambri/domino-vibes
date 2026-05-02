@@ -1,5 +1,10 @@
 import { supabase } from '../../lib/supabaseClient'
-import { type DominoTileDto, type GameRoom, type MyHand } from './types'
+import {
+  type BoardSide,
+  type DominoTileDto,
+  type GameRoom,
+  type MyHand,
+} from './types'
 
 type MyHandRow = {
   game_id: string
@@ -39,4 +44,38 @@ export async function getMyHand(gameId: string): Promise<MyHand> {
     playerId: hand.player_id,
     tiles: hand.tiles,
   }
+}
+
+export async function playTile({
+  gameId,
+  tileId,
+  side,
+}: {
+  gameId: string
+  tileId: string
+  side: BoardSide
+}): Promise<GameRoom> {
+  const { data, error } = await supabase.rpc('play_tile', {
+    p_game_id: gameId,
+    p_tile_id: tileId,
+    p_side: side,
+  })
+
+  if (error) {
+    throw error
+  }
+
+  return data as GameRoom
+}
+
+export async function passTurn(gameId: string): Promise<GameRoom> {
+  const { data, error } = await supabase.rpc('pass_turn', {
+    p_game_id: gameId,
+  })
+
+  if (error) {
+    throw error
+  }
+
+  return data as GameRoom
 }

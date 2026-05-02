@@ -30,10 +30,25 @@ export function BoardStatePreview({ boardState }: { boardState: BoardStateDto })
           </p>
         </div>
       </div>
+      {!isEmpty ? (
+        <div className="mt-4 flex gap-2 overflow-x-auto pb-1">
+          {boardState.placements.map((placement) => (
+            <div
+              className="min-w-20 rounded-md border border-gold-200/25 bg-cream-50 px-3 py-3 text-center text-green-950 shadow-wood"
+              key={`${placement.turnNumber}-${placement.tile.id}`}
+            >
+              <p className="text-base font-black">{placement.tile.id}</p>
+              <p className="mt-1 text-[0.65rem] font-bold uppercase tracking-[0.12em] text-green-900/70">
+                {placement.side}
+              </p>
+            </div>
+          ))}
+        </div>
+      ) : null}
       <p className="mt-4 text-sm leading-6 text-cream-100/72">
         {isEmpty
-          ? 'First move starts in Sprint 7.'
-          : 'Tile play is still reserved for Sprint 7.'}
+          ? 'The first move must be played on start.'
+          : `${boardState.placements.length} moves on the board.`}
       </p>
     </Card>
   )
