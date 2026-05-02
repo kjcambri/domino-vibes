@@ -4,6 +4,7 @@ import { SeatCard } from './SeatCard'
 type TableSeatGridProps = {
   seats: TableSeat[]
   canSit: boolean
+  currentUserId?: string
   isBusy: boolean
   onSit: (seatNumber: number) => void
 }
@@ -11,6 +12,7 @@ type TableSeatGridProps = {
 export function TableSeatGrid({
   seats,
   canSit,
+  currentUserId,
   isBusy,
   onSit,
 }: TableSeatGridProps) {
@@ -19,6 +21,7 @@ export function TableSeatGrid({
       {seats.map((seat) => (
         <SeatCard
           canSit={canSit}
+          isCurrentUserSeat={seat.playerId === currentUserId}
           isBusy={isBusy}
           key={seat.id}
           onSit={onSit}

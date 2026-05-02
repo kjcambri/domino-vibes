@@ -1,5 +1,10 @@
 import { supabase } from '../../lib/supabaseClient'
-import { type CurrentTable, type SeatActionResult, type TableRoom } from './types'
+import {
+  type CurrentTable,
+  type SeatActionResult,
+  type StartGameResult,
+  type TableRoom,
+} from './types'
 
 type SeatActionRow = {
   table_id: string
@@ -14,6 +19,12 @@ type CurrentTableRow = {
   seat_number: number
   joined_at: string | null
   current_game_id: string | null
+}
+
+type StartGameRow = {
+  game_id: string
+  table_id: string
+  status: StartGameResult['status']
 }
 
 function toCurrentTable(row: CurrentTableRow): CurrentTable {
@@ -90,4 +101,41 @@ export async function getMyCurrentTable(): Promise<CurrentTable | null> {
   const result = (data as CurrentTableRow[] | null)?.[0]
 
   return result ? toCurrentTable(result) : null
+}
+
+export async function toggleReady({
+  tableId,
+  ready,
+}: {
+  tableId: string
+  ready: boolean
+}): Promise<TableRoom> {
+  const { data, error } = await supabase.rpc('toggle_ready', {
+    p_table_id: tableId,
+    p_ready: ready,
+  })
+
+  if (error) {
+    throw error
+  }
+
+  return data as TableRoom
+}
+
+export async function startGame(tableId: string): Promise<StartGameResult> {
+  const { data, error } = await supabase.rpc('start_game', {
+    p_table_id: tableId,
+  })
+
+  if (error) {
+    throw error
+  }
+
+  const result = (data as StartGameRow[])[0]
+
+  return {
+    gameId: result.game_id,
+    tableId: result.table_id,
+    status: result.status,
+  }
 }

@@ -23,6 +23,7 @@ export type TableRoomInfo = {
   gameMode: GameMode
   status: TableStatus
   maxPlayers: number
+  currentGameId: string | null
   isSystemCreated: boolean
   createdAt: string
   updatedAt: string
@@ -46,4 +47,17 @@ export type CurrentTable = {
   seatNumber: number
   joinedAt: string | null
   currentGameId: string | null
+}
+
+export type ReadyState = {
+  seatedCount: number
+  readyCount: number
+  isFull: boolean
+  allReady: boolean
+}
+
+export type StartGameResult = {
+  gameId: string
+  tableId: string
+  status: 'setup' | 'active' | 'round_finished' | 'finished' | 'cancelled'
 }

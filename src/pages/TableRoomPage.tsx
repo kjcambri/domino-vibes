@@ -1,9 +1,11 @@
 import { LogOut } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Button } from '../components/common/Button'
 import { Card } from '../components/common/Card'
 import { MobileShell } from '../components/layout/MobileShell'
+import { ReadyToggle } from '../components/table/ReadyToggle'
+import { StartGamePanel } from '../components/table/StartGamePanel'
 import { TableRoomHeader } from '../components/table/TableRoomHeader'
 import { TableSeatGrid } from '../components/table/TableSeatGrid'
 import { useAuth } from '../features/auth/useAuth'
@@ -11,7 +13,9 @@ import { useTableRealtime } from '../features/tables/useTableRealtime'
 import {
   useLeaveTable,
   useSitAtTable,
+  useStartGame,
   useTableRoom,
+  useToggleReady,
 } from '../features/tables/useTableRoom'
 import { getFriendlyAuthError } from '../lib/errors'
 
@@ -22,13 +26,27 @@ export function TableRoomPage() {
   const tableRoom = useTableRoom(tableId)
   const sitAtTable = useSitAtTable(tableId)
   const leaveTable = useLeaveTable(tableId)
+  const toggleReady = useToggleReady(tableId)
+  const startGame = useStartGame(tableId)
   const [error, setError] = useState('')
   useTableRealtime(tableId)
 
   const room = tableRoom.data
-  const isCurrentUserSeated = Boolean(
-    room?.seats.some((seat) => seat.playerId === user?.id),
-  )
+  const currentUserSeat = room?.seats.find((seat) => seat.playerId === user?.id)
+  const isCurrentUserSeated = Boolean(currentUserSeat)
+  const readyState = useMemo(() => {
+    const seats = room?.seats ?? []
+    const seatedCount = seats.filter((seat) => seat.playerId).length
+    const readyCount = seats.filter((seat) => seat.playerId && seat.isReady).length
+    const maxPlayers = room?.table.maxPlayers ?? 4
+
+    return {
+      seatedCount,
+      readyCount,
+      isFull: seatedCount === maxPlayers,
+      allReady: seatedCount === maxPlayers && readyCount === maxPlayers,
+    }
+  }, [room])
   const canSit =
     Boolean(room) &&
     room!.table.status === 'waiting' &&
@@ -39,6 +57,18 @@ export function TableRoomPage() {
     isCurrentUserSeated &&
     room!.table.status !== 'in_game' &&
     !leaveTable.isPending
+  const canToggleReady =
+    Boolean(room) &&
+    isCurrentUserSeated &&
+    room!.table.status !== 'in_game' &&
+    room!.table.status !== 'finished' &&
+    room!.table.status !== 'closed'
+
+  useEffect(() => {
+    if (room?.table.status === 'in_game' && room.table.currentGameId) {
+      navigate(`/games/${room.table.currentGameId}`, { replace: true })
+    }
+  }, [navigate, room?.table.currentGameId, room?.table.status])
 
   async function handleSit(seatNumber: number) {
     setError('')
@@ -56,6 +86,31 @@ export function TableRoomPage() {
     try {
       await leaveTable.mutateAsync()
       navigate('/lobby', { replace: true })
+    } catch (caughtError) {
+      setError(getFriendlyAuthError(caughtError))
+    }
+  }
+
+  async function handleToggleReady() {
+    if (!currentUserSeat) {
+      return
+    }
+
+    setError('')
+
+    try {
+      await toggleReady.mutateAsync(!currentUserSeat.isReady)
+    } catch (caughtError) {
+      setError(getFriendlyAuthError(caughtError))
+    }
+  }
+
+  async function handleStartGame() {
+    setError('')
+
+    try {
+      const result = await startGame.mutateAsync()
+      navigate(`/games/${result.gameId}`, { replace: true })
     } catch (caughtError) {
       setError(getFriendlyAuthError(caughtError))
     }
@@ -109,10 +164,19 @@ export function TableRoomPage() {
 
         <TableSeatGrid
           canSit={canSit}
+          currentUserId={user?.id}
           isBusy={sitAtTable.isPending}
           onSit={handleSit}
           seats={room.seats}
         />
+
+        {canToggleReady ? (
+          <ReadyToggle
+            isLoading={toggleReady.isPending}
+            isReady={Boolean(currentUserSeat?.isReady)}
+            onToggle={handleToggleReady}
+          />
+        ) : null}
 
         {canLeave ? (
           <Button
@@ -126,12 +190,12 @@ export function TableRoomPage() {
           </Button>
         ) : null}
 
-        {room.table.status === 'full' ? (
-          <Card className="bg-felt-700/35">
-            <p className="text-sm font-bold text-cream-50">
-              Ready system arrives in Sprint 4.
-            </p>
-          </Card>
+        {room.table.status !== 'in_game' ? (
+          <StartGamePanel
+            isStarting={startGame.isPending}
+            onStart={handleStartGame}
+            readyState={readyState}
+          />
         ) : null}
 
         {room.table.status === 'in_game' ? (

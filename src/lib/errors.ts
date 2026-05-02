@@ -62,6 +62,22 @@ export function getFriendlyAuthError(error: unknown) {
     return 'That table is not available for seating right now.'
   }
 
+  if (message.includes('not_enough_players')) {
+    return 'The table needs all four seats filled before starting.'
+  }
+
+  if (message.includes('not_all_ready')) {
+    return 'All seated players must be ready before starting.'
+  }
+
+  if (message.includes('game_already_started')) {
+    return 'This table already has a game in progress.'
+  }
+
+  if (message.includes('game_not_found')) {
+    return 'That game could not be found.'
+  }
+
   if (message.includes('invalid_seat')) {
     return 'Choose one of the available table seats.'
   }

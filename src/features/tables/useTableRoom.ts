@@ -1,7 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { lobbyTablesQueryKey } from '../lobby/useLobbyTables'
 import { myCurrentTableQueryKey } from './useMyCurrentTable'
-import { getTableRoom, leaveTable, sitAtTable } from './tableService'
+import {
+  getTableRoom,
+  leaveTable,
+  sitAtTable,
+  startGame,
+  toggleReady,
+} from './tableService'
 
 export function tableRoomQueryKey(tableId?: string) {
   return ['table-room', tableId] as const
@@ -33,6 +39,32 @@ export function useLeaveTable(tableId?: string) {
 
   return useMutation({
     mutationFn: () => leaveTable(tableId!),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: tableRoomQueryKey(tableId) })
+      void queryClient.invalidateQueries({ queryKey: lobbyTablesQueryKey })
+      void queryClient.invalidateQueries({ queryKey: myCurrentTableQueryKey })
+    },
+  })
+}
+
+export function useToggleReady(tableId?: string) {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (ready: boolean) => toggleReady({ tableId: tableId!, ready }),
+    onSuccess: (room) => {
+      queryClient.setQueryData(tableRoomQueryKey(tableId), room)
+      void queryClient.invalidateQueries({ queryKey: lobbyTablesQueryKey })
+      void queryClient.invalidateQueries({ queryKey: myCurrentTableQueryKey })
+    },
+  })
+}
+
+export function useStartGame(tableId?: string) {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: () => startGame(tableId!),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: tableRoomQueryKey(tableId) })
       void queryClient.invalidateQueries({ queryKey: lobbyTablesQueryKey })
