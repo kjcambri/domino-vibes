@@ -22,6 +22,50 @@ export function getFriendlyAuthError(error: unknown) {
     return 'That username is already taken. Try another one.'
   }
 
+  if (message.includes('table_full')) {
+    return 'That table is full. Choose another waiting table.'
+  }
+
+  if (message.includes('table_not_found')) {
+    return 'That table could not be found.'
+  }
+
+  if (message.includes('already_seated_elsewhere')) {
+    return 'You are already seated at another active table. Leave that table first.'
+  }
+
+  if (message.includes('already_seated')) {
+    return 'You are already seated at this table.'
+  }
+
+  if (message.includes('seat_taken')) {
+    return 'That seat was just taken. Pick another open seat.'
+  }
+
+  if (message.includes('profile_required')) {
+    return 'Create your player profile before joining a table.'
+  }
+
+  if (message.includes('not_authenticated')) {
+    return 'Log in before joining a table.'
+  }
+
+  if (message.includes('game_in_progress')) {
+    return 'This game is already in progress, so you cannot leave from the lobby flow.'
+  }
+
+  if (message.includes('not_seated')) {
+    return 'You are no longer seated at that table.'
+  }
+
+  if (message.includes('table_unavailable')) {
+    return 'That table is not available for seating right now.'
+  }
+
+  if (message.includes('invalid_seat')) {
+    return 'Choose one of the available table seats.'
+  }
+
   if (message.includes('failed to fetch') || message.includes('network')) {
     return 'Network trouble reached the table. Check your connection and try again.'
   }
