@@ -1,4 +1,6 @@
 import { createBrowserRouter } from 'react-router-dom'
+import { ProtectedRoute } from '../components/auth/ProtectedRoute'
+import { PublicOnlyRoute } from '../components/auth/PublicOnlyRoute'
 import { GameRoomPage } from '../pages/GameRoomPage'
 import { LandingPage } from '../pages/LandingPage'
 import { LobbyPage } from '../pages/LobbyPage'
@@ -16,31 +18,59 @@ export const router = createBrowserRouter([
   },
   {
     path: '/login',
-    element: <LoginPage />,
+    element: (
+      <PublicOnlyRoute>
+        <LoginPage />
+      </PublicOnlyRoute>
+    ),
   },
   {
     path: '/signup',
-    element: <SignupPage />,
+    element: (
+      <PublicOnlyRoute>
+        <SignupPage />
+      </PublicOnlyRoute>
+    ),
   },
   {
     path: '/profile',
-    element: <ProfilePage />,
+    element: (
+      <ProtectedRoute>
+        <ProfilePage />
+      </ProtectedRoute>
+    ),
   },
   {
     path: '/profile/setup',
-    element: <ProfileSetupPage />,
+    element: (
+      <ProtectedRoute requireProfile={false}>
+        <ProfileSetupPage />
+      </ProtectedRoute>
+    ),
   },
   {
     path: '/lobby',
-    element: <LobbyPage />,
+    element: (
+      <ProtectedRoute>
+        <LobbyPage />
+      </ProtectedRoute>
+    ),
   },
   {
     path: '/tables/:tableId',
-    element: <TableRoomPage />,
+    element: (
+      <ProtectedRoute>
+        <TableRoomPage />
+      </ProtectedRoute>
+    ),
   },
   {
     path: '/games/:gameId',
-    element: <GameRoomPage />,
+    element: (
+      <ProtectedRoute>
+        <GameRoomPage />
+      </ProtectedRoute>
+    ),
   },
   {
     path: '*',
