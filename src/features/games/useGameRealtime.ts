@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { supabase } from '../../lib/supabaseClient'
+import { myHandQueryKey } from './useMyHand'
 import { gameRoomQueryKey } from './useGameRoom'
 
 export function useGameRealtime(gameId?: string) {
@@ -23,6 +24,19 @@ export function useGameRealtime(gameId?: string) {
         },
         () => {
           void queryClient.invalidateQueries({ queryKey: gameRoomQueryKey(gameId) })
+        },
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'game_players',
+          filter: `game_id=eq.${gameId}`,
+        },
+        () => {
+          void queryClient.invalidateQueries({ queryKey: gameRoomQueryKey(gameId) })
+          void queryClient.invalidateQueries({ queryKey: myHandQueryKey(gameId) })
         },
       )
       .subscribe()

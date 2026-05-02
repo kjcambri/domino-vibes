@@ -25,6 +25,7 @@ type StartGameRow = {
   game_id: string
   table_id: string
   status: StartGameResult['status']
+  current_turn_player_id: string
 }
 
 function toCurrentTable(row: CurrentTableRow): CurrentTable {
@@ -137,5 +138,6 @@ export async function startGame(tableId: string): Promise<StartGameResult> {
     gameId: result.game_id,
     tableId: result.table_id,
     status: result.status,
+    currentTurnPlayerId: result.current_turn_player_id,
   }
 }

@@ -10,8 +10,8 @@ export function GamePlaceholderBoard() {
         Game setup created.
       </h2>
       <p className="mt-3 text-sm leading-6 text-cream-100/72">
-        Domino engine arrives in Sprint 5. No tiles, hands, moves, or scoring
-        are available yet.
+        Tile playing, move validation RPCs, passes, and scoring persistence
+        arrive in Sprint 7.
       </p>
     </Card>
   )

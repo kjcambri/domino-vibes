@@ -60,4 +60,5 @@ export type StartGameResult = {
   gameId: string
   tableId: string
   status: 'setup' | 'active' | 'round_finished' | 'finished' | 'cancelled'
+  currentTurnPlayerId: string
 }

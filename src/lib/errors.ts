@@ -78,6 +78,10 @@ export function getFriendlyAuthError(error: unknown) {
     return 'That game could not be found.'
   }
 
+  if (message.includes('hand_not_found')) {
+    return 'Your secure hand is not available for this game yet.'
+  }
+
   if (message.includes('invalid_seat')) {
     return 'Choose one of the available table seats.'
   }

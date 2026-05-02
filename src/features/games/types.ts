@@ -1,5 +1,21 @@
 import { type GameMode } from '../lobby/types'
 
+export type DominoTileDto = {
+  id: string
+  left: number
+  right: number
+  isDouble: boolean
+  pipTotal: number
+}
+
+export type BoardStateDto = {
+  placements: unknown[]
+  openEnds: {
+    left: number | null
+    right: number | null
+  }
+}
+
 export type GameStatus =
   | 'setup'
   | 'active'
@@ -8,9 +24,15 @@ export type GameStatus =
   | 'cancelled'
 
 export type GameRoomPlayer = {
-  seatNumber: number
   playerId: string | null
-  isReady: boolean
+  seatNumber: number
+  turnOrder: number
+  score: number
+  roundScore: number
+  hasPassed: boolean
+  isConnected: boolean
+  lastSeenAt: string
+  handCount: number
   username: string | null
   displayName: string | null
   avatarUrl: string | null
@@ -23,7 +45,8 @@ export type GameRoomInfo = {
   gameMode: GameMode
   status: GameStatus
   currentRoundNumber: number
-  boardState: Record<string, unknown>
+  currentTurnPlayerId: string | null
+  boardState: BoardStateDto
   createdAt: string
   startedAt: string | null
 }
@@ -31,4 +54,15 @@ export type GameRoomInfo = {
 export type GameRoom = {
   game: GameRoomInfo
   players: GameRoomPlayer[]
+  currentUser: {
+    playerId: string
+    seatNumber: number
+    turnOrder: number
+  } | null
+}
+
+export type MyHand = {
+  gameId: string
+  playerId: string
+  tiles: DominoTileDto[]
 }

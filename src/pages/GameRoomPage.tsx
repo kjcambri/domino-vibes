@@ -1,8 +1,12 @@
 import { useParams } from 'react-router-dom'
 import { Card } from '../components/common/Card'
+import { BoardStatePreview } from '../components/game/BoardStatePreview'
+import { CurrentTurnBanner } from '../components/game/CurrentTurnBanner'
 import { GamePlaceholderBoard } from '../components/game/GamePlaceholderBoard'
 import { GamePlayerList } from '../components/game/GamePlayerList'
 import { GameRoomHeader } from '../components/game/GameRoomHeader'
+import { MyHandPreview } from '../components/game/MyHandPreview'
+import { OpponentHandCounts } from '../components/game/OpponentHandCounts'
 import { MobileShell } from '../components/layout/MobileShell'
 import { useGameRealtime } from '../features/games/useGameRealtime'
 import { useGameRoom } from '../features/games/useGameRoom'
@@ -28,7 +32,7 @@ export function GameRoomPage() {
     )
   }
 
-  if (gameRoom.isError || !gameRoom.data) {
+  if (gameRoom.isError || !gameRoom.gameRoom) {
     return (
       <MobileShell>
         <div className="grid flex-1 place-items-center">
@@ -48,9 +52,19 @@ export function GameRoomPage() {
   return (
     <MobileShell>
       <div className="flex flex-1 flex-col gap-5 py-4">
-        <GameRoomHeader game={gameRoom.data.game} />
+        <GameRoomHeader game={gameRoom.gameRoom.game} />
+        <CurrentTurnBanner
+          currentTurnPlayerId={gameRoom.gameRoom.game.currentTurnPlayerId}
+          players={gameRoom.gameRoom.players}
+        />
         <GamePlaceholderBoard />
-        <GamePlayerList players={gameRoom.data.players} />
+        <BoardStatePreview boardState={gameRoom.gameRoom.game.boardState} />
+        <MyHandPreview hand={gameRoom.myHand} />
+        <OpponentHandCounts
+          currentPlayerId={gameRoom.myHand?.playerId}
+          players={gameRoom.gameRoom.players}
+        />
+        <GamePlayerList players={gameRoom.gameRoom.players} />
       </div>
     </MobileShell>
   )

@@ -20,6 +20,9 @@ export function GamePlayerList({ players }: { players: GameRoomPlayer[] }) {
             <p className="mt-1 font-black text-cream-50">
               {player.displayName || player.username || 'Open seat'}
             </p>
+            <p className="mt-1 text-sm text-cream-100/65">
+              {player.handCount} tiles · Score {player.score}
+            </p>
           </div>
         </Card>
       ))}
