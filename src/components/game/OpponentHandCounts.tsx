@@ -50,7 +50,7 @@ export function OpponentHandCounts({
                 {player.handCount} tiles
               </span>
               <span className="rounded-full bg-gold-300/15 px-3 py-1 text-xs font-bold text-gold-100">
-                Score {player.score}
+                {player.score} points
               </span>
               {player.hasPassed ? (
                 <span className="rounded-full bg-red-800/25 px-3 py-1 text-xs font-bold text-red-100">

@@ -134,6 +134,14 @@ export function getFriendlyAuthError(error: unknown) {
     return 'The next round can only start after this round is complete.'
   }
 
+  if (message.includes('game_finished')) {
+    return 'This game is already finished.'
+  }
+
+  if (message.includes('game_not_finished')) {
+    return 'Return to the lobby after the game is finished.'
+  }
+
   if (message.includes('table_not_in_game')) {
     return 'This table is not in an active game right now.'
   }
@@ -148,6 +156,14 @@ export function getFriendlyAuthError(error: unknown) {
 
   if (message.includes('hand_reset_failed')) {
     return 'Fresh hands could not be dealt. Try starting the next round again.'
+  }
+
+  if (message.includes('leave_finished_game_failed')) {
+    return 'Could not release your seat. Try again.'
+  }
+
+  if (message.includes('round_winner_not_found')) {
+    return 'The round winner could not be saved. Try refreshing the game.'
   }
 
   if (

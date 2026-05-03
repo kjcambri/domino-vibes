@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { Card } from '../components/common/Card'
 import { BoardStatePreview } from '../components/game/BoardStatePreview'
 import { CurrentTurnBanner } from '../components/game/CurrentTurnBanner'
@@ -18,6 +18,7 @@ import { getFriendlyAuthError } from '../lib/errors'
 
 export function GameRoomPage() {
   const { gameId } = useParams()
+  const navigate = useNavigate()
   const [selectedTileId, setSelectedTileId] = useState<string | null>(null)
   const gameRoom = useGameRoom(gameId)
   useGameRealtime(gameId)
@@ -66,6 +67,7 @@ export function GameRoomPage() {
     Boolean(gameRoom.myHand) && !canHandPlay(gameRoom.myHand!.tiles, game.boardState)
   const actionError = gameRoom.playTile.error ?? gameRoom.passTurn.error
   const nextRoundError = gameRoom.startNextRound.error
+  const leaveFinishedGameError = gameRoom.leaveFinishedGame.error
   const selectedTile =
     gameRoom.myHand?.tiles.find((tile) => tile.id === selectedTileId) ?? null
   const selectedLegalSides = selectedTile
@@ -102,6 +104,16 @@ export function GameRoomPage() {
       .catch(() => undefined)
   }
 
+  const handleReturnToLobby = () => {
+    void gameRoom.leaveFinishedGame
+      .mutateAsync()
+      .then(() => {
+        setSelectedTileId(null)
+        void navigate('/lobby')
+      })
+      .catch(() => undefined)
+  }
+
   return (
     <MobileShell>
       <div className="flex flex-1 flex-col gap-4 py-4">
@@ -121,10 +133,17 @@ export function GameRoomPage() {
         <RoundFinishedPanel
           currentUserPlayerId={currentUserPlayerId}
           game={game}
+          isLeavingFinishedGame={gameRoom.leaveFinishedGame.isPending}
           isStartingNextRound={gameRoom.startNextRound.isPending}
+          leaveFinishedGameErrorMessage={
+            leaveFinishedGameError
+              ? getFriendlyAuthError(leaveFinishedGameError)
+              : null
+          }
           nextRoundErrorMessage={
             nextRoundError ? getFriendlyAuthError(nextRoundError) : null
           }
+          onReturnToLobby={handleReturnToLobby}
           onStartNextRound={handleStartNextRound}
           players={gameRoom.gameRoom.players}
         />
@@ -140,6 +159,7 @@ export function GameRoomPage() {
           onPass={handlePass}
           openEnds={game.boardState.openEnds}
           selectedTileId={activeSelectedTileId}
+          status={game.status}
         />
         <MyHandPreview
           boardState={game.boardState}

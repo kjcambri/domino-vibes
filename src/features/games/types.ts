@@ -11,6 +11,11 @@ export type DominoTileDto = {
 export type BoardSide = 'start' | 'left' | 'right'
 export type BoardDirection = 'right' | 'left' | 'up' | 'down'
 export type DominoOrientation = 'horizontal' | 'vertical'
+export type RoundEndedReason = 'player_went_out' | 'blocked'
+export type GameEndedReason =
+  | 'player_reached_6'
+  | 'all_players_scored'
+  | 'cancelled'
 
 export type BoardVisualEndpointDto = {
   x: number
@@ -61,7 +66,7 @@ export type BoardStateDto = {
     }
   }
   roundWinnerPlayerId?: string | null
-  endedReason?: 'player_went_out' | 'blocked' | null
+  endedReason?: RoundEndedReason | null
 }
 
 export type GameStatus =
@@ -98,9 +103,12 @@ export type GameRoomInfo = {
   moveCount: number
   lastMove: GameMove | null
   roundWinnerPlayerId: string | null
-  endedReason: 'player_went_out' | 'blocked' | null
+  roundEndedReason: RoundEndedReason | null
+  winnerPlayerId: string | null
+  endedReason: GameEndedReason | null
   createdAt: string
   startedAt: string | null
+  finishedAt: string | null
 }
 
 export type GameRoom = {
@@ -124,6 +132,13 @@ export type StartNextRoundResult = {
   roundNumber: number
   status: 'active'
   currentTurnPlayerId: string
+}
+
+export type LeaveFinishedGameResult = {
+  gameId: string
+  tableId: string
+  tableReset: boolean
+  remainingSeatedCount: number
 }
 
 export type GameMove = {

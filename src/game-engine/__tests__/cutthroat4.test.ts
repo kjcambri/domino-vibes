@@ -149,10 +149,10 @@ describe('cutthroat_4 engine', () => {
     const finished = playTile(state(), 'p1', '6-6', 'start').state
 
     expect(calculateRoundScores(finished)).toEqual({
-      p1: 0,
-      p2: 1,
-      p3: 5,
-      p4: 9,
+      p1: 1,
+      p2: 0,
+      p3: 0,
+      p4: 0,
     })
   })
 
@@ -172,10 +172,10 @@ describe('cutthroat_4 engine', () => {
 
     expect(finished.roundWinnerPlayerId).toBe('p2')
     expect(calculateRoundScores(finished)).toEqual({
-      p1: 2,
-      p2: 0,
-      p3: 3,
-      p4: 6,
+      p1: 0,
+      p2: 1,
+      p3: 0,
+      p4: 0,
     })
   })
 

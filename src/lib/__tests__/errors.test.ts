@@ -19,4 +19,16 @@ describe('getFriendlyAuthError', () => {
       'Start Next Round is not installed in Supabase yet. Apply the latest migration.',
     )
   })
+
+  it('explains when the next round is blocked because the game has ended', () => {
+    expect(getFriendlyAuthError(new Error('game_finished'))).toBe(
+      'This game is already finished.',
+    )
+  })
+
+  it('explains when a finished-game lobby return is attempted before the game ends', () => {
+    expect(getFriendlyAuthError(new Error('game_not_finished'))).toBe(
+      'Return to the lobby after the game is finished.',
+    )
+  })
 })

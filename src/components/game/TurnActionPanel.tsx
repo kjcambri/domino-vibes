@@ -1,6 +1,6 @@
 import { Card } from '../common/Card'
 import { Button } from '../common/Button'
-import { type BoardSide } from '../../features/games/types'
+import { type BoardSide, type GameStatus } from '../../features/games/types'
 
 export function TurnActionPanel({
   canPass,
@@ -11,6 +11,7 @@ export function TurnActionPanel({
   selectedTileId,
   openEnds,
   errorMessage,
+  status,
   onPlaySide,
   onPass,
 }: {
@@ -25,16 +26,22 @@ export function TurnActionPanel({
     right: number | null
   }
   errorMessage?: string | null
+  status: GameStatus
   onPlaySide: (side: BoardSide) => void
   onPass: () => void
 }) {
   if (!isRoundActive) {
+    const isFinished = status === 'finished'
+
     return (
       <Card className="border-gold-300/25 bg-gold-300/10">
-        <p className="text-sm font-black text-cream-50">Round complete</p>
+        <p className="text-sm font-black text-cream-50">
+          {isFinished ? 'Game over' : 'Round complete'}
+        </p>
         <p className="mt-2 text-sm leading-6 text-cream-100/72">
-          Scores are saved for this round. Next-round flow is reserved for a
-          later sprint.
+          {isFinished
+            ? 'Final points are saved. Tile play is closed for this game.'
+            : 'Round-win points are saved. Start the next round when the table is ready.'}
         </p>
       </Card>
     )

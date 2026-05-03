@@ -3,6 +3,7 @@ import {
   type BoardSide,
   type DominoTileDto,
   type GameRoom,
+  type LeaveFinishedGameResult,
   type MyHand,
   type StartNextRoundResult,
 } from './types'
@@ -18,6 +19,13 @@ type StartNextRoundRow = {
   round_number: number
   status: 'active'
   current_turn_player_id: string
+}
+
+type LeaveFinishedGameRow = {
+  game_id: string
+  table_id: string
+  table_reset: boolean
+  remaining_seated_count: number
 }
 
 export async function getGameRoom(gameId: string): Promise<GameRoom> {
@@ -114,5 +122,34 @@ export async function startNextRound(
     roundNumber: result.round_number,
     status: result.status,
     currentTurnPlayerId: result.current_turn_player_id,
+  }
+}
+
+export async function leaveFinishedGame(
+  gameId: string,
+): Promise<LeaveFinishedGameResult> {
+  const { data, error } = await supabase.rpc('leave_finished_game', {
+    p_game_id: gameId,
+  })
+
+  if (error) {
+    if (import.meta.env.DEV) {
+      console.error('[Domino Vibes] leave_finished_game failed', error)
+    }
+
+    throw error
+  }
+
+  const result = (data as LeaveFinishedGameRow[])[0]
+
+  if (!result) {
+    throw new Error('leave_finished_game_failed')
+  }
+
+  return {
+    gameId: result.game_id,
+    tableId: result.table_id,
+    tableReset: result.table_reset,
+    remainingSeatedCount: result.remaining_seated_count,
   }
 }

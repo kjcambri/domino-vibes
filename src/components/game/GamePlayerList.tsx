@@ -38,8 +38,7 @@ export function GamePlayerList({
               {player.displayName || player.username || 'Open seat'}
             </p>
             <p className="mt-1 text-sm text-cream-100/65">
-              {player.handCount} tiles · Score {player.score} · Round{' '}
-              {player.roundScore}
+              {player.handCount} tiles · {player.score} points · This round +{player.roundScore}
             </p>
           </div>
           {player.hasPassed ? (

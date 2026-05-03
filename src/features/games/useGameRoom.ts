@@ -1,10 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   getGameRoom,
+  leaveFinishedGame as leaveFinishedGameAction,
   passTurn as passTurnAction,
   playTile as playTileAction,
   startNextRound as startNextRoundAction,
 } from './gameService'
+import { lobbyTablesQueryKey } from '../lobby/useLobbyTables'
+import { myCurrentTableQueryKey } from '../tables/useMyCurrentTable'
 import {
   gameRoomKeys,
   getGameRoomPollInterval,
@@ -60,6 +63,20 @@ export function useGameRoom(gameId?: string) {
     mutationFn: () => startNextRoundAction(gameId!),
     onSuccess: invalidateGame,
   })
+  const leaveFinishedGame = useMutation({
+    mutationFn: () => leaveFinishedGameAction(gameId!),
+    onSuccess: async () => {
+      if (gameId) {
+        queryClient.removeQueries({ queryKey: gameRoomKeys.detail(gameId) })
+        queryClient.removeQueries({ queryKey: gameRoomKeys.myHand(gameId) })
+      }
+
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: lobbyTablesQueryKey }),
+        queryClient.invalidateQueries({ queryKey: myCurrentTableQueryKey }),
+      ])
+    },
+  })
 
   return {
     gameRoom: gameRoomQuery.data ?? null,
@@ -71,12 +88,17 @@ export function useGameRoom(gameId?: string) {
       myHandQuery.error ??
       playTile.error ??
       passTurn.error ??
-      startNextRound.error,
+      startNextRound.error ??
+      leaveFinishedGame.error,
     playTile,
     passTurn,
     startNextRound,
+    leaveFinishedGame,
     isActionPending:
-      playTile.isPending || passTurn.isPending || startNextRound.isPending,
+      playTile.isPending ||
+      passTurn.isPending ||
+      startNextRound.isPending ||
+      leaveFinishedGame.isPending,
     refetch: async () => {
       await Promise.all([gameRoomQuery.refetch(), myHandQuery.refetch()])
     },

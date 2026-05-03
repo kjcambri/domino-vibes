@@ -11,7 +11,7 @@ export function buildScores(
   return Object.fromEntries(
     players.map((player) => [
       player.playerId,
-      player.playerId === winnerPlayerId ? 0 : calculateHandPips(player.hand),
+      player.playerId === winnerPlayerId ? 1 : 0,
     ]),
   )
 }
