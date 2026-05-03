@@ -14,6 +14,7 @@ set
   player_id = null,
   is_ready = false,
   joined_at = null,
+  last_seen_at = null,
   updated_at = now();
 
 update public.game_tables
@@ -52,6 +53,7 @@ commit;
 --   player_id = null,
 --   is_ready = false,
 --   joined_at = null,
+--   last_seen_at = null,
 --   updated_at = now()
 -- where table_id = '00000000-0000-0000-0000-000000000000';
 --

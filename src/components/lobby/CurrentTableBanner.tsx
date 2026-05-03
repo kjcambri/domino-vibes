@@ -19,13 +19,14 @@ export function CurrentTableBanner({
   onLeave,
 }: CurrentTableBannerProps) {
   const canLeave = currentTable.status === 'waiting' || currentTable.status === 'full'
+  const isActiveGame = currentTable.status === 'in_game'
 
   return (
     <Card className="border-gold-300/30 bg-gold-300/12">
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-gold-200">
-            You are currently seated
+            {isActiveGame ? 'You are in an active game' : 'You are currently seated'}
           </p>
           <h2 className="mt-2 text-2xl font-black leading-tight text-cream-50">
             {currentTable.tableName}
@@ -43,7 +44,7 @@ export function CurrentTableBanner({
       <div className="mt-5 grid gap-3">
         <Button className="w-full gap-2" onClick={onRejoin}>
           <ArrowRight aria-hidden="true" size={18} />
-          {currentTable.status === 'in_game' ? 'Rejoin Game' : 'Rejoin Table'}
+          {isActiveGame ? 'Rejoin Game' : 'Rejoin Table'}
         </Button>
         {canLeave ? (
           <Button
@@ -57,7 +58,8 @@ export function CurrentTableBanner({
           </Button>
         ) : (
           <p className="rounded-md border border-cream-100/10 bg-green-950/35 px-4 py-3 text-sm leading-6 text-cream-100/72">
-            This table is in game, so leave is unavailable here. Rejoin to continue.
+            This table is in game, so leave is unavailable here. Rejoin to
+            continue.
           </p>
         )}
       </div>

@@ -31,4 +31,10 @@ describe('getFriendlyAuthError', () => {
       'Return to the lobby after the game is finished.',
     )
   })
+
+  it('explains when the active game rejoin flow cannot locate the game', () => {
+    expect(getFriendlyAuthError(new Error('failed_to_rejoin_game'))).toBe(
+      'Could not rejoin that game. Try returning from the lobby again.',
+    )
+  })
 })

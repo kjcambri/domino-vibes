@@ -1,6 +1,7 @@
 import { Armchair, UserRound } from 'lucide-react'
 import { Button } from '../common/Button'
 import { Card } from '../common/Card'
+import { getPlayerPresence } from '../../features/games/presence'
 import { type TableSeat } from '../../features/tables/types'
 import { cn } from '../../lib/cn'
 
@@ -21,6 +22,10 @@ export function SeatCard({
 }: SeatCardProps) {
   const isOccupied = Boolean(seat.playerId)
   const playerName = seat.player?.displayName || seat.player?.username
+  const presence = getPlayerPresence({
+    isConnected: isOccupied,
+    lastSeenAt: seat.lastSeenAt,
+  })
 
   return (
     <Card
@@ -62,6 +67,11 @@ export function SeatCard({
               : 'Not ready yet'
             : 'Waiting for a player'}
         </p>
+        {isOccupied ? (
+          <p className="mt-2 text-xs font-semibold text-cream-100/52">
+            {presence.label} · {presence.description}
+          </p>
+        ) : null}
       </div>
 
       {!isOccupied && canSit ? (

@@ -162,6 +162,14 @@ export function getFriendlyAuthError(error: unknown) {
     return 'Could not release your seat. Try again.'
   }
 
+  if (message.includes('failed_to_rejoin_game')) {
+    return 'Could not rejoin that game. Try returning from the lobby again.'
+  }
+
+  if (message.includes('presence_update_failed')) {
+    return 'Could not update player presence.'
+  }
+
   if (message.includes('round_winner_not_found')) {
     return 'The round winner could not be saved. Try refreshing the game.'
   }

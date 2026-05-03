@@ -3,6 +3,7 @@ import {
   type CurrentTable,
   type SeatActionResult,
   type StartGameResult,
+  type TablePresenceHeartbeatResult,
   type TableRoom,
 } from './types'
 
@@ -26,6 +27,12 @@ type StartGameRow = {
   table_id: string
   status: StartGameResult['status']
   current_turn_player_id: string
+}
+
+type TablePresenceHeartbeatRow = {
+  table_id: string
+  player_id: string
+  last_seen_at: string
 }
 
 function toCurrentTable(row: CurrentTableRow): CurrentTable {
@@ -139,5 +146,33 @@ export async function startGame(tableId: string): Promise<StartGameResult> {
     tableId: result.table_id,
     status: result.status,
     currentTurnPlayerId: result.current_turn_player_id,
+  }
+}
+
+export async function heartbeatTablePresence(
+  tableId: string,
+): Promise<TablePresenceHeartbeatResult> {
+  const { data, error } = await supabase.rpc('heartbeat_table_presence', {
+    p_table_id: tableId,
+  })
+
+  if (error) {
+    if (import.meta.env.DEV) {
+      console.debug('[Domino Vibes presence] heartbeat_table_presence failed', error)
+    }
+
+    throw error
+  }
+
+  const result = (data as TablePresenceHeartbeatRow[])[0]
+
+  if (!result) {
+    throw new Error('presence_update_failed')
+  }
+
+  return {
+    tableId: result.table_id,
+    playerId: result.player_id,
+    lastSeenAt: result.last_seen_at,
   }
 }

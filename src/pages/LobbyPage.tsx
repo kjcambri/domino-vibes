@@ -51,10 +51,29 @@ export function LobbyPage() {
       return
     }
 
+    if (currentTable.status === 'in_game') {
+      setTableError(getFriendlyAuthError(new Error('failed_to_rejoin_game')))
+      return
+    }
+
     navigate(`/tables/${currentTable.tableId}`)
   }
 
   function handleRejoinTable(tableId: string) {
+    if (
+      currentTable?.tableId === tableId &&
+      currentTable.status === 'in_game' &&
+      currentTable.currentGameId
+    ) {
+      navigate(`/games/${currentTable.currentGameId}`)
+      return
+    }
+
+    if (currentTable?.tableId === tableId && currentTable.status === 'in_game') {
+      setTableError(getFriendlyAuthError(new Error('failed_to_rejoin_game')))
+      return
+    }
+
     navigate(`/tables/${tableId}`)
   }
 

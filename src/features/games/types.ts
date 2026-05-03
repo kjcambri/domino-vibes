@@ -141,6 +141,16 @@ export type LeaveFinishedGameResult = {
   remainingSeatedCount: number
 }
 
+export type GamePresenceHeartbeatResult = {
+  gameId: string
+  playerId: string
+  lastSeenAt: string
+}
+
+export type MarkStalePlayersResult = {
+  staleCount: number
+}
+
 export type GameMove = {
   id: string
   gameId: string

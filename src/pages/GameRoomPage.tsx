@@ -12,6 +12,7 @@ import { TurnActionPanel } from '../components/game/TurnActionPanel'
 import { MobileShell } from '../components/layout/MobileShell'
 import { canHandPlay, getLegalSides } from '../features/games/gameplayRules'
 import { type BoardSide } from '../features/games/types'
+import { useGamePresence } from '../features/games/useGamePresence'
 import { useGameRealtime } from '../features/games/useGameRealtime'
 import { useGameRoom } from '../features/games/useGameRoom'
 import { getFriendlyAuthError } from '../lib/errors'
@@ -22,6 +23,7 @@ export function GameRoomPage() {
   const [selectedTileId, setSelectedTileId] = useState<string | null>(null)
   const gameRoom = useGameRoom(gameId)
   useGameRealtime(gameId)
+  useGamePresence(gameId, Boolean(gameRoom.gameRoom?.currentUser))
 
   if (gameRoom.isLoading) {
     return (
@@ -130,6 +132,12 @@ export function GameRoomPage() {
           currentTurnPlayerId={game.currentTurnPlayerId}
           players={gameRoom.gameRoom.players}
         />
+        <Card className="border-cream-100/10 bg-green-950/42">
+          <p className="text-sm leading-6 text-cream-100/72">
+            Disconnected-player handling arrives later. For now, players can
+            return and continue from this game room.
+          </p>
+        </Card>
         <RoundFinishedPanel
           currentUserPlayerId={currentUserPlayerId}
           game={game}

@@ -17,6 +17,7 @@ import {
   useTableRoom,
   useToggleReady,
 } from '../features/tables/useTableRoom'
+import { useTablePresence } from '../features/tables/useTablePresence'
 import { getFriendlyAuthError } from '../lib/errors'
 
 export function TableRoomPage() {
@@ -63,6 +64,14 @@ export function TableRoomPage() {
     room!.table.status !== 'in_game' &&
     room!.table.status !== 'finished' &&
     room!.table.status !== 'closed'
+  useTablePresence(
+    tableId,
+    Boolean(
+      room &&
+        isCurrentUserSeated &&
+        (room.table.status === 'waiting' || room.table.status === 'full'),
+    ),
+  )
 
   useEffect(() => {
     if (room?.table.status === 'in_game' && room.table.currentGameId) {

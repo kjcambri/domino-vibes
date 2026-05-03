@@ -13,6 +13,7 @@ export type TableSeat = {
   playerId: string | null
   isReady: boolean
   joinedAt: string | null
+  lastSeenAt: string | null
   updatedAt: string
   player: SeatPlayer | null
 }
@@ -61,4 +62,10 @@ export type StartGameResult = {
   tableId: string
   status: 'setup' | 'active' | 'round_finished' | 'finished' | 'cancelled'
   currentTurnPlayerId: string
+}
+
+export type TablePresenceHeartbeatResult = {
+  tableId: string
+  playerId: string
+  lastSeenAt: string
 }

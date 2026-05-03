@@ -3,7 +3,9 @@ import {
   type BoardSide,
   type DominoTileDto,
   type GameRoom,
+  type GamePresenceHeartbeatResult,
   type LeaveFinishedGameResult,
+  type MarkStalePlayersResult,
   type MyHand,
   type StartNextRoundResult,
 } from './types'
@@ -26,6 +28,16 @@ type LeaveFinishedGameRow = {
   table_id: string
   table_reset: boolean
   remaining_seated_count: number
+}
+
+type GamePresenceHeartbeatRow = {
+  game_id: string
+  player_id: string
+  last_seen_at: string
+}
+
+type MarkStalePlayersRow = {
+  stale_count: number
 }
 
 export async function getGameRoom(gameId: string): Promise<GameRoom> {
@@ -151,5 +163,55 @@ export async function leaveFinishedGame(
     tableId: result.table_id,
     tableReset: result.table_reset,
     remainingSeatedCount: result.remaining_seated_count,
+  }
+}
+
+export async function heartbeatGamePresence(
+  gameId: string,
+): Promise<GamePresenceHeartbeatResult> {
+  const { data, error } = await supabase.rpc('heartbeat_game_presence', {
+    p_game_id: gameId,
+  })
+
+  if (error) {
+    if (import.meta.env.DEV) {
+      console.debug('[Domino Vibes presence] heartbeat_game_presence failed', error)
+    }
+
+    throw error
+  }
+
+  const result = (data as GamePresenceHeartbeatRow[])[0]
+
+  if (!result) {
+    throw new Error('presence_update_failed')
+  }
+
+  return {
+    gameId: result.game_id,
+    playerId: result.player_id,
+    lastSeenAt: result.last_seen_at,
+  }
+}
+
+export async function markStalePlayers(
+  gameId: string,
+): Promise<MarkStalePlayersResult> {
+  const { data, error } = await supabase.rpc('mark_stale_players', {
+    p_game_id: gameId,
+  })
+
+  if (error) {
+    if (import.meta.env.DEV) {
+      console.debug('[Domino Vibes presence] mark_stale_players failed', error)
+    }
+
+    throw error
+  }
+
+  const result = (data as MarkStalePlayersRow[])[0]
+
+  return {
+    staleCount: result?.stale_count ?? 0,
   }
 }

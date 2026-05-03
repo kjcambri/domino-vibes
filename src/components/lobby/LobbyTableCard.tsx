@@ -23,7 +23,12 @@ export function LobbyTableCard({
   onRejoin,
 }: LobbyTableCardProps) {
   const canJoin = table.status === 'waiting' && !hasOtherCurrentTable
-  const buttonLabel = isCurrentTable ? 'Rejoin Table' : getButtonLabel(table.status)
+  const isCurrentActiveGame = isCurrentTable && table.status === 'in_game'
+  const buttonLabel = isCurrentActiveGame
+    ? 'Rejoin Game'
+    : isCurrentTable
+      ? 'Rejoin Table'
+      : getButtonLabel(table.status)
 
   return (
     <Card className="grid gap-4">
@@ -46,7 +51,9 @@ export function LobbyTableCard({
 
       {isCurrentTable ? (
         <p className="rounded-md border border-gold-300/25 bg-gold-300/12 px-4 py-3 text-sm font-bold text-gold-100">
-          You are seated here.
+          {isCurrentActiveGame
+            ? 'You are in this active game.'
+            : 'You are seated here.'}
         </p>
       ) : null}
 
