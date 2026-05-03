@@ -1,11 +1,7 @@
 import { Card } from '../common/Card'
-import { Button } from '../common/Button'
+import { DominoImageTile } from './DominoImageTile'
 import { getLegalSides } from '../../features/games/gameplayRules'
-import {
-  type BoardSide,
-  type BoardStateDto,
-  type MyHand,
-} from '../../features/games/types'
+import { type BoardStateDto, type MyHand } from '../../features/games/types'
 
 export function MyHandPreview({
   hand,
@@ -13,56 +9,59 @@ export function MyHandPreview({
   isMyTurn,
   isRoundActive,
   isActionPending,
-  onPlayTile,
+  selectedTileId,
+  onSelectTile,
 }: {
   hand: MyHand | null
   boardState: BoardStateDto
   isMyTurn: boolean
   isRoundActive: boolean
   isActionPending: boolean
-  onPlayTile: (tileId: string, side: BoardSide) => void
+  selectedTileId: string | null
+  onSelectTile: (tileId: string) => void
 }) {
+  const canSelect = isRoundActive && isMyTurn && !isActionPending
+
   return (
-    <Card>
-      <p className="text-xs font-bold uppercase tracking-[0.18em] text-gold-200">
-        Your Hand
-      </p>
-      <div className="mt-4 grid gap-3">
+    <Card className="border-gold-300/18 bg-gradient-to-b from-wood-900/85 via-green-950/95 to-wood-900/90 p-4 shadow-wood">
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-gold-200">
+            Your Hand
+          </p>
+          <p className="mt-1 text-sm text-cream-100/65">
+            {hand?.tiles.length ?? 0} private tiles
+          </p>
+        </div>
+        {isMyTurn && isRoundActive ? (
+          <span className="rounded-full bg-gold-300 px-3 py-1 text-xs font-black uppercase tracking-[0.12em] text-green-950">
+            Your turn
+          </span>
+        ) : null}
+      </div>
+      <div className="-mx-2 mt-4 flex gap-3 overflow-x-auto px-2 pb-3 pt-2">
         {hand?.tiles.map((tile) => {
           const legalSides = getLegalSides(tile, boardState)
-          const canPlayTile =
-            isRoundActive && isMyTurn && legalSides.length > 0 && !isActionPending
+          const playable = canSelect && legalSides.length > 0
 
           return (
-          <div
-            className="rounded-md border border-cream-900/15 bg-cream-50 p-3 text-green-950 shadow-wood"
-            key={tile.id}
-          >
-            <div className="flex min-h-10 items-center justify-center text-lg font-black">
-              {tile.id}
-            </div>
-            {isRoundActive && isMyTurn ? (
-              <div className="mt-3 grid grid-cols-3 gap-2">
-                {(['start', 'left', 'right'] as BoardSide[]).map((side) => (
-                  <Button
-                    className="min-h-10 px-2 text-[0.68rem]"
-                    disabled={!canPlayTile || !legalSides.includes(side)}
-                    key={side}
-                    onClick={() => onPlayTile(tile.id, side)}
-                    variant={legalSides.includes(side) ? 'primary' : 'ghost'}
-                  >
-                    {side}
-                  </Button>
-                ))}
-              </div>
-            ) : null}
-          </div>
+            <DominoImageTile
+              ariaLabel={`Select domino ${tile.id}`}
+              className={selectedTileId === tile.id ? '-translate-y-2' : ''}
+              disabled={!canSelect}
+              key={tile.id}
+              onClick={() => onSelectTile(tile.id)}
+              playable={playable}
+              selected={selectedTileId === tile.id}
+              size="large"
+              tileId={tile.id}
+            />
           )
         })}
       </div>
       <p className="mt-4 text-sm leading-6 text-cream-100/72">
-        {isMyTurn
-          ? 'Choose a legal side to play. The server validates every move.'
+        {isMyTurn && isRoundActive
+          ? 'Select a domino, then choose where to play it. The server validates every move.'
           : 'Secure hands stay private while you wait for your turn.'}
       </p>
     </Card>

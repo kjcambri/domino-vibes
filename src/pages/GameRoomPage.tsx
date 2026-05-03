@@ -1,15 +1,16 @@
+import { useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { Card } from '../components/common/Card'
 import { BoardStatePreview } from '../components/game/BoardStatePreview'
 import { CurrentTurnBanner } from '../components/game/CurrentTurnBanner'
-import { GamePlaceholderBoard } from '../components/game/GamePlaceholderBoard'
 import { GamePlayerList } from '../components/game/GamePlayerList'
 import { GameRoomHeader } from '../components/game/GameRoomHeader'
 import { MyHandPreview } from '../components/game/MyHandPreview'
 import { OpponentHandCounts } from '../components/game/OpponentHandCounts'
+import { RoundFinishedPanel } from '../components/game/RoundFinishedPanel'
 import { TurnActionPanel } from '../components/game/TurnActionPanel'
 import { MobileShell } from '../components/layout/MobileShell'
-import { canHandPlay } from '../features/games/gameplayRules'
+import { canHandPlay, getLegalSides } from '../features/games/gameplayRules'
 import { type BoardSide } from '../features/games/types'
 import { useGameRealtime } from '../features/games/useGameRealtime'
 import { useGameRoom } from '../features/games/useGameRoom'
@@ -17,6 +18,7 @@ import { getFriendlyAuthError } from '../lib/errors'
 
 export function GameRoomPage() {
   const { gameId } = useParams()
+  const [selectedTileId, setSelectedTileId] = useState<string | null>(null)
   const gameRoom = useGameRoom(gameId)
   useGameRealtime(gameId)
 
@@ -27,7 +29,7 @@ export function GameRoomPage() {
           <Card>
             <p className="text-sm font-bold text-cream-50">Loading game...</p>
             <p className="mt-2 text-sm leading-6 text-cream-100/70">
-              Checking the placeholder game setup.
+              Pulling the table, secure hand, and latest board state.
             </p>
           </Card>
         </div>
@@ -46,6 +48,10 @@ export function GameRoomPage() {
             <p className="mt-2 text-sm leading-6 text-red-100/80">
               {getFriendlyAuthError(gameRoom.error)}
             </p>
+            <p className="mt-2 text-sm leading-6 text-red-100/65">
+              You may need to rejoin from the lobby if you are not seated in
+              this game.
+            </p>
           </Card>
         </div>
       </MobileShell>
@@ -59,18 +65,38 @@ export function GameRoomPage() {
   const canPass =
     Boolean(gameRoom.myHand) && !canHandPlay(gameRoom.myHand!.tiles, game.boardState)
   const actionError = gameRoom.playTile.error ?? gameRoom.passTurn.error
+  const selectedTile =
+    gameRoom.myHand?.tiles.find((tile) => tile.id === selectedTileId) ?? null
+  const selectedLegalSides = selectedTile
+    ? getLegalSides(selectedTile, game.boardState)
+    : []
+  const activeSelectedTileId = selectedTile ? selectedTileId : null
 
   const handlePlayTile = (tileId: string, side: BoardSide) => {
-    void gameRoom.playTile.mutateAsync({ tileId, side }).catch(() => undefined)
+    void gameRoom.playTile
+      .mutateAsync({ tileId, side })
+      .then(() => setSelectedTileId(null))
+      .catch(() => undefined)
+  }
+
+  const handlePlaySelectedSide = (side: BoardSide) => {
+    if (!activeSelectedTileId) {
+      return
+    }
+
+    handlePlayTile(activeSelectedTileId, side)
   }
 
   const handlePass = () => {
-    void gameRoom.passTurn.mutateAsync().catch(() => undefined)
+    void gameRoom.passTurn
+      .mutateAsync()
+      .then(() => setSelectedTileId(null))
+      .catch(() => undefined)
   }
 
   return (
     <MobileShell>
-      <div className="flex flex-1 flex-col gap-5 py-4">
+      <div className="flex flex-1 flex-col gap-4 py-4">
         <GameRoomHeader game={game} />
         <CurrentTurnBanner
           currentTurnPlayerId={game.currentTurnPlayerId}
@@ -79,33 +105,33 @@ export function GameRoomPage() {
           roundWinnerPlayerId={game.roundWinnerPlayerId}
           status={game.status}
         />
-        <GamePlaceholderBoard />
+        <OpponentHandCounts
+          currentPlayerId={gameRoom.myHand?.playerId}
+          currentTurnPlayerId={game.currentTurnPlayerId}
+          players={gameRoom.gameRoom.players}
+        />
+        <RoundFinishedPanel game={game} players={gameRoom.gameRoom.players} />
         <BoardStatePreview boardState={game.boardState} />
+        <TurnActionPanel
+          canPass={canPass}
+          errorMessage={actionError ? getFriendlyAuthError(actionError) : null}
+          isActionPending={gameRoom.isActionPending}
+          isMyTurn={isMyTurn}
+          isRoundActive={isRoundActive}
+          legalSides={selectedLegalSides}
+          onPlaySide={handlePlaySelectedSide}
+          onPass={handlePass}
+          openEnds={game.boardState.openEnds}
+          selectedTileId={activeSelectedTileId}
+        />
         <MyHandPreview
           boardState={game.boardState}
           hand={gameRoom.myHand}
           isActionPending={gameRoom.isActionPending}
           isMyTurn={isMyTurn}
           isRoundActive={isRoundActive}
-          onPlayTile={handlePlayTile}
-        />
-        <TurnActionPanel
-          canPass={canPass}
-          isActionPending={gameRoom.isActionPending}
-          isMyTurn={isMyTurn}
-          isRoundActive={isRoundActive}
-          onPass={handlePass}
-        />
-        {actionError ? (
-          <Card className="border-red-300/30 bg-red-800/20">
-            <p className="text-sm font-bold text-red-100">
-              {getFriendlyAuthError(actionError)}
-            </p>
-          </Card>
-        ) : null}
-        <OpponentHandCounts
-          currentPlayerId={gameRoom.myHand?.playerId}
-          players={gameRoom.gameRoom.players}
+          onSelectTile={setSelectedTileId}
+          selectedTileId={activeSelectedTileId}
         />
         <GamePlayerList
           currentTurnPlayerId={game.currentTurnPlayerId}

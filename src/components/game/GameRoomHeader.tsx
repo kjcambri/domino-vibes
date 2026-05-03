@@ -17,7 +17,7 @@ export function GameRoomHeader({ game }: { game: GameRoomInfo }) {
         <ArrowLeft aria-hidden="true" size={18} />
         Lobby
       </Link>
-      <div>
+      <div className="rounded-md border border-cream-100/10 bg-gradient-to-r from-wood-900/75 via-green-950/65 to-felt-700/35 p-4 shadow-wood">
         <GameModeLabel gameMode={game.gameMode} />
         <h1 className="mt-2 text-3xl font-black leading-tight text-cream-50">
           {game.tableName}

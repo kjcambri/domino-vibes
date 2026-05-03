@@ -19,12 +19,16 @@ dist-ssr
 
 # Supabase local state
 .supabase
+supabase/.temp/
 
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
 .idea
 .DS_Store
+__MACOSX
+._*
+public/assets/dominoes/originals-backup/
 *.suo
 *.ntvs*
 *.njsproj

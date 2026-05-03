@@ -21,25 +21,43 @@ export function CurrentTurnBanner({
     (player) => player.playerId === roundWinnerPlayerId,
   )
   const isMyTurn = currentTurnPlayerId === currentUserPlayerId
+  const currentName =
+    currentPlayer?.displayName || currentPlayer?.username || 'another player'
+  const winnerName = winner?.displayName || winner?.username || 'Round winner'
 
   return (
-    <Card className="border-gold-300/30 bg-gold-300/12">
-      <p className="text-xs font-bold uppercase tracking-[0.18em] text-gold-200">
-        {status === 'round_finished' ? 'Round finished' : 'Current turn'}
-      </p>
-      <p className="mt-2 text-xl font-black text-cream-50">
-        {status === 'round_finished'
-          ? winner?.displayName || winner?.username || 'Round scored'
-          : currentPlayer
-            ? currentPlayer.displayName || currentPlayer.username
-            : 'Waiting for first player'}
-      </p>
+    <Card
+      className={
+        isMyTurn && status === 'active'
+          ? 'border-gold-300/45 bg-gold-300/14 shadow-gold'
+          : 'border-cream-100/10 bg-green-950/65'
+      }
+    >
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-gold-200">
+            {status === 'round_finished' ? 'Round finished' : 'Current turn'}
+          </p>
+          <p className="mt-2 text-xl font-black text-cream-50">
+            {status === 'round_finished'
+              ? `${winnerName} won the round`
+              : isMyTurn
+                ? 'Your turn'
+                : `Waiting for ${currentName}`}
+          </p>
+        </div>
+        {isMyTurn && status === 'active' ? (
+          <span className="rounded-full bg-gold-300 px-3 py-1 text-xs font-black uppercase tracking-[0.12em] text-green-950">
+            Play
+          </span>
+        ) : null}
+      </div>
       <p className="mt-2 text-sm leading-6 text-cream-100/72">
         {status === 'round_finished'
-          ? 'Scores are updated for this round. Multi-round restart comes later.'
+          ? 'Scores are updated. Next round system arrives in a later sprint.'
           : isMyTurn
-            ? 'Your turn. Play a legal tile or pass only if you have no moves.'
-            : 'Waiting on the current player to play or pass.'}
+            ? 'Pick a tile from your tray, then choose a side.'
+            : 'The table will update as soon as the move lands.'}
       </p>
     </Card>
   )

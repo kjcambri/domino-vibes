@@ -9,6 +9,22 @@ export type DominoTileDto = {
 }
 
 export type BoardSide = 'start' | 'left' | 'right'
+export type BoardDirection = 'right' | 'left' | 'up' | 'down'
+export type DominoOrientation = 'horizontal' | 'vertical'
+
+export type BoardVisualEndpointDto = {
+  x: number
+  y: number
+  direction: BoardDirection
+  pip: number
+  side?: 'left' | 'right'
+  row: number
+  runCount: number
+  horizontalDirection?: 'left' | 'right'
+  horizontalRunCount?: number
+  verticalRunCount?: number
+  lastTurnDirection?: 'left' | 'right'
+}
 
 export type BoardPlacementDto = {
   tile: DominoTileDto
@@ -17,6 +33,15 @@ export type BoardPlacementDto = {
   leftValue: number
   rightValue: number
   turnNumber: number
+  x?: number
+  y?: number
+  rotation?: number
+  orientation?: DominoOrientation
+  direction?: BoardDirection
+  connectedPip?: number | null
+  exposedPip?: number | null
+  connectedTileSide?: 'left' | 'right' | null
+  isDouble?: boolean
 }
 
 export type BoardStateDto = {
@@ -24,6 +49,16 @@ export type BoardStateDto = {
   openEnds: {
     left: number | null
     right: number | null
+  }
+  visual?: {
+    leftEndpoint: BoardVisualEndpointDto | null
+    rightEndpoint: BoardVisualEndpointDto | null
+    bounds: {
+      minX: number
+      maxX: number
+      minY: number
+      maxY: number
+    }
   }
   roundWinnerPlayerId?: string | null
   endedReason?: 'player_went_out' | 'blocked' | null
