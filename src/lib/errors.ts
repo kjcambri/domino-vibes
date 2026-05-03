@@ -1,6 +1,26 @@
+function getErrorText(error: unknown) {
+  if (error instanceof Error) {
+    return error.message
+  }
+
+  if (typeof error === 'string') {
+    return error
+  }
+
+  if (error && typeof error === 'object') {
+    const errorRecord = error as Record<string, unknown>
+
+    return ['message', 'code', 'details', 'hint']
+      .map((key) => errorRecord[key])
+      .filter((value): value is string => typeof value === 'string')
+      .join(' ')
+  }
+
+  return String(error)
+}
+
 export function getFriendlyAuthError(error: unknown) {
-  const message =
-    error instanceof Error ? error.message.toLowerCase() : String(error)
+  const message = getErrorText(error).toLowerCase()
 
   if (message.includes('invalid login credentials')) {
     return 'That email and password do not match. Try again.'
@@ -108,6 +128,42 @@ export function getFriendlyAuthError(error: unknown) {
 
   if (message.includes('legal_move_available')) {
     return 'You have a legal tile to play, so you cannot pass.'
+  }
+
+  if (message.includes('round_not_finished')) {
+    return 'The next round can only start after this round is complete.'
+  }
+
+  if (message.includes('table_not_in_game')) {
+    return 'This table is not in an active game right now.'
+  }
+
+  if (message.includes('not_game_participant')) {
+    return 'Only players seated in this game can do that.'
+  }
+
+  if (message.includes('invalid_player_count')) {
+    return 'This round needs four players before it can continue.'
+  }
+
+  if (message.includes('hand_reset_failed')) {
+    return 'Fresh hands could not be dealt. Try starting the next round again.'
+  }
+
+  if (
+    message.includes('turn_selection_failed') ||
+    message.includes('next_round_failed')
+  ) {
+    return 'The next round could not be prepared. Try again.'
+  }
+
+  if (
+    message.includes('start_next_round') &&
+    (message.includes('schema cache') ||
+      message.includes('could not find the function') ||
+      message.includes('pgrst202'))
+  ) {
+    return 'Start Next Round is not installed in Supabase yet. Apply the latest migration.'
   }
 
   if (message.includes('invalid_seat')) {

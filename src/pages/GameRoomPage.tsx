@@ -65,6 +65,7 @@ export function GameRoomPage() {
   const canPass =
     Boolean(gameRoom.myHand) && !canHandPlay(gameRoom.myHand!.tiles, game.boardState)
   const actionError = gameRoom.playTile.error ?? gameRoom.passTurn.error
+  const nextRoundError = gameRoom.startNextRound.error
   const selectedTile =
     gameRoom.myHand?.tiles.find((tile) => tile.id === selectedTileId) ?? null
   const selectedLegalSides = selectedTile
@@ -94,6 +95,13 @@ export function GameRoomPage() {
       .catch(() => undefined)
   }
 
+  const handleStartNextRound = () => {
+    void gameRoom.startNextRound
+      .mutateAsync()
+      .then(() => setSelectedTileId(null))
+      .catch(() => undefined)
+  }
+
   return (
     <MobileShell>
       <div className="flex flex-1 flex-col gap-4 py-4">
@@ -110,7 +118,16 @@ export function GameRoomPage() {
           currentTurnPlayerId={game.currentTurnPlayerId}
           players={gameRoom.gameRoom.players}
         />
-        <RoundFinishedPanel game={game} players={gameRoom.gameRoom.players} />
+        <RoundFinishedPanel
+          currentUserPlayerId={currentUserPlayerId}
+          game={game}
+          isStartingNextRound={gameRoom.startNextRound.isPending}
+          nextRoundErrorMessage={
+            nextRoundError ? getFriendlyAuthError(nextRoundError) : null
+          }
+          onStartNextRound={handleStartNextRound}
+          players={gameRoom.gameRoom.players}
+        />
         <BoardStatePreview boardState={game.boardState} />
         <TurnActionPanel
           canPass={canPass}

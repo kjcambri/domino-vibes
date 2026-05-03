@@ -3,12 +3,18 @@ import {
   getGameRoom,
   passTurn as passTurnAction,
   playTile as playTileAction,
+  startNextRound as startNextRoundAction,
 } from './gameService'
-import { myHandQueryKey, useMyHand } from './useMyHand'
+import {
+  gameRoomKeys,
+  getGameRoomPollInterval,
+  refreshGameRoomQueries,
+} from './queryKeys'
+import { useMyHand } from './useMyHand'
 import { type BoardSide } from './types'
 
 export function gameRoomQueryKey(gameId?: string) {
-  return ['game-room', gameId] as const
+  return gameRoomKeys.detail(gameId)
 }
 
 export function useGameRoom(gameId?: string) {
@@ -17,13 +23,19 @@ export function useGameRoom(gameId?: string) {
     queryKey: gameRoomQueryKey(gameId),
     queryFn: () => getGameRoom(gameId!),
     enabled: Boolean(gameId),
+    refetchInterval: (query) =>
+      getGameRoomPollInterval(query.state.data?.game.status),
+    refetchIntervalInBackground: true,
+    refetchOnReconnect: true,
+    refetchOnWindowFocus: true,
   })
-  const myHandQuery = useMyHand(gameId)
+  const myHandQuery = useMyHand(gameId, gameRoomQuery.data?.game.status)
   const invalidateGame = async () => {
-    await Promise.all([
-      queryClient.invalidateQueries({ queryKey: gameRoomQueryKey(gameId) }),
-      queryClient.invalidateQueries({ queryKey: myHandQueryKey(gameId) }),
-    ])
+    if (!gameId) {
+      return
+    }
+
+    await refreshGameRoomQueries(queryClient, gameId)
   }
   const playTile = useMutation({
     mutationFn: ({
@@ -44,6 +56,10 @@ export function useGameRoom(gameId?: string) {
     mutationFn: () => passTurnAction(gameId!),
     onSuccess: invalidateGame,
   })
+  const startNextRound = useMutation({
+    mutationFn: () => startNextRoundAction(gameId!),
+    onSuccess: invalidateGame,
+  })
 
   return {
     gameRoom: gameRoomQuery.data ?? null,
@@ -54,10 +70,13 @@ export function useGameRoom(gameId?: string) {
       gameRoomQuery.error ??
       myHandQuery.error ??
       playTile.error ??
-      passTurn.error,
+      passTurn.error ??
+      startNextRound.error,
     playTile,
     passTurn,
-    isActionPending: playTile.isPending || passTurn.isPending,
+    startNextRound,
+    isActionPending:
+      playTile.isPending || passTurn.isPending || startNextRound.isPending,
     refetch: async () => {
       await Promise.all([gameRoomQuery.refetch(), myHandQuery.refetch()])
     },

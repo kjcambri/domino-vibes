@@ -119,6 +119,13 @@ export type MyHand = {
   tiles: DominoTileDto[]
 }
 
+export type StartNextRoundResult = {
+  gameId: string
+  roundNumber: number
+  status: 'active'
+  currentTurnPlayerId: string
+}
+
 export type GameMove = {
   id: string
   gameId: string

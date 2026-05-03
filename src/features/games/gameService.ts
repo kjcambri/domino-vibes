@@ -4,12 +4,20 @@ import {
   type DominoTileDto,
   type GameRoom,
   type MyHand,
+  type StartNextRoundResult,
 } from './types'
 
 type MyHandRow = {
   game_id: string
   player_id: string
   tiles: DominoTileDto[]
+}
+
+type StartNextRoundRow = {
+  game_id: string
+  round_number: number
+  status: 'active'
+  current_turn_player_id: string
 }
 
 export async function getGameRoom(gameId: string): Promise<GameRoom> {
@@ -78,4 +86,33 @@ export async function passTurn(gameId: string): Promise<GameRoom> {
   }
 
   return data as GameRoom
+}
+
+export async function startNextRound(
+  gameId: string,
+): Promise<StartNextRoundResult> {
+  const { data, error } = await supabase.rpc('start_next_round', {
+    p_game_id: gameId,
+  })
+
+  if (error) {
+    if (import.meta.env.DEV) {
+      console.error('[Domino Vibes] start_next_round failed', error)
+    }
+
+    throw error
+  }
+
+  const result = (data as StartNextRoundRow[])[0]
+
+  if (!result) {
+    throw new Error('next_round_failed')
+  }
+
+  return {
+    gameId: result.game_id,
+    roundNumber: result.round_number,
+    status: result.status,
+    currentTurnPlayerId: result.current_turn_player_id,
+  }
 }

@@ -1,12 +1,21 @@
 import { Card } from '../common/Card'
+import { Button } from '../common/Button'
 import { type GameRoomInfo, type GameRoomPlayer } from '../../features/games/types'
 
 export function RoundFinishedPanel({
   game,
   players,
+  currentUserPlayerId,
+  isStartingNextRound = false,
+  nextRoundErrorMessage,
+  onStartNextRound,
 }: {
   game: GameRoomInfo
   players: GameRoomPlayer[]
+  currentUserPlayerId?: string | null
+  isStartingNextRound?: boolean
+  nextRoundErrorMessage?: string | null
+  onStartNextRound?: () => void
 }) {
   if (game.status !== 'round_finished') {
     return null
@@ -15,6 +24,10 @@ export function RoundFinishedPanel({
   const winner = players.find((player) => player.playerId === game.roundWinnerPlayerId)
   const endReason =
     game.endedReason === 'blocked' ? 'Blocked table' : 'Player went out'
+  const isParticipant = Boolean(currentUserPlayerId) && players.some(
+    (player) => player.playerId === currentUserPlayerId,
+  )
+  const canStartNextRound = Boolean(isParticipant && onStartNextRound)
 
   return (
     <Card className="border-gold-300/35 bg-gradient-to-b from-gold-300/16 to-green-950/78 shadow-gold">
@@ -46,9 +59,24 @@ export function RoundFinishedPanel({
           </div>
         ))}
       </div>
-      <p className="mt-4 text-sm leading-6 text-cream-100/72">
-        Next round system arrives in a later sprint.
-      </p>
+      {nextRoundErrorMessage ? (
+        <p className="mt-4 rounded-md border border-red-300/25 bg-red-900/25 px-3 py-2 text-sm font-semibold text-red-100">
+          {nextRoundErrorMessage}
+        </p>
+      ) : null}
+      <div className="mt-4 grid gap-2">
+        <Button
+          disabled={!canStartNextRound || isStartingNextRound}
+          onClick={onStartNextRound}
+        >
+          {isStartingNextRound ? 'Starting next round...' : 'Start Next Round'}
+        </Button>
+        <p className="text-sm leading-6 text-cream-100/72">
+          {canStartNextRound
+            ? 'Scores stay on the table. Fresh hands and a clean board are dealt for the next round.'
+            : 'Only seated players can start the next round.'}
+        </p>
+      </div>
     </Card>
   )
 }

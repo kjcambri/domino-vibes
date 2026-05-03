@@ -1,8 +1,7 @@
 import { useEffect } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { supabase } from '../../lib/supabaseClient'
-import { myHandQueryKey } from './useMyHand'
-import { gameRoomQueryKey } from './useGameRoom'
+import { refreshGameRoomQueries } from './queryKeys'
 
 export function useGameRealtime(gameId?: string) {
   const queryClient = useQueryClient()
@@ -10,6 +9,18 @@ export function useGameRealtime(gameId?: string) {
   useEffect(() => {
     if (!gameId) {
       return
+    }
+
+    const handleRealtimeEvent = (tableName: string, eventType: string) => {
+      if (import.meta.env.DEV) {
+        console.debug('[Domino Vibes realtime]', {
+          table: tableName,
+          eventType,
+          gameId,
+        })
+      }
+
+      void refreshGameRoomQueries(queryClient, gameId)
     }
 
     const channel = supabase
@@ -22,8 +33,8 @@ export function useGameRealtime(gameId?: string) {
           table: 'games',
           filter: `id=eq.${gameId}`,
         },
-        () => {
-          void queryClient.invalidateQueries({ queryKey: gameRoomQueryKey(gameId) })
+        (payload) => {
+          handleRealtimeEvent('games', payload.eventType)
         },
       )
       .on(
@@ -34,9 +45,8 @@ export function useGameRealtime(gameId?: string) {
           table: 'game_players',
           filter: `game_id=eq.${gameId}`,
         },
-        () => {
-          void queryClient.invalidateQueries({ queryKey: gameRoomQueryKey(gameId) })
-          void queryClient.invalidateQueries({ queryKey: myHandQueryKey(gameId) })
+        (payload) => {
+          handleRealtimeEvent('game_players', payload.eventType)
         },
       )
       .on(
@@ -47,12 +57,31 @@ export function useGameRealtime(gameId?: string) {
           table: 'game_moves',
           filter: `game_id=eq.${gameId}`,
         },
-        () => {
-          void queryClient.invalidateQueries({ queryKey: gameRoomQueryKey(gameId) })
-          void queryClient.invalidateQueries({ queryKey: myHandQueryKey(gameId) })
+        (payload) => {
+          handleRealtimeEvent('game_moves', payload.eventType)
         },
       )
-      .subscribe()
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'game_player_hands',
+          filter: `game_id=eq.${gameId}`,
+        },
+        (payload) => {
+          handleRealtimeEvent('game_player_hands', payload.eventType)
+        },
+      )
+      .subscribe((status) => {
+        if (import.meta.env.DEV) {
+          console.debug('[Domino Vibes realtime]', {
+            table: 'subscription',
+            eventType: status,
+            gameId,
+          })
+        }
+      })
 
     return () => {
       void supabase.removeChannel(channel)
