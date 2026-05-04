@@ -1,6 +1,99 @@
 # Domino Asset Standards
 
-Domino Vibes uses local public assets for fixed domino art. These standards keep board rotation, mobile loading, and visual polish predictable.
+Domino Vibes currently uses optimized WebP/photo-style domino assets as the default in-app tile system. These standards keep board rotation, mobile loading, and visual polish predictable while the app moves toward a future consistent realistic 2.5D rendered tile set.
+
+## Current Production Tile System
+
+Domino Vibes renders optimized WebP domino fronts from `public/assets/dominoes-webp/` by default, with PNG files in `public/assets/dominoes/` as the fallback path. These photo-style assets currently fit the Domino Vibes visual mood better than the experimental procedural renderer, even though they still have some lighting and crop inconsistencies.
+
+Default behavior:
+
+- `USE_PROCEDURAL_DOMINOES` is `false` in `src/features/games/dominoAssets.ts`.
+- `USE_NORMALIZED_DOMINO_ASSETS` is `false` in `src/features/games/dominoAssets.ts`.
+- `DominoImageTile` tries optimized WebP first.
+- If WebP fails, it falls back to PNG.
+- If image loading fails entirely, the component still renders a fixed-size text fallback.
+- Board and hand tile dimensions remain controlled by component CSS so image assets cannot render at natural source size.
+- Hand/rack tiles should use the same image treatment as board tiles: fixed dimensions, image fill/crop, readable shadows, and only subtle disabled-state muting.
+
+## Photo Asset Normalization Pipeline
+
+Sprint 19 adds an optional normalization pipeline for the current photo-style assets:
+
+```bash
+npm run assets:normalize
+```
+
+The script reads from `public/assets/dominoes/` and writes normalized WebP copies to:
+
+```text
+public/assets/dominoes-normalized-webp/
+```
+
+It does not overwrite PNG originals or the current optimized WebP set.
+
+The normalization pipeline helps with:
+
+- consistent output canvas size
+- consistent vertical tile dimensions
+- consistent transparent padding
+- centered tile placement
+- smaller WebP output size
+
+It cannot fully fix:
+
+- inconsistent source lighting
+- source perspective
+- baked-in shadows
+- mismatched source crops that already lost visual detail
+
+Normalized assets are not the default yet. To preview them in a branch deploy, set `USE_NORMALIZED_DOMINO_ASSETS` to `true` in `src/features/games/dominoAssets.ts`. Keep the flag off until the generated set is visually approved.
+
+## Experimental Procedural Domino Tile System
+
+The repo includes an experimental procedural SVG/CSS-style renderer. It builds 2.5D ivory-resin dominoes with layered CSS surfaces, crisp pip placement, beveled rims, physical shadows, selected-state glow, latest-move highlight, and hidden-back styling.
+
+Why the procedural renderer is not default yet:
+
+- The first visual pass is clean and consistent but still feels too SVG-like compared with the current photo/WebP assets.
+- It needs more art direction before replacing production visuals.
+- Tester feedback should compare readability, realism, and brand fit before switching defaults.
+
+Why the experimental renderer remains useful:
+
+- Photo assets carried inconsistent lighting, crop, baked-in shadows, and perspective.
+- Procedural tiles scale cleanly between board and hand sizes.
+- Board geometry stays easier to reason about because tile dimensions are controlled by CSS.
+- Future skins can be layered onto the procedural renderer without changing tile IDs or gameplay data.
+
+The procedural renderer keeps the same orientation convention:
+
+- Vertical tile is the default source posture.
+- `tile.left` is the visual top value.
+- `tile.right` is the visual bottom value.
+- File/tile IDs stay low-high, such as `domino-2-6` or `2-6`.
+- Board rotations still come from saved geometry; the renderer does not change placement math.
+
+Pip mapping uses a 3x3 half-tile grid:
+
+- `0`: no pips
+- `1`: center
+- `2`: top-left + bottom-right
+- `3`: top-left + center + bottom-right
+- `4`: four corners
+- `5`: four corners + center
+- `6`: top-left, middle-left, bottom-left, top-right, middle-right, bottom-right
+
+Visual states are component-owned:
+
+- Normal: ivory resin body, recessed dark pips, recessed divider, beveled rim, subtle thickness, warm material texture, and soft physical shadow.
+- Selected: gold glow, slight lift, stronger shadow.
+- Latest move: subtle teal/gold ring.
+- Start tile: subtle gold outline.
+- Disabled: dimmed and lower contrast.
+- Hidden/back: emerald back with gold/cream rim and subtle Domino Vibes mark.
+
+To test procedural tiles in a branch deploy, set `USE_PROCEDURAL_DOMINOES` to `true` in `src/features/games/dominoAssets.ts`. Keep that as an experimental preview only; production should continue using optimized WebP/photo-style assets until a consistent realistic 2.5D rendered tile set is accepted.
 
 ## Naming
 
@@ -55,6 +148,12 @@ Create optimized WebP copies without overwriting PNG originals:
 npm run assets:optimize
 ```
 
+Create normalized same-canvas WebP copies without overwriting PNG originals:
+
+```bash
+npm run assets:normalize
+```
+
 Rotate exact incorrect source files only after visual inspection:
 
 ```bash
@@ -65,4 +164,4 @@ Do not commit Mac metadata files such as `.DS_Store`, `__MACOSX/`, or `._filenam
 
 ## Future Production Asset Prompt Notes
 
-For future AI-assisted art generation, request a consistent top-down cream domino set with transparent background, identical crop/canvas, no table surface, no baked-in cast shadow, black pips, subtle bevel, and low-on-top/high-on-bottom orientation for every non-double tile.
+For future AI-assisted art generation, request a consistent realistic 2.5D top-down cream domino set with transparent background, identical crop/canvas, no table surface, no baked-in cast shadow, black recessed pips, tactile bevel, subtle resin material, and low-on-top/high-on-bottom orientation for every non-double tile.

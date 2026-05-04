@@ -7,7 +7,11 @@ This document tracks private beta guardrails and known MVP limitations.
 - The Vite production build may warn that a JavaScript chunk is larger than 500 kB.
 - The UI is a polished MVP web experience, not the final production mobile app UI.
 - Stitch-inspired Island Elite UI polish is being implemented gradually and may continue evolving from tester feedback.
-- Current domino assets are beta-polished and now have WebP delivery copies, but the source artwork should still be replaced with production-quality, consistently authored assets later.
+- Optimized WebP/photo-style dominoes are the current primary tile renderer.
+- The procedural SVG/CSS domino renderer exists in the codebase, but it is experimental and not the default production visual system.
+- Current domino photo assets are beta production assets and now have WebP delivery copies, but the future goal is a consistent realistic 2.5D rendered tile set.
+- Photo assets currently fit the Domino Vibes style better than flat procedural tiles, but they still need source-level consistency in lighting, crop, and perspective.
+- The normalized asset pipeline helps align canvas size, padding, dimensions, and output size, but it does not replace a production-rendered asset set.
 - Domino asset loading falls back from WebP to PNG/text, so broken optimized files should be caught during asset QA rather than blocking gameplay.
 - No bots or AFK takeover exist yet.
 - Chat is MVP text-only chat with basic room scoping and guardrails.

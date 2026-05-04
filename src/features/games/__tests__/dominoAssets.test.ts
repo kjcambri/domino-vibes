@@ -6,9 +6,16 @@ import {
   getTableImageSrc,
   isValidDominoTileId,
   normalizeTileId,
+  USE_NORMALIZED_DOMINO_ASSETS,
+  USE_PROCEDURAL_DOMINOES,
 } from '../dominoAssets'
 
 describe('dominoAssets', () => {
+  it('uses optimized image assets as the default tile renderer', () => {
+    expect(USE_PROCEDURAL_DOMINOES).toBe(false)
+    expect(USE_NORMALIZED_DOMINO_ASSETS).toBe(false)
+  })
+
   it('keeps low-high tile ids unchanged', () => {
     expect(normalizeTileId('0-0')).toBe('0-0')
     expect(normalizeTileId('4-6')).toBe('4-6')
@@ -16,10 +23,12 @@ describe('dominoAssets', () => {
 
   it('normalizes reversed tile ids to backend low-high format', () => {
     expect(normalizeTileId('6-4')).toBe('4-6')
+    expect(normalizeTileId('domino-6-4')).toBe('4-6')
   })
 
   it('validates only double-six tile ids', () => {
     expect(isValidDominoTileId('6-6')).toBe(true)
+    expect(isValidDominoTileId('domino-6-6')).toBe(true)
     expect(isValidDominoTileId('7-8')).toBe(false)
     expect(isValidDominoTileId('bad-value')).toBe(false)
   })
@@ -36,12 +45,19 @@ describe('dominoAssets', () => {
 
   it('returns ordered optimized and fallback candidates for tile images', () => {
     expect(getDominoAssetCandidates('6-4')).toEqual({
+      normalizedSrc: '/assets/dominoes-normalized-webp/domino-4-6.webp',
       optimizedSrc: '/assets/dominoes-webp/domino-4-6.webp',
       pngSrc: '/assets/dominoes/domino-4-6.png',
     })
     expect(getDominoAssetCandidates('not-a-tile')).toEqual({
+      normalizedSrc: '/assets/dominoes-normalized-webp/domino-back.webp',
       optimizedSrc: '/assets/dominoes-webp/domino-back.webp',
       pngSrc: '/assets/dominoes/domino-back.png',
+    })
+    expect(getDominoAssetCandidates('domino-6-4')).toEqual({
+      normalizedSrc: '/assets/dominoes-normalized-webp/domino-4-6.webp',
+      optimizedSrc: '/assets/dominoes-webp/domino-4-6.webp',
+      pngSrc: '/assets/dominoes/domino-4-6.png',
     })
   })
 })
