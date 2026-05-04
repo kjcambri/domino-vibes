@@ -43,13 +43,13 @@ export function MyHandPreview({
         </div>
         {isMyTurn && isRoundActive ? (
           <StatusChip className="bg-gold-300 text-green-950" tone="gold">
-            Your turn
+            {selectedTileId ? `Selected ${selectedTileId}` : 'Your turn'}
           </StatusChip>
         ) : (
           <StatusChip tone="cream">{hand?.tiles.length ?? 0} tiles</StatusChip>
         )}
       </div>
-      <div className="-mx-2 mt-4 flex gap-3 overflow-x-auto rounded-3xl border border-cream-100/10 bg-green-950/42 px-2 pb-4 pt-4 shadow-[inset_0_0_28px_rgba(0,0,0,0.32)]">
+      <div className="-mx-2 mt-4 flex snap-x gap-3 overflow-x-auto rounded-3xl border border-cream-100/10 bg-[linear-gradient(180deg,rgba(6,31,24,0.72),rgba(42,22,10,0.72))] px-3 pb-5 pt-5 shadow-[inset_0_0_32px_rgba(0,0,0,0.38),inset_0_1px_0_rgba(255,244,214,0.08)] [scrollbar-width:thin]">
         {hand?.tiles.map((tile) => {
           const legalSides = getLegalSides(tile, boardState)
           const playable = canSelect && legalSides.length > 0
@@ -57,7 +57,7 @@ export function MyHandPreview({
           return (
             <DominoImageTile
               ariaLabel={`Select domino ${tile.id}`}
-              className={selectedTileId === tile.id ? '-translate-y-2' : ''}
+              className={selectedTileId === tile.id ? 'snap-center -translate-y-2' : 'snap-center'}
               disabled={!canSelect}
               key={tile.id}
               onClick={() => onSelectTile(tile.id)}
@@ -71,7 +71,9 @@ export function MyHandPreview({
       </div>
       <p className="mt-3 text-sm leading-6 text-cream-100/72">
         {isMyTurn && isRoundActive
-          ? 'Glowing tiles can play right now. Every move is still validated by the server.'
+          ? selectedTileId
+            ? `Domino ${selectedTileId} is ready. Choose a side when the table accepts it.`
+            : 'Glowing tiles can play right now. Every move is still validated by the server.'
           : 'Only you can see these dominoes; opponents see counts only.'}
       </p>
     </GameCard>

@@ -2,6 +2,7 @@ import { CircleDot, Clock, Crown, Sparkles } from 'lucide-react'
 import { GameCard } from '../ui/GameCard'
 import { StatusChip } from '../ui/StatusChip'
 import { type GameRoomPlayer } from '../../features/games/types'
+import { cn } from '../../lib/cn'
 
 export function CurrentTurnBanner({
   currentTurnPlayerId,
@@ -33,9 +34,17 @@ export function CurrentTurnBanner({
     isFinished || isRoundFinished ? 'gold' : isMyTurn && status === 'active' ? 'gold' : 'felt'
 
   return (
-    <GameCard className="relative overflow-hidden" variant={variant}>
+    <GameCard
+      className={cn(
+        'relative overflow-hidden',
+        isMyTurn &&
+          status === 'active' &&
+          'border-gold-300/45 shadow-[0_18px_54px_rgba(242,193,78,0.18),0_20px_60px_rgba(0,0,0,0.28)]',
+      )}
+      variant={variant}
+    >
       {isMyTurn && status === 'active' ? (
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_82%_30%,rgba(242,193,78,0.18),transparent_12rem)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_82%_30%,rgba(242,193,78,0.22),transparent_12rem)]" />
       ) : null}
       <div className="flex items-center justify-between gap-3">
         <div className="relative min-w-0">
@@ -57,7 +66,12 @@ export function CurrentTurnBanner({
           </p>
         </div>
         <div className="relative grid justify-items-end gap-2">
-          <span className="grid size-12 place-items-center rounded-2xl border border-gold-300/25 bg-green-950/35 text-gold-100">
+          <span
+            className={cn(
+              'grid size-12 place-items-center rounded-2xl border border-gold-300/25 bg-green-950/35 text-gold-100',
+              isMyTurn && status === 'active' && 'animate-pulse shadow-gold',
+            )}
+          >
             <Icon aria-hidden="true" size={20} />
           </span>
           {isMyTurn && status === 'active' ? (

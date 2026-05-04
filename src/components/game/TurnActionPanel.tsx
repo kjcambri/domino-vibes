@@ -53,6 +53,7 @@ export function TurnActionPanel({
   const playSides: BoardSide[] = isBoardEmpty ? ['start'] : ['left', 'right']
   const controlsDisabled = !isMyTurn || isActionPending || !selectedTileId
   const selectedLabel = selectedTileId ? `Selected ${selectedTileId}` : 'No tile selected'
+  const busyLabel = selectedTileId ? 'Playing...' : 'Passing...'
 
   return (
     <GameCard className="bg-green-950/72">
@@ -73,10 +74,14 @@ export function TurnActionPanel({
           {isMyTurn ? 'Ready' : 'Locked'}
         </StatusChip>
       </div>
-      <div className="mt-4 grid grid-cols-2 gap-2">
+      <div className="mt-4 grid grid-cols-2 gap-2" aria-busy={isActionPending}>
         {playSides.map((side) => (
           <Button
-            className={playSides.length === 1 ? 'col-span-2 w-full gap-2' : 'w-full gap-2'}
+            className={
+              playSides.length === 1
+                ? 'col-span-2 w-full gap-2 active:scale-[0.98]'
+                : 'w-full gap-2 active:scale-[0.98]'
+            }
             disabled={controlsDisabled || !legalSides.includes(side)}
             key={side}
             onClick={() => onPlaySide(side)}
@@ -89,19 +94,26 @@ export function TurnActionPanel({
             ) : (
               <Play aria-hidden="true" size={18} />
             )}
-            Play {side === 'start' ? 'Start' : side === 'left' ? 'Left' : 'Right'}
+            {isActionPending
+              ? busyLabel
+              : `Play ${side === 'start' ? 'Start' : side === 'left' ? 'Left' : 'Right'}`}
           </Button>
         ))}
         <Button
-          className="col-span-2 w-full gap-2"
+          className="col-span-2 w-full gap-2 active:scale-[0.98]"
           disabled={!isMyTurn || !canPass || isActionPending}
           onClick={onPass}
           variant="secondary"
         >
           <CircleSlash aria-hidden="true" size={18} />
-          Pass Turn
+          {isActionPending && !selectedTileId ? 'Passing...' : 'Pass Turn'}
         </Button>
       </div>
+      {isActionPending ? (
+        <p className="mt-3 rounded-2xl border border-gold-300/25 bg-gold-300/12 px-3 py-2 text-sm font-bold text-gold-100">
+          Sending your move to the table...
+        </p>
+      ) : null}
       {errorMessage ? (
         <div
           className="mt-3 flex gap-2 rounded-2xl border border-red-300/25 bg-red-800/20 px-3 py-3 text-sm font-bold text-red-100"

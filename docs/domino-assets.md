@@ -2,6 +2,9 @@
 
 Domino tile fronts live in `public/assets/dominoes/`.
 
+The fuller production standard lives in
+`docs/assets/domino-asset-standards.md`.
+
 ## File Naming
 
 Tile files use the normalized low-high tile id:
@@ -32,6 +35,12 @@ Doubles can be visually symmetric, but keep them aligned with the same vertical 
 This matters because board geometry rotates image assets to make the connected pip face the endpoint. If a file is visually reversed, the code can calculate the correct rotation while the artwork still shows the wrong pip touching.
 
 ## Generate Contact Sheet
+
+Run a size/completeness audit first:
+
+```bash
+npm run assets:audit
+```
 
 Run:
 
@@ -68,6 +77,17 @@ public/assets/dominoes/originals-backup/
 ```
 
 Do not rotate `domino-back.png`.
+
+## Optimize Delivery Copies
+
+Create non-destructive WebP copies in `public/assets/dominoes-webp/`:
+
+```bash
+npm run assets:optimize
+```
+
+The PNG files remain the source/master assets. The React tile renderer can try
+WebP first and fall back to PNG/text if an optimized file is missing.
 
 ## Metadata Warning
 

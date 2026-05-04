@@ -4,6 +4,7 @@ import { StatusChip } from '../ui/StatusChip'
 import { DominoImageTile } from './DominoImageTile'
 import { createDominoBoardLayout } from '../../features/games/boardLayout'
 import { type BoardStateDto } from '../../features/games/types'
+import { cn } from '../../lib/cn'
 import { logDebug } from '../../lib/logger'
 
 const BOARD_PADDING = 150
@@ -62,8 +63,8 @@ export function BoardStatePreview({ boardState }: { boardState: BoardStateDto })
   }, [invalidPlacements])
 
   return (
-    <GameCard className="overflow-hidden p-0 shadow-[0_28px_80px_rgba(17,7,2,0.46)]" variant="wood">
-      <div className="flex items-center justify-between gap-3 border-b border-gold-300/15 bg-gradient-to-r from-wood-900/86 via-green-950/72 to-wood-800/40 px-4 py-3">
+    <GameCard className="overflow-hidden p-0 shadow-[0_30px_90px_rgba(17,7,2,0.5)]" variant="wood">
+      <div className="flex items-center justify-between gap-3 border-b border-gold-300/18 bg-[linear-gradient(100deg,rgba(42,22,10,0.95),rgba(11,61,46,0.82)_54%,rgba(107,63,29,0.48))] px-4 py-3">
         <div>
           <p className="text-xs font-black uppercase tracking-[0.18em] text-gold-200">
             Felt table
@@ -74,20 +75,24 @@ export function BoardStatePreview({ boardState }: { boardState: BoardStateDto })
               : `${boardState.placements.length} dominoes in play.`}
           </p>
         </div>
-        <div className="flex shrink-0 gap-2">
-          <StatusChip tone="gold">L {boardState.openEnds.left ?? '-'}</StatusChip>
-          <StatusChip tone="gold">R {boardState.openEnds.right ?? '-'}</StatusChip>
+        <div className="flex shrink-0 gap-1.5">
+          <StatusChip className="min-h-8 px-2.5" tone="gold">
+            Left {boardState.openEnds.left ?? '-'}
+          </StatusChip>
+          <StatusChip className="min-h-8 px-2.5" tone="gold">
+            Right {boardState.openEnds.right ?? '-'}
+          </StatusChip>
         </div>
       </div>
       <div
-        className="h-[390px] max-h-[460px] w-full overflow-auto overscroll-contain border-[10px] border-wood-900/85 bg-green-950 shadow-[inset_0_0_0_1px_rgba(255,244,214,0.12)] sm:h-[430px]"
+        className="h-[390px] max-h-[460px] w-full overflow-auto overscroll-contain border-[10px] border-wood-900/90 bg-green-950 shadow-[inset_0_0_0_1px_rgba(255,244,214,0.16),inset_0_18px_36px_rgba(255,244,214,0.08),inset_0_-26px_60px_rgba(0,0,0,0.45)] sm:h-[430px]"
         ref={viewportRef}
         style={{
           backgroundColor: '#0b3d2e',
           backgroundImage:
-            'radial-gradient(circle at 50% 42%, rgba(242,193,78,0.12), transparent 25rem), radial-gradient(circle at 18% 16%, rgba(31,138,91,0.26), transparent 18rem), repeating-linear-gradient(135deg, rgba(255,255,255,0.035) 0 1px, transparent 1px 28px), linear-gradient(180deg, #146B4A 0%, #0B3D2E 54%, #061F18 100%)',
+            'radial-gradient(circle at 50% 44%, rgba(242,193,78,0.16), transparent 18rem), radial-gradient(circle at 18% 15%, rgba(31,138,91,0.32), transparent 17rem), radial-gradient(circle at 84% 78%, rgba(217,79,48,0.12), transparent 18rem), repeating-linear-gradient(125deg, rgba(255,255,255,0.035) 0 1px, transparent 1px 22px), repeating-linear-gradient(35deg, rgba(0,0,0,0.08) 0 1px, transparent 1px 34px), linear-gradient(180deg, #146B4A 0%, #0B3D2E 55%, #061F18 100%)',
           backgroundPosition: 'center',
-          backgroundSize: '100% 100%, 100% 100%, auto, 100% 100%',
+          backgroundSize: '100% 100%, 100% 100%, 100% 100%, auto, auto, 100% 100%',
         }}
       >
         <div
@@ -101,7 +106,7 @@ export function BoardStatePreview({ boardState }: { boardState: BoardStateDto })
         >
           {isEmpty ? (
             <div
-              className="absolute left-1/2 top-1/2 w-64 -translate-x-1/2 -translate-y-1/2 rounded-3xl border border-gold-200/25 bg-green-950/78 px-5 py-6 text-center shadow-gold backdrop-blur"
+              className="absolute left-1/2 top-1/2 w-64 -translate-x-1/2 -translate-y-1/2 rounded-3xl border border-gold-200/30 bg-green-950/78 px-5 py-6 text-center shadow-[0_22px_60px_rgba(0,0,0,0.42),0_0_34px_rgba(242,193,78,0.16)] backdrop-blur"
             >
               <p className="text-lg font-black text-cream-50">Center table</p>
               <p className="mt-2 text-sm leading-6 text-cream-100/70">
@@ -125,11 +130,13 @@ export function BoardStatePreview({ boardState }: { boardState: BoardStateDto })
                     ? `Starting domino ${placement.tileId}`
                     : `Played domino ${placement.tileId}`
                 }
-                className={
-                  placement.isStart
-                    ? 'ring-1 ring-gold-200/80 ring-offset-1 ring-offset-green-950 drop-shadow-[0_0_14px_rgba(242,193,78,0.45)]'
-                    : ''
-                }
+                className={cn(
+                  placement.isStart &&
+                    'ring-1 ring-gold-200/80 ring-offset-1 ring-offset-green-950 drop-shadow-[0_0_14px_rgba(242,193,78,0.45)]',
+                  placement.isLatest &&
+                    !placement.isStart &&
+                    'ring-1 ring-gold-200/65 ring-offset-1 ring-offset-green-950 drop-shadow-[0_0_12px_rgba(242,193,78,0.34)]',
+                )}
                 playable={placement.isLatest}
                 orientation={placement.orientation}
                 size="board"

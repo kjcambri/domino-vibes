@@ -89,7 +89,22 @@ Use this checklist before inviting private testers and before every beta deploy.
 - Confirm action buttons are reachable with thumbs.
 - Confirm text does not overlap or clip.
 
-## 8. Security Testing
+## 8. Asset and Game-Feel Testing
+
+- Run `npm run assets:audit` and confirm all 28 tile fronts plus `domino-back` exist.
+- Confirm no `.DS_Store`, `__MACOSX/`, or `._filename.png` metadata files are present.
+- Confirm large PNG warnings are expected source-asset warnings, not missing assets.
+- If WebP copies are regenerated, confirm `public/assets/dominoes-webp/` contains 29 files.
+- Confirm domino images load in the hand tray and on the board.
+- Temporarily break one local tile path in development only and confirm the text fallback remains fixed-size.
+- Confirm selected hand tiles lift/glow clearly.
+- Confirm latest move highlight is visible without overpowering the board.
+- Confirm start tile marker is subtle and readable.
+- Confirm open-end chips do not take focus away from the board.
+- Confirm board felt/wood styling stays usable on mobile and desktop.
+- Confirm current assets are acceptable for beta, while production-quality consistent assets remain future work.
+
+## 9. Security Testing
 
 - Confirm hidden hands are never returned by `get_game_room`.
 - Confirm `get_my_hand` returns only the authenticated player's hand.
@@ -102,7 +117,7 @@ Use this checklist before inviting private testers and before every beta deploy.
 - Confirm users cannot clear someone else's finished-game seat.
 - Confirm frontend code does not directly write hands, moves, or games tables.
 
-## 9. Chat Testing
+## 10. Chat Testing
 
 - Send and read a lobby chat message from two logged-in users.
 - Confirm lobby chat blocks empty messages.
@@ -117,21 +132,23 @@ Use this checklist before inviting private testers and before every beta deploy.
 - Confirm Enter sends and Shift+Enter does not unexpectedly submit if multiline behavior is active.
 - Confirm chat does not expose hidden hands or gameplay RPC payloads.
 
-## 10. Regression Checklist Before Every Commit
+## 11. Regression Checklist Before Every Commit
 
 - Run `npm run lint`.
 - Run `npm run build`.
 - Run `npm run test:run`.
 - Run `git diff --check`.
+- Run `npm run assets:audit` after touching domino assets or asset scripts.
 - Confirm no Supabase migrations were changed unless the task required it.
 - Confirm hidden-hand data is not logged or rendered.
 - Confirm the current route still loads in the browser.
 - Check mobile width for the changed screen.
 
-## 11. Known Issues
+## 12. Known Issues
 
 - Vite can warn about large chunks if route splitting regresses.
 - Private beta should use test accounts and test data only.
 - Old games created before server-saved geometry may not look like fresh games.
 - Stuck development seats may require dev SQL cleanup.
 - Chat is MVP only; advanced moderation, DMs, media uploads, bots, AFK takeover, ranked, and tournament support are not included yet.
+- Current domino artwork is beta-ready, but a fully consistent production asset set is still recommended.

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  getDominoAssetCandidates,
   getDominoBackSrc,
   getDominoImageSrc,
   getTableImageSrc,
@@ -25,8 +26,22 @@ describe('dominoAssets', () => {
 
   it('returns stable public asset paths with safe fallback', () => {
     expect(getDominoImageSrc('6-4')).toBe('/assets/dominoes/domino-4-6.png')
+    expect(getDominoImageSrc('6-4', { preferOptimized: true })).toBe(
+      '/assets/dominoes-webp/domino-4-6.webp',
+    )
     expect(getDominoImageSrc('bad-value')).toBe('/assets/dominoes/domino-back.png')
     expect(getDominoBackSrc()).toBe('/assets/dominoes/domino-back.png')
     expect(getTableImageSrc()).toBe('/assets/tables/domino-table.png')
+  })
+
+  it('returns ordered optimized and fallback candidates for tile images', () => {
+    expect(getDominoAssetCandidates('6-4')).toEqual({
+      optimizedSrc: '/assets/dominoes-webp/domino-4-6.webp',
+      pngSrc: '/assets/dominoes/domino-4-6.png',
+    })
+    expect(getDominoAssetCandidates('not-a-tile')).toEqual({
+      optimizedSrc: '/assets/dominoes-webp/domino-back.webp',
+      pngSrc: '/assets/dominoes/domino-back.png',
+    })
   })
 })

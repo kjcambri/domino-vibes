@@ -8,6 +8,7 @@ import {
   getRoundResultText,
 } from '../../features/games/gameOutcome'
 import { type GameRoomInfo, type GameRoomPlayer } from '../../features/games/types'
+import { cn } from '../../lib/cn'
 
 export function RoundFinishedPanel({
   game,
@@ -49,7 +50,8 @@ export function RoundFinishedPanel({
       className="relative overflow-hidden shadow-gold"
       variant={isGameFinished ? 'danger' : 'gold'}
     >
-      <div className="absolute -right-12 -top-12 size-36 rounded-full bg-gold-300/14 blur-2xl" />
+      <div className="absolute -right-12 -top-12 size-36 rounded-full bg-gold-300/16 blur-2xl" />
+      <div className="absolute left-8 top-0 h-px w-32 bg-gradient-to-r from-transparent via-gold-200/60 to-transparent" />
       <div className="relative flex items-start justify-between gap-3">
         <div>
           <p className="text-xs font-black uppercase tracking-[0.18em] text-gold-200">
@@ -76,7 +78,11 @@ export function RoundFinishedPanel({
       <div className="relative mt-4 grid gap-2">
         {players.map((player) => (
           <div
-            className="flex items-center justify-between rounded-2xl border border-cream-100/10 bg-green-950/50 px-4 py-3"
+            className={cn(
+              'flex items-center justify-between rounded-2xl border border-cream-100/10 bg-green-950/50 px-4 py-3 transition',
+              player.roundScore > 0 &&
+                'border-gold-300/35 bg-gold-300/12 shadow-[0_0_26px_rgba(242,193,78,0.12)]',
+            )}
             key={player.seatNumber}
           >
             <div>
@@ -89,7 +95,7 @@ export function RoundFinishedPanel({
             </div>
             <div className="grid justify-items-end gap-1 text-right">
               <StatusChip tone={player.roundScore > 0 ? 'gold' : 'cream'}>
-                +{player.roundScore}
+                {player.roundScore > 0 ? '+1 point' : '+0'}
               </StatusChip>
               <p className="text-xs text-cream-100/60">{player.score} points</p>
             </div>
