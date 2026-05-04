@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion'
 import { type ReactNode } from 'react'
 import {
   Crown,
@@ -13,10 +12,15 @@ import {
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { buttonClasses } from '../components/common/buttonStyles'
+import { DominoImageTile } from '../components/game/DominoImageTile'
+import { MiniBoardPreview } from '../components/game/MiniBoardPreview'
 import { MobileShell } from '../components/layout/MobileShell'
 import { GameCard } from '../components/ui/GameCard'
 import { StatusChip } from '../components/ui/StatusChip'
 import { useAuth } from '../features/auth/useAuth'
+import { noLiveMatchFallback } from '../features/home/livePreviewFallback'
+import { type FeaturedLiveGamePreview } from '../features/home/types'
+import { useFeaturedLiveGamePreview } from '../features/home/useFeaturedLiveGamePreview'
 
 export function LandingPage() {
   const { isAuthenticated } = useAuth()
@@ -161,69 +165,166 @@ function FeaturePill({
 }
 
 function LiveTablePreview() {
+  const { data: preview, isError, isLoading } = useFeaturedLiveGamePreview()
+  const isLive = Boolean(preview)
+
   return (
     <GameCard className="relative overflow-hidden border-wood-800/80 p-4 shadow-[0_28px_80px_rgba(0,0,0,0.45)]" variant="wood">
-      <div className="absolute right-3 top-3 rounded-full border border-gold-300/35 bg-gold-300 px-3 py-1 text-xs font-black uppercase tracking-[0.08em] text-green-950">
-        Live match
+      <div
+        className={`absolute right-3 top-3 rounded-full border px-3 py-1 text-xs font-black uppercase tracking-[0.08em] ${
+          isLive
+            ? 'border-teal-200/45 bg-teal-300 text-green-950 shadow-[0_0_18px_rgba(69,221,189,0.35)]'
+            : 'border-gold-300/35 bg-gold-300 text-green-950'
+        }`}
+      >
+        {isLive ? 'Live match' : noLiveMatchFallback.badge}
       </div>
       <div className="mb-4 flex items-center gap-2 text-gold-200">
         <Table2 aria-hidden="true" size={20} />
         <p className="font-black">Featured Table</p>
       </div>
-      <div className="relative min-h-72 overflow-hidden rounded-3xl border border-gold-300/18 bg-[radial-gradient(circle_at_50%_42%,rgba(31,138,91,0.35),transparent_12rem),linear-gradient(145deg,#146B4A,#061F18)] shadow-[inset_0_0_70px_rgba(0,0,0,0.48)]">
-        <motion.div
-          animate={{ y: [0, -8, 0], rotate: [-10, -8, -10] }}
-          className="absolute left-[22%] top-[28%] h-28 w-14 rounded-lg border border-cream-900/15 bg-cream-50 p-2 shadow-wood"
-          transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-        >
-          <div className="grid h-full grid-rows-2 gap-2">
-            <DominoHalf pips={6} />
-            <DominoHalf pips={4} />
-          </div>
-        </motion.div>
-        <motion.div
-          animate={{ y: [0, 7, 0], rotate: [12, 10, 12] }}
-          className="absolute right-[20%] top-[42%] h-28 w-14 rounded-lg border-2 border-gold-300 bg-cream-50 p-2 shadow-[0_0_22px_rgba(242,193,78,0.36),0_18px_40px_rgba(0,0,0,0.35)]"
-          transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut' }}
-        >
-          <div className="grid h-full grid-rows-2 gap-2">
-            <DominoHalf pips={2} />
-            <DominoHalf pips={6} />
-          </div>
-        </motion.div>
-        <div className="absolute inset-x-6 bottom-5 rounded-2xl border border-cream-100/10 bg-green-950/72 px-4 py-3 backdrop-blur">
-          <p className="text-xs font-black uppercase tracking-[0.16em] text-teal-300">
-            Game in progress
-          </p>
-          <p className="mt-1 text-sm font-bold text-cream-100/78">
-            Cutthroat 4 • Points to Win: 6
-          </p>
-        </div>
-      </div>
+      {preview ? (
+        <LivePreviewCard preview={preview} />
+      ) : (
+        <FallbackFeaturedTablePreview isError={isError} isLoading={isLoading} />
+      )}
     </GameCard>
   )
 }
 
-function DominoHalf({ pips }: { pips: number }) {
-  const positions = [
-    'place-self-start',
-    'place-self-center',
-    'place-self-end',
-    'place-self-start self-end',
-    'place-self-end self-start',
-    'place-self-end self-end',
-  ]
+function LivePreviewCard({ preview }: { preview: FeaturedLiveGamePreview }) {
+  const openEnds = preview.boardState.openEnds
 
   return (
-    <div className="grid border-b border-green-950/20 pb-2 last:border-b-0 last:pb-0">
-      <div className="grid h-full grid-cols-3 grid-rows-3">
-        {Array.from({ length: pips }).map((_, index) => (
-          <span
-            className={`size-2 rounded-full bg-green-950 ${positions[index]}`}
-            key={index}
+    <div className="grid gap-4">
+      <div className="rounded-3xl border border-gold-300/18 bg-green-950/44 p-4">
+        <p className="text-2xl font-black text-cream-50">{preview.tableName}</p>
+        <p className="mt-1 text-sm font-bold text-cream-100/74">
+          {getGameModeLabel(preview.gameMode)} • Points to Win: {preview.pointsToWin}
+        </p>
+        <div className="mt-4 grid grid-cols-2 gap-2 text-xs sm:grid-cols-4">
+          <PreviewMetric label="Round" value={preview.currentRoundNumber} />
+          <PreviewMetric label="In play" value={preview.dominoesInPlay} />
+          <PreviewMetric label="Moves" value={preview.moveCount} />
+          <PreviewMetric
+            label="Open ends"
+            value={
+              openEnds.left === null && openEnds.right === null
+                ? 'Start'
+                : `${openEnds.left ?? '-'} / ${openEnds.right ?? '-'}`
+            }
           />
+        </div>
+      </div>
+      {preview.boardState.placements.length > 0 ? (
+        <MiniBoardPreview boardState={preview.boardState} />
+      ) : (
+        <FallbackFeaturedTablePreview isError={false} isLoading={false} />
+      )}
+      <div className="grid gap-2">
+        {preview.players.map((player) => (
+          <div
+            className={`flex items-center justify-between gap-3 rounded-2xl border px-3 py-2 ${
+              player.isCurrentTurn
+                ? 'border-teal-300/45 bg-teal-300/12 shadow-[0_0_18px_rgba(69,221,189,0.18)]'
+                : 'border-cream-100/10 bg-green-950/42'
+            }`}
+            key={player.seatNumber}
+          >
+            <div className="min-w-0">
+              <p className="truncate text-sm font-black text-cream-50">
+                Seat {player.seatNumber} • {player.displayName}
+              </p>
+              <p className="text-xs font-bold text-cream-100/62">
+                {player.handCount} tiles
+                {player.isCurrentTurn ? ' • at the table' : ''}
+              </p>
+            </div>
+            <span className="rounded-full border border-gold-300/22 bg-gold-300/12 px-2.5 py-1 text-xs font-black text-gold-100">
+              {player.score} pts
+            </span>
+          </div>
         ))}
       </div>
     </div>
   )
+}
+
+function FallbackFeaturedTablePreview({
+  isError,
+  isLoading,
+}: {
+  isError: boolean
+  isLoading: boolean
+}) {
+  return (
+    <div className="relative min-h-72 overflow-hidden rounded-3xl border border-gold-300/18 bg-[radial-gradient(circle_at_50%_42%,rgba(31,138,91,0.35),transparent_12rem),linear-gradient(145deg,#146B4A,#061F18)] shadow-[inset_0_0_70px_rgba(0,0,0,0.48)]">
+        <div
+          aria-hidden="true"
+          className="absolute inset-0"
+        >
+          <div className="absolute left-[18%] top-[18%] -rotate-12">
+            <DominoImageTile
+              orientation="vertical"
+              size="medium"
+              tileId={noLiveMatchFallback.dominoTileIds[0]}
+            />
+          </div>
+          <div className="absolute right-[18%] top-[31%] rotate-12">
+            <DominoImageTile
+              orientation="vertical"
+              size="medium"
+              tileId={noLiveMatchFallback.dominoTileIds[1]}
+            />
+          </div>
+          <div className="absolute left-1/2 top-[42%] -translate-x-1/2 rotate-90">
+            <DominoImageTile
+              orientation="vertical"
+              size="medium"
+              tileId={noLiveMatchFallback.dominoTileIds[2]}
+            />
+          </div>
+          <div className="absolute inset-x-10 top-[22%] h-28 rounded-full bg-gold-300/10 blur-2xl" />
+        </div>
+        <div className="absolute inset-x-6 bottom-5 rounded-2xl border border-cream-100/10 bg-green-950/78 px-4 py-3 shadow-[0_18px_42px_rgba(0,0,0,0.32)] backdrop-blur">
+          <p className="text-xs font-black uppercase tracking-[0.16em] text-teal-300">
+            {isLoading ? 'Checking live tables' : noLiveMatchFallback.label}
+          </p>
+          <p className="mt-1 text-base font-black text-cream-50">
+            {isError
+              ? 'Live preview is unavailable right now.'
+              : noLiveMatchFallback.title}
+          </p>
+          <p className="mt-1 text-sm font-bold text-cream-100/74">
+            {isError
+              ? 'The lobby is still open for Cutthroat 4.'
+              : noLiveMatchFallback.body}
+          </p>
+          {!isError ? (
+            <p className="mt-2 text-xs font-black uppercase tracking-[0.14em] text-gold-200">
+              {noLiveMatchFallback.cta}
+            </p>
+          ) : null}
+        </div>
+      </div>
+  )
+}
+
+function PreviewMetric({ label, value }: { label: string; value: number | string }) {
+  return (
+    <div className="rounded-2xl border border-cream-100/10 bg-green-950/54 px-3 py-2">
+      <p className="font-black uppercase tracking-[0.14em] text-teal-300">
+        {label}
+      </p>
+      <p className="mt-1 text-sm font-black text-cream-50">{value}</p>
+    </div>
+  )
+}
+
+function getGameModeLabel(gameMode: FeaturedLiveGamePreview['gameMode']) {
+  if (gameMode === 'cutthroat_4') {
+    return 'Cutthroat 4'
+  }
+
+  return gameMode
 }
