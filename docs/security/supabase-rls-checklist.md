@@ -42,6 +42,15 @@ Use this checklist against the Supabase project that powers the beta environment
 - Confirm `get_my_hand` returns only the authenticated user's tiles.
 - Confirm logs never print `tiles` arrays or full hand payloads.
 
+## Homepage Live Match Preview
+
+- Confirm `get_featured_live_game_preview` returns only one active public preview or `null`.
+- Confirm the preview payload includes board placements, open ends, table/mode status, move count, points, display names, seats, scores, and hand counts only.
+- Confirm the preview RPC does not return player ids or any hand tile arrays.
+- Confirm the preview RPC does not read from `game_player_hands`; hand counts are derived from current-round play moves.
+- Confirm anonymous users can call the preview only because the function is `SECURITY DEFINER` and returns sanitized read-only data.
+- Confirm finished, cancelled, setup, and abandoned games do not appear on the public homepage.
+
 ## Game Moves
 
 - Confirm participants can read moves for their game.
@@ -80,12 +89,14 @@ Each sensitive RPC should use `auth.uid()` and reject invalid users:
 - `mark_stale_players`
 - `send_chat_message`
 - `get_chat_messages`
+- `get_featured_live_game_preview`
 
 ## Hidden-Hand Risk Checklist
 
 - Search frontend for `game_player_hands`.
 - Search frontend for `tiles` usage outside `get_my_hand` and current-user hand rendering.
 - Confirm opponent components render `hand_count` only.
+- Confirm homepage preview renders derived hand counts only and never loads `get_my_hand`.
 - Confirm debug logs sanitize `tiles`, `hand`, password, token, and secret-like keys.
 - Confirm browser network tab never shows opponent tile arrays.
 
