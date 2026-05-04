@@ -12,8 +12,10 @@ const outputDir = path.join(
   'assets',
   'dominoes-normalized-webp',
 )
-const outputWidth = 256
-const outputHeight = 512
+const outputWidth = 320
+const outputHeight = 640
+const innerWidth = 288
+const innerHeight = 576
 const quality = 90
 const largeOutputThresholdBytes = 180 * 1024
 const expectedSourceWidth = 1024
@@ -97,9 +99,21 @@ async function normalizeFile(filename) {
     .resize({
       background: { r: 0, g: 0, b: 0, alpha: 0 },
       fit: 'contain',
-      height: outputHeight,
-      width: outputWidth,
+      height: innerHeight,
+      width: innerWidth,
     })
+    .extend({
+      background: { r: 0, g: 0, b: 0, alpha: 0 },
+      bottom: Math.floor((outputHeight - innerHeight) / 2),
+      left: Math.floor((outputWidth - innerWidth) / 2),
+      right: Math.ceil((outputWidth - innerWidth) / 2),
+      top: Math.ceil((outputHeight - innerHeight) / 2),
+    })
+    .modulate({
+      brightness: 1.02,
+      saturation: 1.02,
+    })
+    .sharpen({ sigma: 0.35 })
     .webp({
       alphaQuality: 92,
       effort: 5,
@@ -141,7 +155,9 @@ async function main() {
   console.log(`Input: ${inputDir}`)
   console.log(`Output: ${outputDir}`)
   console.log(`Output canvas: ${outputWidth}x${outputHeight}`)
+  console.log(`Inner tile fit: ${innerWidth}x${innerHeight}`)
   console.log(`Quality: ${quality}`)
+  console.log('Cleanup: transparent trim, centered padding, mild brighten/saturate, mild sharpen')
 
   for (const filename of sourceFiles) {
     const result = await normalizeFile(filename)
@@ -166,6 +182,9 @@ async function main() {
   console.log(`Output dimensions: ${outputWidth}x${outputHeight}`)
   console.log(`Source total: ${formatBytes(totalInputBytes)}`)
   console.log(`Normalized output total: ${formatBytes(totalOutputBytes)}`)
+  console.log(
+    'Note: normalization improves canvas, padding, centering, and output size; it cannot fully fix source tilt, perspective, lighting, baked-in shadows, or halos.',
+  )
 
   if (allWarnings.length > 0) {
     console.log('\nWarnings')

@@ -6,7 +6,19 @@ import sharp from 'sharp'
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const projectRoot = path.resolve(__dirname, '..')
 const dominoesDir = path.join(projectRoot, 'public', 'assets', 'dominoes')
+const normalizedDominoesDir = path.join(
+  projectRoot,
+  'public',
+  'assets',
+  'dominoes-normalized-webp',
+)
 const outputPath = path.join(dominoesDir, 'domino-contact-sheet.png')
+const normalizedOutputPath = path.join(
+  projectRoot,
+  'public',
+  'assets',
+  'dominoes-normalized-contact-sheet.png',
+)
 
 const tileWidth = 96
 const tileHeight = 144
@@ -33,26 +45,29 @@ function createLabelSvg(filename) {
   `)
 }
 
-async function getDominoFiles() {
-  const entries = await fs.readdir(dominoesDir, { withFileTypes: true })
+async function getDominoFiles(sourceDir, extension) {
+  const entries = await fs.readdir(sourceDir, { withFileTypes: true })
 
   return entries
     .filter((entry) => entry.isFile())
     .map((entry) => entry.name)
     .filter(
       (filename) =>
-        /^domino-[0-6]-[0-6]\.png$/.test(filename) &&
-        filename !== 'domino-back.png' &&
-        filename !== 'domino-contact-sheet.png',
+        new RegExp(`^domino-[0-6]-[0-6]\\.${extension}$`).test(filename) ||
+        filename === `domino-back.${extension}`,
     )
     .sort((first, second) => first.localeCompare(second, undefined, { numeric: true }))
 }
 
-async function main() {
-  const files = await getDominoFiles()
-
+async function createContactSheet({
+  extension,
+  files,
+  output,
+  sourceDir,
+  title,
+}) {
   if (files.length === 0) {
-    throw new Error(`No domino tile PNGs found in ${dominoesDir}`)
+    throw new Error(`No domino tile ${extension.toUpperCase()} files found in ${sourceDir}`)
   }
 
   const rows = Math.ceil(files.length / columns)
@@ -65,7 +80,7 @@ async function main() {
     const row = Math.floor(index / columns)
     const cellLeft = sheetPadding + column * cellWidth
     const cellTop = sheetPadding + row * cellHeight
-    const tileBuffer = await sharp(path.join(dominoesDir, filename))
+    const tileBuffer = await sharp(path.join(sourceDir, filename))
       .resize({
         width: tileWidth,
         height: tileHeight,
@@ -101,7 +116,7 @@ async function main() {
           <svg width="${sheetWidth}" height="${sheetHeight}" xmlns="http://www.w3.org/2000/svg">
             <rect width="100%" height="100%" fill="#073321" />
             <rect x="10" y="10" width="${sheetWidth - 20}" height="${sheetHeight - 20}" rx="18" fill="none" stroke="rgba(217,184,102,0.35)" stroke-width="2" />
-            <text x="${sheetPadding}" y="18" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" fill="#d9b866">Domino Vibes asset audit: expected low-on-top / high-on-bottom</text>
+            <text x="${sheetPadding}" y="18" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" fill="#d9b866">${escapeXml(title)}</text>
           </svg>
         `),
         left: 0,
@@ -110,10 +125,41 @@ async function main() {
       ...composites,
     ])
     .png()
-    .toFile(outputPath)
+    .toFile(output)
 
   console.log(`Created contact sheet with ${files.length} tiles:`)
-  console.log(outputPath)
+  console.log(output)
+}
+
+async function main() {
+  const pngFiles = await getDominoFiles(dominoesDir, 'png')
+
+  await createContactSheet({
+    extension: 'png',
+    files: pngFiles,
+    output: outputPath,
+    sourceDir: dominoesDir,
+    title: 'Domino Vibes source PNG audit: expected low-on-top / high-on-bottom',
+  })
+
+  try {
+    const normalizedFiles = await getDominoFiles(normalizedDominoesDir, 'webp')
+
+    await createContactSheet({
+      extension: 'webp',
+      files: normalizedFiles,
+      output: normalizedOutputPath,
+      sourceDir: normalizedDominoesDir,
+      title: 'Domino Vibes normalized WebP audit: candidate set, not default',
+    })
+  } catch (error) {
+    console.warn(
+      `Skipped normalized contact sheet: ${
+        error instanceof Error ? error.message : String(error)
+      }`,
+    )
+  }
+
 }
 
 main().catch((error) => {

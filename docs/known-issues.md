@@ -12,6 +12,8 @@ This document tracks private beta guardrails and known MVP limitations.
 - Current domino photo assets are beta production assets and now have WebP delivery copies, but the future goal is a consistent realistic 2.5D rendered tile set.
 - Photo assets currently fit the Domino Vibes style better than flat procedural tiles, but they still need source-level consistency in lighting, crop, and perspective.
 - The normalized asset pipeline helps align canvas size, padding, dimensions, and output size, but it does not replace a production-rendered asset set.
+- Gray/white halos and slightly tilted dominoes are source-art issues; normalization can reduce inconsistent padding but should be visually reviewed before becoming the default asset path.
+- The normalized WebP candidate set is generated for review only. Production still uses the optimized WebP/photo-style set unless `USE_NORMALIZED_DOMINO_ASSETS` is intentionally enabled in a branch.
 - Domino asset loading falls back from WebP to PNG/text, so broken optimized files should be caught during asset QA rather than blocking gameplay.
 - No bots or AFK takeover exist yet.
 - Chat is MVP text-only chat with basic room scoping and guardrails.

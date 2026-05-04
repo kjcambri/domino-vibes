@@ -14,6 +14,7 @@ export const USE_NORMALIZED_DOMINO_ASSETS = false
 // visual bottom pip for an unrotated asset.
 type DominoAssetOptions = {
   preferOptimized?: boolean
+  preferNormalized?: boolean
 }
 
 export function normalizeTileId(tileId: string): string {
@@ -57,7 +58,7 @@ export function getDominoImageSrc(
   const sources = getDominoAssetCandidates(tileId)
 
   if (options.preferOptimized) {
-    return USE_NORMALIZED_DOMINO_ASSETS
+    return options.preferNormalized || USE_NORMALIZED_DOMINO_ASSETS
       ? sources.normalizedSrc
       : sources.optimizedSrc
   }
