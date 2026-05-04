@@ -56,11 +56,11 @@ export function TurnActionPanel({
   const busyLabel = selectedTileId ? 'Playing...' : 'Passing...'
 
   return (
-    <GameCard className="bg-green-950/72">
+    <GameCard className="border-teal-300/16 bg-green-950/72">
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-xs font-black uppercase tracking-[0.18em] text-gold-200">
-            Turn actions
+            Action dock
           </p>
           <p className="mt-2 text-lg font-black text-cream-50">
             {!isMyTurn
@@ -70,7 +70,10 @@ export function TurnActionPanel({
                 : 'Select a tile to play'}
           </p>
         </div>
-        <StatusChip tone={isMyTurn ? 'gold' : 'cream'}>
+        <StatusChip
+          className={isMyTurn ? 'bg-gold-300 text-green-950' : ''}
+          tone={isMyTurn ? 'gold' : 'cream'}
+        >
           {isMyTurn ? 'Ready' : 'Locked'}
         </StatusChip>
       </div>

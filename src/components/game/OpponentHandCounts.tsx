@@ -18,7 +18,7 @@ export function OpponentHandCounts({
     <GameCard className="bg-green-950/58">
       <div className="flex items-center justify-between">
         <p className="text-xs font-black uppercase tracking-[0.18em] text-gold-200">
-          Opponents
+          Player HUD
         </p>
         <StatusChip tone="cream">Counts only</StatusChip>
       </div>
@@ -77,7 +77,7 @@ function OpponentRow({
         <span className="rounded-full bg-gold-300/15 px-3 py-1 text-xs font-bold text-gold-100">
           {player.score} points
         </span>
-        <span className="rounded-full bg-felt-300/14 px-3 py-1 text-xs font-bold text-felt-50">
+        <span className="rounded-full bg-teal-300/14 px-3 py-1 text-xs font-bold text-teal-100">
           {presence.label}
         </span>
         {player.hasPassed ? (

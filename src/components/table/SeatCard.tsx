@@ -31,8 +31,9 @@ export function SeatCard({
   return (
     <GameCard
       className={cn(
-        'grid gap-4 p-4',
-        isCurrentUserSeat && 'border-gold-300/45 bg-gold-300/12 shadow-gold',
+        'grid gap-4 p-4 transition hover:border-teal-300/25',
+        isCurrentUserSeat &&
+          'border-gold-300/45 bg-gold-300/12 shadow-gold',
       )}
       variant={isCurrentUserSeat ? 'gold' : 'felt'}
     >
@@ -42,7 +43,9 @@ export function SeatCard({
         </span>
         <div className="flex items-center gap-2">
           {seat.isReady ? (
-            <StatusChip tone="felt">Ready</StatusChip>
+            <StatusChip className="border-teal-300/30 bg-teal-300/12 text-teal-100" tone="felt">
+              Ready
+            </StatusChip>
           ) : null}
           <span className="grid size-11 place-items-center rounded-2xl border border-cream-100/12 bg-green-950/45 text-cream-100 shadow-wood">
             {isOccupied ? (
@@ -68,7 +71,7 @@ export function SeatCard({
             : 'Waiting for a player'}
         </p>
         {isOccupied ? (
-          <p className="mt-2 text-xs font-semibold text-cream-100/52">
+          <p className="mt-2 text-xs font-semibold text-teal-100/70">
             {presence.label} · {presence.description}
           </p>
         ) : null}

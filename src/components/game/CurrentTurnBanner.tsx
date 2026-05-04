@@ -39,12 +39,12 @@ export function CurrentTurnBanner({
         'relative overflow-hidden',
         isMyTurn &&
           status === 'active' &&
-          'border-gold-300/45 shadow-[0_18px_54px_rgba(242,193,78,0.18),0_20px_60px_rgba(0,0,0,0.28)]',
+          'border-gold-300/45 shadow-[0_18px_54px_rgba(242,193,78,0.18),0_0_34px_rgba(69,221,189,0.12),0_20px_60px_rgba(0,0,0,0.28)]',
       )}
       variant={variant}
     >
       {isMyTurn && status === 'active' ? (
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_82%_30%,rgba(242,193,78,0.22),transparent_12rem)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_82%_30%,rgba(242,193,78,0.22),transparent_12rem),radial-gradient(circle_at_12%_70%,rgba(69,221,189,0.12),transparent_10rem)]" />
       ) : null}
       <div className="flex items-center justify-between gap-3">
         <div className="relative min-w-0">
@@ -75,7 +75,7 @@ export function CurrentTurnBanner({
             <Icon aria-hidden="true" size={20} />
           </span>
           {isMyTurn && status === 'active' ? (
-            <StatusChip className="bg-gold-300 text-green-950" tone="gold">
+            <StatusChip className="bg-gold-300 text-green-950 shadow-gold" tone="gold">
               Play
             </StatusChip>
           ) : null}

@@ -156,7 +156,7 @@ export function TableRoomPage() {
   }
 
   return (
-    <MobileShell className="max-w-5xl">
+    <MobileShell className="max-w-7xl">
       <div className="flex flex-1 flex-col gap-5 py-4">
         <TableRoomHeader table={room.table} />
 
@@ -169,49 +169,73 @@ export function TableRoomPage() {
           </div>
         ) : null}
 
-        <TableSeatGrid
-          canSit={canSit}
-          currentUserId={user?.id}
-          isBusy={sitAtTable.isPending}
-          onSit={handleSit}
-          seats={room.seats}
-        />
+        <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_360px] xl:items-start">
+          <section className="grid gap-4">
+            <GameCard className="p-4" variant="felt">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <p className="text-xs font-black uppercase tracking-[0.18em] text-teal-300">
+                    Table status
+                  </p>
+                  <p className="mt-1 text-sm font-bold text-cream-100/75">
+                    {readyState.seatedCount}/{room.table.maxPlayers} seated ·{' '}
+                    {readyState.readyCount}/{room.table.maxPlayers} ready
+                  </p>
+                </div>
+                <p className="rounded-full border border-gold-300/25 bg-gold-300/12 px-3 py-2 text-xs font-black uppercase tracking-[0.1em] text-gold-100">
+                  Points to Win: 6
+                </p>
+              </div>
+            </GameCard>
 
-        {canToggleReady ? (
-          <ReadyToggle
-            isLoading={toggleReady.isPending}
-            isReady={Boolean(currentUserSeat?.isReady)}
-            onToggle={handleToggleReady}
-          />
-        ) : null}
+            <TableSeatGrid
+              canSit={canSit}
+              currentUserId={user?.id}
+              isBusy={sitAtTable.isPending}
+              onSit={handleSit}
+              seats={room.seats}
+            />
+          </section>
 
-        {canLeave ? (
-          <Button
-            className="w-full gap-2"
-            disabled={leaveTable.isPending}
-            onClick={handleLeave}
-            variant="danger"
-          >
-            <LogOut aria-hidden="true" size={18} />
-            {leaveTable.isPending ? 'Leaving...' : 'Leave Table'}
-          </Button>
-        ) : null}
+          <aside className="grid gap-4 xl:sticky xl:top-4">
+            {canToggleReady ? (
+              <ReadyToggle
+                isLoading={toggleReady.isPending}
+                isReady={Boolean(currentUserSeat?.isReady)}
+                onToggle={handleToggleReady}
+              />
+            ) : null}
 
-        {room.table.status !== 'in_game' ? (
-          <StartGamePanel
-            isStarting={startGame.isPending}
-            onStart={handleStartGame}
-            readyState={readyState}
-          />
-        ) : null}
+            {room.table.status !== 'in_game' ? (
+              <StartGamePanel
+                isStarting={startGame.isPending}
+                onStart={handleStartGame}
+                readyState={readyState}
+              />
+            ) : null}
 
-        {isCurrentUserSeated ? (
-          <ChatPanel
-            roomId={room.table.id}
-            roomType="table"
-            title="Table Chat"
-          />
-        ) : null}
+            {canLeave ? (
+              <Button
+                className="w-full gap-2"
+                disabled={leaveTable.isPending}
+                onClick={handleLeave}
+                variant="danger"
+              >
+                <LogOut aria-hidden="true" size={18} />
+                {leaveTable.isPending ? 'Leaving...' : 'Leave Table'}
+              </Button>
+            ) : null}
+
+            {isCurrentUserSeated ? (
+              <ChatPanel
+                defaultOpen
+                roomId={room.table.id}
+                roomType="table"
+                title="Table Chat"
+              />
+            ) : null}
+          </aside>
+        </div>
 
         {room.table.status === 'in_game' ? (
           <GameCard className="bg-felt-700/35">

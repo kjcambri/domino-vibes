@@ -15,7 +15,7 @@ export function GamePlayerList({
   return (
     <section className="grid gap-3">
       <p className="text-xs font-bold uppercase tracking-[0.18em] text-gold-200">
-        Scoreboard
+        Scoreboard · Points to Win: 6
       </p>
       {players.map((player) => {
         const presence = getPlayerPresence({
@@ -55,7 +55,14 @@ export function GamePlayerList({
               </p>
             </div>
             <div className="grid justify-items-end gap-2">
-              <StatusChip tone={presence.status === 'active' ? 'felt' : 'cream'}>
+              <StatusChip
+                className={
+                  presence.status === 'active'
+                    ? 'border-teal-300/30 bg-teal-300/12 text-teal-100'
+                    : ''
+                }
+                tone={presence.status === 'active' ? 'felt' : 'cream'}
+              >
                 {presence.label}
               </StatusChip>
               {player.hasPassed ? (

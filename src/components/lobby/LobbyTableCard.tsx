@@ -38,6 +38,12 @@ export function LobbyTableCard({
       variant={isCurrentTable ? 'gold' : 'felt'}
     >
       <div className="absolute right-0 top-0 h-24 w-24 rounded-bl-full bg-gold-300/8" />
+      <div className="relative -mx-4 -mt-4 grid h-28 place-items-center border-b border-cream-100/10 bg-[radial-gradient(circle_at_50%_42%,rgba(69,221,189,0.18),transparent_9rem),linear-gradient(145deg,#146B4A,#061F18)]">
+        <div className="flex items-center gap-1.5">
+          <span className="h-12 w-6 rotate-[-8deg] rounded-md border border-cream-900/15 bg-cream-50 shadow-wood" />
+          <span className="h-12 w-6 translate-y-1 rotate-[8deg] rounded-md border border-gold-300/45 bg-cream-50 shadow-gold" />
+        </div>
+      </div>
       <div className="flex items-start justify-between gap-3">
         <div className="relative min-w-0">
           <GameModeLabel gameMode={table.gameMode} />
@@ -57,10 +63,13 @@ export function LobbyTableCard({
         </div>
         <div className="mt-3 h-2 overflow-hidden rounded-full bg-cream-100/10">
           <div
-            className="h-full rounded-full bg-gradient-to-r from-gold-300 to-felt-300"
+            className="h-full rounded-full bg-gradient-to-r from-teal-300 via-felt-300 to-gold-300"
             style={{ width: `${fillPercent}%` }}
           />
         </div>
+        <p className="mt-3 text-xs font-black uppercase tracking-[0.12em] text-cream-100/45">
+          Points to Win: 6
+        </p>
       </div>
 
       {isCurrentTable ? (
