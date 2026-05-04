@@ -37,6 +37,8 @@ Do not add secrets to GitHub commits. Configure production values in the hosting
   - `heartbeat_game_presence(uuid)`
   - `heartbeat_table_presence(uuid)`
   - `mark_stale_players(uuid)`
+  - `send_chat_message(text, uuid, text, text)`
+  - `get_chat_messages(text, uuid, integer)`
 
 ## 5. Supabase Auth Settings
 

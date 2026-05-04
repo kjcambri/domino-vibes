@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import { ChatPanel } from '../components/chat/ChatPanel'
 import { GameCard } from '../components/ui/GameCard'
 import { StateCard } from '../components/ui/StateCard'
 import { BoardStatePreview } from '../components/game/BoardStatePreview'
@@ -178,6 +179,12 @@ export function GameRoomPage() {
             <GamePlayerList
               currentTurnPlayerId={game.currentTurnPlayerId}
               players={gameRoom.gameRoom.players}
+            />
+            <ChatPanel
+              compact
+              roomId={game.id}
+              roomType="game"
+              title="Table Talk"
             />
           </div>
         </div>

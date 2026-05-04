@@ -8,7 +8,9 @@ This document tracks private beta guardrails and known MVP limitations.
 - The UI is a polished MVP web experience, not the final production mobile app UI.
 - Current domino assets are acceptable for beta, but should be replaced with production-quality, consistently authored assets later.
 - No bots or AFK takeover exist yet.
-- No chat exists yet.
+- Chat is MVP text-only chat with basic room scoping and guardrails.
+- No advanced moderation, reports, blocks, or admin dashboard exist yet.
+- No direct messages or media uploads exist yet.
 - No tournaments or ranked play exist yet.
 - No spectator or replay system exists yet.
 - Manual dev SQL cleanup may still be needed for old test data.
@@ -26,7 +28,7 @@ This document tracks private beta guardrails and known MVP limitations.
 ## Roadmap Items Not Included Yet
 
 - Bots and disconnected-player takeover.
-- Chat and table reactions.
+- Chat moderation, reports, blocks, and table reactions.
 - Ranked tables.
 - Tournaments.
 - Spectators.

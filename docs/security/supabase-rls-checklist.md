@@ -48,6 +48,19 @@ Use this checklist against the Supabase project that powers the beta environment
 - Confirm direct frontend insert/update/delete is blocked.
 - Confirm moves are recorded only through `play_tile` and `pass_turn`.
 
+## Chat Messages
+
+- Confirm authenticated users can read lobby chat.
+- Confirm lobby messages use `room_type = 'lobby'` and `room_id is null`.
+- Confirm table chat read/send requires the user to be seated at that table.
+- Confirm game chat read/send requires the user to be a participant in that game.
+- Confirm `sender_id` must equal `auth.uid()`.
+- Confirm normal users cannot set `is_system = true`.
+- Confirm normal users cannot directly update or delete messages.
+- Confirm `send_chat_message` controls `sender_display_name` from the profile row.
+- Confirm empty and over-500-character messages are rejected server-side.
+- Confirm chat logs do not include hidden hand data.
+
 ## RPC Security Checks
 
 Each sensitive RPC should use `auth.uid()` and reject invalid users:
@@ -65,6 +78,8 @@ Each sensitive RPC should use `auth.uid()` and reject invalid users:
 - `heartbeat_game_presence`
 - `heartbeat_table_presence`
 - `mark_stale_players`
+- `send_chat_message`
+- `get_chat_messages`
 
 ## Hidden-Hand Risk Checklist
 

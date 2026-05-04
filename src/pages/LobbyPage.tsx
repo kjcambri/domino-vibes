@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { LogoutButton } from '../components/auth/LogoutButton'
+import { ChatPanel } from '../components/chat/ChatPanel'
 import { GameCard } from '../components/ui/GameCard'
 import { SectionHeader } from '../components/ui/SectionHeader'
 import { StateCard } from '../components/ui/StateCard'
@@ -193,6 +194,11 @@ export function LobbyPage() {
             ))}
           </div>
         </section>
+        <ChatPanel
+          defaultOpen
+          roomType="lobby"
+          title="Lobby Chat"
+        />
       </div>
     </MobileShell>
   )

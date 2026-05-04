@@ -102,7 +102,22 @@ Use this checklist before inviting private testers and before every beta deploy.
 - Confirm users cannot clear someone else's finished-game seat.
 - Confirm frontend code does not directly write hands, moves, or games tables.
 
-## 9. Regression Checklist Before Every Commit
+## 9. Chat Testing
+
+- Send and read a lobby chat message from two logged-in users.
+- Confirm lobby chat blocks empty messages.
+- Confirm lobby chat blocks messages longer than 500 characters.
+- Join a table and send a table chat message.
+- Confirm seated table users can read table chat.
+- Confirm non-seated users cannot read or send table chat.
+- Start a game and send a game chat message.
+- Confirm game participants can read game chat.
+- Confirm non-participants cannot read or send game chat.
+- Confirm chat updates in another browser through realtime or polling.
+- Confirm Enter sends and Shift+Enter does not unexpectedly submit if multiline behavior is active.
+- Confirm chat does not expose hidden hands or gameplay RPC payloads.
+
+## 10. Regression Checklist Before Every Commit
 
 - Run `npm run lint`.
 - Run `npm run build`.
@@ -113,10 +128,10 @@ Use this checklist before inviting private testers and before every beta deploy.
 - Confirm the current route still loads in the browser.
 - Check mobile width for the changed screen.
 
-## 10. Known Issues
+## 11. Known Issues
 
-- Vite may warn that the main bundle is larger than 500 kB.
+- Vite can warn about large chunks if route splitting regresses.
 - Private beta should use test accounts and test data only.
 - Old games created before server-saved geometry may not look like fresh games.
 - Stuck development seats may require dev SQL cleanup.
-- There is no bot, AFK takeover, chat, ranked, or tournament support yet.
+- Chat is MVP only; advanced moderation, DMs, media uploads, bots, AFK takeover, ranked, and tournament support are not included yet.

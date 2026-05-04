@@ -2,6 +2,7 @@ import { LogOut } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Button } from '../components/common/Button'
+import { ChatPanel } from '../components/chat/ChatPanel'
 import { GameCard } from '../components/ui/GameCard'
 import { StateCard } from '../components/ui/StateCard'
 import { MobileShell } from '../components/layout/MobileShell'
@@ -201,6 +202,14 @@ export function TableRoomPage() {
             isStarting={startGame.isPending}
             onStart={handleStartGame}
             readyState={readyState}
+          />
+        ) : null}
+
+        {isCurrentUserSeated ? (
+          <ChatPanel
+            roomId={room.table.id}
+            roomType="table"
+            title="Table Chat"
           />
         ) : null}
 
