@@ -3,21 +3,39 @@ import { cn } from '../../lib/cn'
 import {
   getDominoAssetCandidates,
   normalizeTileId,
+  USE_NORMALIZED_DOMINO_ASSETS,
+  USE_PROCEDURAL_DOMINOES,
 } from '../../features/games/dominoAssets'
+import { type DominoTileDto } from '../../features/games/types'
+import { ProceduralDominoTile } from './ProceduralDominoTile'
+
+type DominoTileSize = 'tiny' | 'board' | 'small' | 'medium' | 'large' | 'hand'
 
 type DominoImageTileProps = {
-  tileId: string
+  tileId?: string
+  tile?: Pick<DominoTileDto, 'id' | 'left' | 'right'>
+  left?: number
+  right?: number
   selected?: boolean
   disabled?: boolean
   playable?: boolean
-  size?: 'board' | 'small' | 'medium' | 'large'
+  isLatest?: boolean
+  isStart?: boolean
+  hidden?: boolean
+  size?: DominoTileSize
   orientation?: 'vertical' | 'horizontal'
+  rotation?: number
   onClick?: () => void
   ariaLabel?: string
   className?: string
 }
 
 const sizeClasses = {
+  tiny: {
+    vertical: 'h-9 w-[18px]',
+    horizontal: 'h-[18px] w-9',
+    text: 'text-[0.45rem]',
+  },
   board: {
     vertical: 'h-[56px] w-[28px]',
     horizontal: 'h-[28px] w-[56px]',
@@ -38,31 +56,57 @@ const sizeClasses = {
     horizontal: 'h-16 w-32',
     text: 'text-sm',
   },
+  hand: {
+    vertical: 'h-32 w-16',
+    horizontal: 'h-16 w-32',
+    text: 'text-sm',
+  },
 }
 
-export function DominoImageTile({
+export function DominoImageTile(props: DominoImageTileProps) {
+  if (USE_PROCEDURAL_DOMINOES) {
+    return (
+      <ProceduralDominoTile
+        {...props}
+        orientation={props.size === 'board' ? 'vertical' : props.orientation}
+      />
+    )
+  }
+
+  return <DominoPhotoAssetTile {...props} />
+}
+
+function DominoPhotoAssetTile({
   tileId,
   selected = false,
   disabled = false,
   playable = false,
+  isLatest = false,
+  isStart = false,
+  hidden = false,
   size = 'medium',
   orientation = 'vertical',
+  rotation,
   onClick,
   ariaLabel,
   className,
 }: DominoImageTileProps) {
-  const normalizedTileId = normalizeTileId(tileId)
+  const safeTileId = hidden ? 'domino-back' : tileId ?? '0-0'
+  const normalizedTileId = normalizeTileId(safeTileId)
   const imageSources = useMemo(() => {
-    const { optimizedSrc, pngSrc } = getDominoAssetCandidates(tileId)
+    const { normalizedSrc, optimizedSrc, pngSrc } =
+      getDominoAssetCandidates(safeTileId)
 
-    return [optimizedSrc, pngSrc]
-  }, [tileId])
+    return USE_NORMALIZED_DOMINO_ASSETS
+      ? [normalizedSrc, optimizedSrc, pngSrc]
+      : [optimizedSrc, pngSrc]
+  }, [safeTileId])
   const [imageSourceState, setImageSourceState] = useState({
     index: 0,
-    tileId,
+    tileId: safeTileId,
   })
   const imageSourceIndex =
-    imageSourceState.tileId === tileId ? imageSourceState.index : 0
+    imageSourceState.tileId === safeTileId ? imageSourceState.index : 0
   const imageSrc = imageSources[imageSourceIndex]
   const hasImageError = imageSourceIndex >= imageSources.length
   const safeOrientation =
@@ -73,6 +117,7 @@ export function DominoImageTile({
   const rootSizeClass = isBoardTile
     ? sizeClasses.board.vertical
     : sizeClasses[size][safeOrientation]
+  const style = Number.isFinite(rotation) ? { rotate: `${rotation}deg` } : undefined
 
   const baseClassName = cn(
     'relative inline-grid shrink-0 place-items-center overflow-hidden rounded-lg border border-cream-950/10 bg-cream-50/10 transition-[box-shadow,filter,opacity,transform] duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-200 focus-visible:ring-offset-2 focus-visible:ring-offset-green-950',
@@ -84,7 +129,11 @@ export function DominoImageTile({
       'drop-shadow-[0_0_14px_rgba(242,193,78,0.58)] ring-1 ring-gold-200/65',
     selected &&
       'z-10 -translate-y-1 ring-2 ring-gold-200 ring-offset-2 ring-offset-green-950 shadow-[0_18px_34px_rgba(242,193,78,0.3),0_12px_28px_rgba(0,0,0,0.5)]',
-    disabled && 'opacity-45 grayscale',
+    isLatest &&
+      'ring-1 ring-teal-300/70 ring-offset-1 ring-offset-green-950 drop-shadow-[0_0_14px_rgba(69,221,189,0.34)]',
+    isStart &&
+      'ring-1 ring-gold-200/80 ring-offset-1 ring-offset-green-950 drop-shadow-[0_0_14px_rgba(242,193,78,0.42)]',
+    disabled && 'opacity-80 saturate-[0.92] brightness-[0.98]',
     onClick &&
       !disabled &&
       'cursor-pointer hover:-translate-y-1 hover:brightness-110 active:translate-y-0 active:scale-95',
@@ -99,16 +148,18 @@ export function DominoImageTile({
         sizeClasses[size].text,
       )}
     >
-      [{fallbackParts[0]}|{fallbackParts[1]}]
+      {hidden ? '?' : `[${fallbackParts[0]}|${fallbackParts[1]}]`}
     </span>
   ) : (
     <img
-      alt={ariaLabel ?? `Domino ${normalizedTileId}`}
+      alt={ariaLabel ?? (hidden ? 'Hidden domino' : `Domino ${normalizedTileId}`)}
       className={cn(
         'pointer-events-none select-none',
         isBoardTile ? 'object-cover' : 'object-contain',
         isBoardTile && 'h-full w-full max-w-none',
-        !isBoardTile && safeOrientation === 'vertical' && 'h-full w-full',
+        !isBoardTile &&
+          safeOrientation === 'vertical' &&
+          'h-full w-full max-w-none object-cover',
         !isBoardTile &&
           safeOrientation === 'horizontal' &&
           'h-[150%] w-auto max-w-none rotate-90',
@@ -117,8 +168,8 @@ export function DominoImageTile({
       onError={() =>
         setImageSourceState((currentState) => ({
           index:
-            currentState.tileId === tileId ? currentState.index + 1 : 1,
-          tileId,
+            currentState.tileId === safeTileId ? currentState.index + 1 : 1,
+          tileId: safeTileId,
         }))
       }
       src={imageSrc}
@@ -128,11 +179,12 @@ export function DominoImageTile({
   if (onClick) {
     return (
       <button
-        aria-label={ariaLabel ?? `Domino ${normalizedTileId}`}
+        aria-label={ariaLabel ?? (hidden ? 'Hidden domino' : `Domino ${normalizedTileId}`)}
         aria-pressed={selected}
         className={baseClassName}
         disabled={disabled}
         onClick={onClick}
+        style={style}
         type="button"
       >
         {content}
@@ -142,9 +194,10 @@ export function DominoImageTile({
 
   return (
     <div
-      aria-label={ariaLabel ?? `Domino ${normalizedTileId}`}
+      aria-label={ariaLabel ?? (hidden ? 'Hidden domino' : `Domino ${normalizedTileId}`)}
       className={baseClassName}
       role="img"
+      style={style}
     >
       {content}
     </div>

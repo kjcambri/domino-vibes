@@ -14,6 +14,7 @@
     "assets:audit": "node scripts/audit-domino-assets.mjs",
     "assets:contact-sheet": "node scripts/create-domino-contact-sheet.mjs",
     "assets:optimize": "node scripts/optimize-domino-assets.mjs",
+    "assets:normalize": "node scripts/normalize-domino-assets.mjs",
     "assets:rotate": "node scripts/rotate-domino-assets.mjs"
   },
   "dependencies": {

@@ -4,7 +4,6 @@ import { StatusChip } from '../ui/StatusChip'
 import { DominoImageTile } from './DominoImageTile'
 import { createDominoBoardLayout } from '../../features/games/boardLayout'
 import { type BoardStateDto } from '../../features/games/types'
-import { cn } from '../../lib/cn'
 import { logDebug } from '../../lib/logger'
 
 const BOARD_PADDING = 150
@@ -130,13 +129,8 @@ export function BoardStatePreview({ boardState }: { boardState: BoardStateDto })
                     ? `Starting domino ${placement.tileId}`
                     : `Played domino ${placement.tileId}`
                 }
-                className={cn(
-                  placement.isStart &&
-                    'ring-1 ring-gold-200/80 ring-offset-1 ring-offset-green-950 drop-shadow-[0_0_14px_rgba(242,193,78,0.45)]',
-                  placement.isLatest &&
-                    !placement.isStart &&
-                    'ring-1 ring-gold-200/65 ring-offset-1 ring-offset-green-950 drop-shadow-[0_0_12px_rgba(242,193,78,0.34)]',
-                )}
+                isLatest={placement.isLatest}
+                isStart={placement.isStart}
                 playable={placement.isLatest}
                 orientation={placement.orientation}
                 size="board"
