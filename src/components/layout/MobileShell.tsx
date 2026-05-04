@@ -1,5 +1,6 @@
 import { type PropsWithChildren } from 'react'
 import { cn } from '../../lib/cn'
+import { appInfo } from '../../lib/appInfo'
 
 type MobileShellProps = PropsWithChildren<{
   className?: string
@@ -15,6 +16,9 @@ export function MobileShell({ children, className }: MobileShellProps) {
         )}
       >
         {children}
+        <p className="mt-auto pt-5 text-center text-[0.68rem] font-bold uppercase tracking-[0.16em] text-cream-100/38">
+          {appInfo.appName} beta · {appInfo.appVersion} · {appInfo.buildMode}
+        </p>
       </div>
     </main>
   )

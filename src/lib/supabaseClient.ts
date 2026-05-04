@@ -1,12 +1,13 @@
 import { createClient } from '@supabase/supabase-js'
 import { env, validateEnv } from './env'
+import { logWarn } from './logger'
 
 const envStatus = validateEnv()
 
 if (!envStatus.isValid) {
-  console.warn(
-    `Supabase is not configured. Missing: ${envStatus.missing.join(', ')}. Add values to your local .env file when backend work begins.`,
-  )
+  logWarn('Supabase is not configured.', {
+    missing: envStatus.missing,
+  })
 }
 
 const fallbackSupabaseUrl = 'https://placeholder.supabase.co'

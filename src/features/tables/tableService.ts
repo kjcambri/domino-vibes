@@ -1,4 +1,5 @@
 import { supabase } from '../../lib/supabaseClient'
+import { logDebug } from '../../lib/logger'
 import {
   type CurrentTable,
   type SeatActionResult,
@@ -157,10 +158,10 @@ export async function heartbeatTablePresence(
   })
 
   if (error) {
-    if (import.meta.env.DEV) {
-      console.debug('[Domino Vibes presence] heartbeat_table_presence failed', error)
-    }
-
+    logDebug('[Domino Vibes presence] heartbeat_table_presence failed', {
+      error,
+      tableId,
+    })
     throw error
   }
 

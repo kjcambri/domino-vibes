@@ -4,6 +4,7 @@ import { StatusChip } from '../ui/StatusChip'
 import { DominoImageTile } from './DominoImageTile'
 import { createDominoBoardLayout } from '../../features/games/boardLayout'
 import { type BoardStateDto } from '../../features/games/types'
+import { logDebug } from '../../lib/logger'
 
 const BOARD_PADDING = 150
 const BASE_BOARD_WIDTH = 720
@@ -53,8 +54,10 @@ export function BoardStatePreview({ boardState }: { boardState: BoardStateDto })
   }, [boardState.placements.length, originX, originY])
 
   useEffect(() => {
-    if (import.meta.env.DEV && invalidPlacements.length > 0) {
-      console.debug('Invalid board placements skipped by renderer', invalidPlacements)
+    if (invalidPlacements.length > 0) {
+      logDebug('Invalid board placements skipped by renderer', {
+        invalidPlacements,
+      })
     }
   }, [invalidPlacements])
 

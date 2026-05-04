@@ -6,6 +6,7 @@ import {
 } from 'react'
 import { type Session } from '@supabase/supabase-js'
 import { supabase } from '../../lib/supabaseClient'
+import { logWarn } from '../../lib/logger'
 import { getSession } from './authService'
 import { AuthContext, type AuthContextValue } from './authContextValue'
 
@@ -23,7 +24,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
         }
       })
       .catch((error) => {
-        console.warn('Unable to load Supabase session.', error)
+        logWarn('Unable to load Supabase session.', { error })
       })
       .finally(() => {
         if (isMounted) {

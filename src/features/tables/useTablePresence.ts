@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { logDebug } from '../../lib/logger'
 import { heartbeatTablePresence } from './tableService'
 
 const TABLE_HEARTBEAT_INTERVAL_MS = 15_000
@@ -11,12 +12,10 @@ export function useTablePresence(tableId?: string, enabled = true) {
 
     const sendHeartbeat = () => {
       void heartbeatTablePresence(tableId).catch((error) => {
-        if (import.meta.env.DEV) {
-          console.debug(
-            '[Domino Vibes presence] heartbeat_table_presence failed',
-            error,
-          )
-        }
+        logDebug('[Domino Vibes presence] heartbeat_table_presence failed', {
+          error,
+          tableId,
+        })
       })
     }
 

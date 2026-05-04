@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { supabase } from '../../lib/supabaseClient'
+import { logDebug } from '../../lib/logger'
 import { refreshGameRoomQueries } from './queryKeys'
 
 export function useGameRealtime(gameId?: string) {
@@ -12,13 +13,11 @@ export function useGameRealtime(gameId?: string) {
     }
 
     const handleRealtimeEvent = (tableName: string, eventType: string) => {
-      if (import.meta.env.DEV) {
-        console.debug('[Domino Vibes realtime]', {
-          table: tableName,
-          eventType,
-          gameId,
-        })
-      }
+      logDebug('[Domino Vibes realtime]', {
+        table: tableName,
+        eventType,
+        gameId,
+      })
 
       void refreshGameRoomQueries(queryClient, gameId)
     }
@@ -74,13 +73,11 @@ export function useGameRealtime(gameId?: string) {
         },
       )
       .subscribe((status) => {
-        if (import.meta.env.DEV) {
-          console.debug('[Domino Vibes realtime]', {
-            table: 'subscription',
-            eventType: status,
-            gameId,
-          })
-        }
+        logDebug('[Domino Vibes realtime]', {
+          table: 'subscription',
+          eventType: status,
+          gameId,
+        })
       })
 
     return () => {

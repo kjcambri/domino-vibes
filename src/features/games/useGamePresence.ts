@@ -1,13 +1,12 @@
 import { useEffect } from 'react'
+import { logDebug } from '../../lib/logger'
 import { heartbeatGamePresence, markStalePlayers } from './gameService'
 
 const GAME_HEARTBEAT_INTERVAL_MS = 15_000
 const STALE_MARK_INTERVAL_MS = 25_000
 
 function logPresenceError(action: string, error: unknown) {
-  if (import.meta.env.DEV) {
-    console.debug(`[Domino Vibes presence] ${action} failed`, error)
-  }
+  logDebug(`[Domino Vibes presence] ${action} failed`, { error })
 }
 
 export function useGamePresence(gameId?: string, enabled = true) {

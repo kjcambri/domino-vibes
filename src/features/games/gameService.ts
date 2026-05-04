@@ -1,4 +1,5 @@
 import { supabase } from '../../lib/supabaseClient'
+import { logDebug, logError } from '../../lib/logger'
 import {
   type BoardSide,
   type DominoTileDto,
@@ -116,10 +117,7 @@ export async function startNextRound(
   })
 
   if (error) {
-    if (import.meta.env.DEV) {
-      console.error('[Domino Vibes] start_next_round failed', error)
-    }
-
+    logError('[Domino Vibes] start_next_round failed', { error, gameId })
     throw error
   }
 
@@ -145,10 +143,7 @@ export async function leaveFinishedGame(
   })
 
   if (error) {
-    if (import.meta.env.DEV) {
-      console.error('[Domino Vibes] leave_finished_game failed', error)
-    }
-
+    logError('[Domino Vibes] leave_finished_game failed', { error, gameId })
     throw error
   }
 
@@ -174,10 +169,10 @@ export async function heartbeatGamePresence(
   })
 
   if (error) {
-    if (import.meta.env.DEV) {
-      console.debug('[Domino Vibes presence] heartbeat_game_presence failed', error)
-    }
-
+    logDebug('[Domino Vibes presence] heartbeat_game_presence failed', {
+      error,
+      gameId,
+    })
     throw error
   }
 
@@ -202,10 +197,10 @@ export async function markStalePlayers(
   })
 
   if (error) {
-    if (import.meta.env.DEV) {
-      console.debug('[Domino Vibes presence] mark_stale_players failed', error)
-    }
-
+    logDebug('[Domino Vibes presence] mark_stale_players failed', {
+      error,
+      gameId,
+    })
     throw error
   }
 

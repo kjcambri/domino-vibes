@@ -1,26 +1,34 @@
+import { Suspense, type ReactNode } from 'react'
 import { createBrowserRouter } from 'react-router-dom'
 import { ProtectedRoute } from '../components/auth/ProtectedRoute'
 import { PublicOnlyRoute } from '../components/auth/PublicOnlyRoute'
-import { GameRoomPage } from '../pages/GameRoomPage'
-import { LandingPage } from '../pages/LandingPage'
-import { LobbyPage } from '../pages/LobbyPage'
-import { LoginPage } from '../pages/LoginPage'
-import { NotFoundPage } from '../pages/NotFoundPage'
-import { ProfilePage } from '../pages/ProfilePage'
-import { ProfileSetupPage } from '../pages/ProfileSetupPage'
-import { SignupPage } from '../pages/SignupPage'
-import { TableRoomPage } from '../pages/TableRoomPage'
+import { RouteLoadingFallback } from '../components/layout/RouteLoadingFallback'
+import {
+  GameRoomPage,
+  LandingPage,
+  LobbyPage,
+  LoginPage,
+  NotFoundPage,
+  ProfilePage,
+  ProfileSetupPage,
+  SignupPage,
+  TableRoomPage,
+} from './lazyPages'
+
+function lazyRoute(element: ReactNode) {
+  return <Suspense fallback={<RouteLoadingFallback />}>{element}</Suspense>
+}
 
 export const router = createBrowserRouter([
   {
     path: '/',
-    element: <LandingPage />,
+    element: lazyRoute(<LandingPage />),
   },
   {
     path: '/login',
     element: (
       <PublicOnlyRoute>
-        <LoginPage />
+        {lazyRoute(<LoginPage />)}
       </PublicOnlyRoute>
     ),
   },
@@ -28,7 +36,7 @@ export const router = createBrowserRouter([
     path: '/signup',
     element: (
       <PublicOnlyRoute>
-        <SignupPage />
+        {lazyRoute(<SignupPage />)}
       </PublicOnlyRoute>
     ),
   },
@@ -36,7 +44,7 @@ export const router = createBrowserRouter([
     path: '/profile',
     element: (
       <ProtectedRoute>
-        <ProfilePage />
+        {lazyRoute(<ProfilePage />)}
       </ProtectedRoute>
     ),
   },
@@ -44,7 +52,7 @@ export const router = createBrowserRouter([
     path: '/profile/setup',
     element: (
       <ProtectedRoute requireProfile={false}>
-        <ProfileSetupPage />
+        {lazyRoute(<ProfileSetupPage />)}
       </ProtectedRoute>
     ),
   },
@@ -52,7 +60,7 @@ export const router = createBrowserRouter([
     path: '/lobby',
     element: (
       <ProtectedRoute>
-        <LobbyPage />
+        {lazyRoute(<LobbyPage />)}
       </ProtectedRoute>
     ),
   },
@@ -60,7 +68,7 @@ export const router = createBrowserRouter([
     path: '/tables/:tableId',
     element: (
       <ProtectedRoute>
-        <TableRoomPage />
+        {lazyRoute(<TableRoomPage />)}
       </ProtectedRoute>
     ),
   },
@@ -68,12 +76,12 @@ export const router = createBrowserRouter([
     path: '/games/:gameId',
     element: (
       <ProtectedRoute>
-        <GameRoomPage />
+        {lazyRoute(<GameRoomPage />)}
       </ProtectedRoute>
     ),
   },
   {
     path: '*',
-    element: <NotFoundPage />,
+    element: lazyRoute(<NotFoundPage />),
   },
 ])
