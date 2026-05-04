@@ -38,10 +38,13 @@ export function ChatPanel({
   }
 
   return (
-    <GameCard className={compact ? 'p-4' : undefined} variant="felt">
+    <GameCard
+      className={compact ? 'overflow-hidden p-4' : 'overflow-hidden'}
+      variant="felt"
+    >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-xs font-black uppercase tracking-[0.18em] text-gold-200">
+          <p className="text-xs font-black uppercase tracking-[0.18em] text-teal-300">
             Social
           </p>
           <h2 className="mt-1 flex items-center gap-2 text-xl font-black text-cream-50">
@@ -50,7 +53,9 @@ export function ChatPanel({
           </h2>
         </div>
         <div className="grid justify-items-end gap-2">
-          <StatusChip tone="cream">{messageCount} msgs</StatusChip>
+          <StatusChip className="border-teal-300/25 bg-teal-300/10 text-teal-100" tone="felt">
+            {messageCount} msgs
+          </StatusChip>
           <Button
             className="min-h-9 px-3 py-2 text-xs"
             onClick={() => setIsOpen((current) => !current)}

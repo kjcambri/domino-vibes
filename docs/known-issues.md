@@ -6,6 +6,7 @@ This document tracks private beta guardrails and known MVP limitations.
 
 - The Vite production build may warn that a JavaScript chunk is larger than 500 kB.
 - The UI is a polished MVP web experience, not the final production mobile app UI.
+- Stitch-inspired Island Elite UI polish is being implemented gradually and may continue evolving from tester feedback.
 - Current domino assets are beta-polished and now have WebP delivery copies, but the source artwork should still be replaced with production-quality, consistently authored assets later.
 - Domino asset loading falls back from WebP to PNG/text, so broken optimized files should be caught during asset QA rather than blocking gameplay.
 - No bots or AFK takeover exist yet.
@@ -13,6 +14,7 @@ This document tracks private beta guardrails and known MVP limitations.
 - No advanced moderation, reports, blocks, or admin dashboard exist yet.
 - No direct messages or media uploads exist yet.
 - No tournaments or ranked play exist yet.
+- Future mode cards, if visible, are non-functional previews only.
 - No spectator or replay system exists yet.
 - Manual dev SQL cleanup may still be needed for old test data.
 - Supabase migrations must be applied to the same project used by `.env.local`.

@@ -22,8 +22,9 @@ export function CurrentTableBanner({
   const isActiveGame = currentTable.status === 'in_game'
 
   return (
-    <GameCard className="relative overflow-hidden border-gold-300/35 bg-gold-300/12" variant="gold">
+    <GameCard className="relative overflow-hidden border-gold-300/40 bg-gold-300/12" variant="gold">
       <div className="absolute -right-10 -top-12 size-32 rounded-full bg-gold-300/16 blur-2xl" />
+      <div className="absolute -left-12 bottom-0 size-28 rounded-full bg-teal-300/10 blur-2xl" />
       <div className="flex items-start justify-between gap-3">
         <div className="relative">
           <p className="text-xs font-black uppercase tracking-[0.18em] text-gold-200">
@@ -36,6 +37,9 @@ export function CurrentTableBanner({
             <GameModeLabel gameMode={currentTable.gameMode} />
             <span className="text-sm font-bold text-cream-100/70">
               Seat {currentTable.seatNumber}
+            </span>
+            <span className="rounded-full border border-teal-300/30 bg-teal-300/12 px-3 py-1 text-xs font-black uppercase tracking-[0.1em] text-teal-100">
+              Points to Win: 6
             </span>
           </div>
         </div>

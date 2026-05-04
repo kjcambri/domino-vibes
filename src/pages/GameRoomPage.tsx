@@ -111,7 +111,7 @@ export function GameRoomPage() {
   }
 
   return (
-    <MobileShell className="max-w-6xl">
+    <MobileShell className="max-w-[1500px]">
       <div className="flex flex-1 flex-col gap-4 py-4">
         <GameRoomHeader game={game} />
         <CurrentTurnBanner
@@ -121,7 +121,7 @@ export function GameRoomPage() {
           roundWinnerPlayerId={game.roundWinnerPlayerId}
           status={game.status}
         />
-        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
+        <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_380px] xl:items-start">
           <div className="grid min-w-0 gap-4">
             <BoardStatePreview boardState={game.boardState} />
             <MyHandPreview
@@ -134,13 +134,16 @@ export function GameRoomPage() {
               selectedTileId={activeSelectedTileId}
             />
           </div>
-          <div className="grid gap-4 lg:sticky lg:top-4">
+          <div className="grid gap-4 xl:sticky xl:top-4">
             <OpponentHandCounts
               currentPlayerId={gameRoom.myHand?.playerId}
               currentTurnPlayerId={game.currentTurnPlayerId}
               players={gameRoom.gameRoom.players}
             />
-            <GameCard className="border-cream-100/10 bg-green-950/42 p-4">
+            <GameCard className="border-teal-300/16 bg-green-950/42 p-4">
+              <p className="text-xs font-black uppercase tracking-[0.16em] text-teal-300">
+                Live presence
+              </p>
               <p className="text-sm leading-6 text-cream-100/72">
                 Active and away status is visible now. Disconnected-player
                 handling arrives later, so players can return and continue.
@@ -182,6 +185,7 @@ export function GameRoomPage() {
             />
             <ChatPanel
               compact
+              defaultOpen
               roomId={game.id}
               roomType="game"
               title="Table Talk"

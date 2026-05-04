@@ -21,9 +21,13 @@ export function StartGamePanel({
   const canStart = readyState.isFull && readyState.allReady
 
   return (
-    <GameCard className="bg-felt-700/35" variant={canStart ? 'gold' : 'felt'}>
+    <GameCard
+      className="relative overflow-hidden bg-felt-700/35"
+      variant={canStart ? 'gold' : 'felt'}
+    >
+      <div className="absolute -right-8 top-4 size-24 rounded-full bg-gold-300/10 blur-2xl" />
       <div className="flex items-start justify-between gap-3">
-        <div>
+        <div className="relative">
           <p className="text-xs font-black uppercase tracking-[0.18em] text-gold-200">
             Start game
           </p>
@@ -41,12 +45,12 @@ export function StartGamePanel({
           {readyState.readyCount}/4 ready
         </StatusChip>
       </div>
-      <p className="mt-3 text-sm leading-6 text-cream-100/72">
+      <p className="relative mt-3 text-sm leading-6 text-cream-100/72">
         Starting deals secure hands, opens the game room, and keeps the table
         together for the round.
       </p>
       <Button
-        className="mt-5 w-full gap-2"
+        className="relative mt-5 w-full gap-2"
         disabled={!canStart || isStarting}
         onClick={onStart}
       >

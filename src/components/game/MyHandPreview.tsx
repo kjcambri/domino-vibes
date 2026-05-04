@@ -31,11 +31,11 @@ export function MyHandPreview({
     : 'Tile play is closed for this round.'
 
   return (
-    <GameCard className="border-gold-300/20 bg-gradient-to-b from-wood-800/38 via-wood-900/88 to-green-950/95 p-4 shadow-[0_-18px_50px_rgba(42,22,10,0.45)]" variant="wood">
+    <GameCard className="border-gold-300/20 bg-gradient-to-b from-wood-800/48 via-wood-900/90 to-green-950/95 p-4 shadow-[0_-18px_50px_rgba(42,22,10,0.45)]" variant="wood">
       <div className="flex items-center justify-between gap-3">
         <div>
           <p className="text-xs font-black uppercase tracking-[0.18em] text-gold-200">
-            Your Hand
+            Your rack
           </p>
           <p className="mt-1 text-sm text-cream-100/65">
             {helperText}

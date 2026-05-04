@@ -63,11 +63,11 @@ export function BoardStatePreview({ boardState }: { boardState: BoardStateDto })
   }, [invalidPlacements])
 
   return (
-    <GameCard className="overflow-hidden p-0 shadow-[0_30px_90px_rgba(17,7,2,0.5)]" variant="wood">
+    <GameCard className="overflow-hidden rounded-[2rem] border-wood-800/80 p-0 shadow-[0_34px_100px_rgba(17,7,2,0.56)]" variant="wood">
       <div className="flex items-center justify-between gap-3 border-b border-gold-300/18 bg-[linear-gradient(100deg,rgba(42,22,10,0.95),rgba(11,61,46,0.82)_54%,rgba(107,63,29,0.48))] px-4 py-3">
         <div>
           <p className="text-xs font-black uppercase tracking-[0.18em] text-gold-200">
-            Felt table
+            Island elite table
           </p>
           <p className="mt-1 text-sm text-cream-100/70">
             {isEmpty
@@ -85,7 +85,7 @@ export function BoardStatePreview({ boardState }: { boardState: BoardStateDto })
         </div>
       </div>
       <div
-        className="h-[390px] max-h-[460px] w-full overflow-auto overscroll-contain border-[10px] border-wood-900/90 bg-green-950 shadow-[inset_0_0_0_1px_rgba(255,244,214,0.16),inset_0_18px_36px_rgba(255,244,214,0.08),inset_0_-26px_60px_rgba(0,0,0,0.45)] sm:h-[430px]"
+        className="h-[390px] max-h-[560px] w-full overflow-auto overscroll-contain border-[10px] border-wood-900/90 bg-green-950 shadow-[inset_0_0_0_1px_rgba(255,244,214,0.16),inset_0_18px_36px_rgba(255,244,214,0.08),inset_0_-26px_60px_rgba(0,0,0,0.45)] sm:h-[430px] xl:h-[560px]"
         ref={viewportRef}
         style={{
           backgroundColor: '#0b3d2e',

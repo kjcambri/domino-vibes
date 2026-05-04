@@ -9,6 +9,9 @@
   --color-felt-300: #42b883;
   --color-felt-200: #8bd9b0;
   --color-felt-100: #c5efd8;
+  --color-teal-400: #21c7a8;
+  --color-teal-300: #45ddbd;
+  --color-teal-100: #b8fff0;
   --color-gold-400: #f2c14e;
   --color-gold-300: #f5d16f;
   --color-gold-200: #ffe29a;
@@ -24,9 +27,14 @@
   --color-red-100: #ffd4cd;
   --color-wood-900: #2a160a;
   --color-wood-800: #6b3f1d;
+  --color-club-950: #171304;
+  --color-club-900: #201b09;
+  --color-club-800: #241f0d;
+  --color-club-700: #3a3520;
   --shadow-gold: 0 14px 34px rgba(197, 155, 68, 0.22);
   --shadow-wood: 0 24px 60px rgba(25, 9, 2, 0.38);
   --shadow-warm: 0 16px 40px rgba(142, 47, 38, 0.24);
+  --shadow-teal: 0 14px 34px rgba(33, 199, 168, 0.16);
 }
 
 :root {

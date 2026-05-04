@@ -4,11 +4,11 @@ export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger'
 
 const variantClasses: Record<ButtonVariant, string> = {
   primary:
-    'bg-gradient-to-b from-gold-300 to-gold-400 text-green-950 shadow-gold hover:from-gold-200 hover:to-gold-300 focus-visible:ring-gold-300',
+    'border border-gold-100/25 bg-gradient-to-b from-gold-200 to-gold-400 text-green-950 shadow-gold hover:from-gold-100 hover:to-gold-300 focus-visible:ring-gold-300',
   secondary:
-    'border border-cream-200/20 bg-cream-100/10 text-cream-50 shadow-wood hover:bg-cream-100/15 focus-visible:ring-cream-100/50',
+    'border border-cream-200/20 bg-cream-100/10 text-cream-50 shadow-wood hover:border-teal-300/35 hover:bg-teal-300/10 focus-visible:ring-cream-100/50',
   ghost:
-    'text-cream-100 hover:bg-cream-100/10 focus-visible:ring-cream-100/40',
+    'text-cream-100 hover:bg-cream-100/10 hover:text-teal-100 focus-visible:ring-cream-100/40',
   danger:
     'bg-gradient-to-b from-red-700 to-red-800 text-cream-50 shadow-warm hover:from-red-700 hover:to-red-700 focus-visible:ring-red-300',
 }

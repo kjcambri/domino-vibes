@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { type ReactNode, useState } from 'react'
+import { Crown, MessageCircle, Sparkles, UsersRound } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { LogoutButton } from '../components/auth/LogoutButton'
 import { ChatPanel } from '../components/chat/ChatPanel'
@@ -96,20 +97,22 @@ export function LobbyPage() {
   }
 
   return (
-    <MobileShell className="max-w-5xl">
+    <MobileShell className="max-w-7xl">
       <div className="flex flex-1 flex-col gap-5 py-4">
-        <GameCard className="relative overflow-hidden" variant="wood">
-          <div className="absolute -right-16 -top-16 size-44 rounded-full bg-gold-300/12 blur-3xl" />
+        <GameCard className="relative overflow-hidden border-gold-300/22" variant="wood">
+          <div className="absolute -right-16 -top-16 size-44 rounded-full bg-gold-300/14 blur-3xl" />
+          <div className="absolute left-8 top-0 h-px w-40 bg-gradient-to-r from-transparent via-teal-300/70 to-transparent" />
           <div className="relative">
-            <p className="text-xs font-black uppercase tracking-[0.18em] text-gold-200">
-              Domino Vibes Lobby
-            </p>
-            <h1 className="mt-3 text-4xl font-black leading-tight text-cream-50">
-              Welcome, {playerName}.
+            <div className="flex flex-wrap items-center gap-2">
+              <StatusPill icon={<Crown size={14} />} label="Domino Vibes Lobby" />
+              <StatusPill icon={<Sparkles size={14} />} label="Private beta live" tone="teal" />
+            </div>
+            <h1 className="mt-4 text-4xl font-black leading-tight text-cream-50 md:text-5xl">
+              Welcome back, {playerName}.
             </h1>
-            <p className="mt-4 max-w-2xl text-base leading-7 text-cream-100/78">
-              Choose a table, claim a seat, and get the yard ready. Cutthroat
-              4 is live with secure hands, rejoin, and round-win scoring.
+            <p className="mt-4 max-w-3xl text-base leading-7 text-cream-100/78">
+              Choose your table, keep the room talking, and jump back into
+              live Cutthroat 4 whenever the club calls.
             </p>
           </div>
           {logoutError || tableError ? (
@@ -147,59 +150,129 @@ export function LobbyPage() {
           />
         ) : null}
 
-        <section className="grid gap-3">
-          <SectionHeader
-            copy="Pick a system table and jump into the next domino session."
-            eyebrow="Available tables"
-            title="Choose your table"
-          />
-
-          {lobbyTables.isLoading ? (
-            <StateCard
-              copy="Pulling the latest seats from Domino Vibes."
-              title="Loading tables..."
-              type="loading"
+        <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_360px] xl:items-start">
+          <section className="grid gap-3">
+            <SectionHeader
+              copy="System tables are live now. Future private and ranked rooms stay clearly marked until playable."
+              eyebrow="Club tables"
+              title="Choose your table"
             />
-          ) : null}
 
-          {lobbyTables.isError ? (
-            <StateCard
-              copy={getFriendlyAuthError(lobbyTables.error)}
-              title="Could not load tables."
-              type="error"
-            />
-          ) : null}
-
-          {lobbyTables.data?.length === 0 ? (
-            <StateCard
-              copy="System-created tables will appear here when available."
-              title="No tables are open."
-              type="empty"
-            />
-          ) : null}
-
-          <div className="grid gap-3 md:grid-cols-2">
-            {lobbyTables.data?.map((table) => (
-              <LobbyTableCard
-                hasOtherCurrentTable={
-                  Boolean(currentTable) && currentTable?.tableId !== table.id
-                }
-                isJoining={joinTable.isPending && joinTable.variables === table.id}
-                isCurrentTable={currentTable?.tableId === table.id}
-                key={table.id}
-                onJoin={handleJoinTable}
-                onRejoin={handleRejoinTable}
-                table={table}
+            {lobbyTables.isLoading ? (
+              <StateCard
+                copy="Pulling the latest seats from Domino Vibes."
+                title="Loading tables..."
+                type="loading"
               />
-            ))}
-          </div>
-        </section>
-        <ChatPanel
-          defaultOpen
-          roomType="lobby"
-          title="Lobby Chat"
-        />
+            ) : null}
+
+            {lobbyTables.isError ? (
+              <StateCard
+                copy={getFriendlyAuthError(lobbyTables.error)}
+                title="Could not load tables."
+                type="error"
+              />
+            ) : null}
+
+            {lobbyTables.data?.length === 0 ? (
+              <StateCard
+                copy="System-created tables will appear here when available."
+                title="No tables are open."
+                type="empty"
+              />
+            ) : null}
+
+            <div className="grid gap-4 md:grid-cols-2">
+              {lobbyTables.data?.map((table) => (
+                <LobbyTableCard
+                  hasOtherCurrentTable={
+                    Boolean(currentTable) && currentTable?.tableId !== table.id
+                  }
+                  isJoining={joinTable.isPending && joinTable.variables === table.id}
+                  isCurrentTable={currentTable?.tableId === table.id}
+                  key={table.id}
+                  onJoin={handleJoinTable}
+                  onRejoin={handleRejoinTable}
+                  table={table}
+                />
+              ))}
+            </div>
+
+            <div className="grid gap-3 md:grid-cols-3">
+              <FutureModeCard label="Private Tables" />
+              <FutureModeCard label="Ranked" />
+              <FutureModeCard label="Community Tournament" />
+            </div>
+          </section>
+
+          <aside className="grid gap-4 xl:sticky xl:top-4">
+            <GameCard className="p-4" variant="felt">
+              <div className="flex items-center gap-3">
+                <span className="grid size-11 place-items-center rounded-2xl border border-teal-300/30 bg-teal-300/12 text-teal-100 shadow-teal">
+                  <UsersRound aria-hidden="true" size={19} />
+                </span>
+                <div>
+                  <p className="text-xs font-black uppercase tracking-[0.16em] text-teal-300">
+                    Club lounge
+                  </p>
+                  <p className="mt-1 text-sm font-bold text-cream-100/75">
+                    Say hello before you sit.
+                  </p>
+                </div>
+              </div>
+            </GameCard>
+            <ChatPanel
+              defaultOpen
+              roomType="lobby"
+              title="Lobby Chat"
+            />
+          </aside>
+        </div>
       </div>
     </MobileShell>
+  )
+}
+
+function StatusPill({
+  icon,
+  label,
+  tone = 'gold',
+}: {
+  icon: ReactNode
+  label: string
+  tone?: 'gold' | 'teal'
+}) {
+  return (
+    <span
+      className={
+        tone === 'teal'
+          ? 'inline-flex items-center gap-2 rounded-full border border-teal-300/35 bg-teal-300/12 px-3 py-1.5 text-xs font-black uppercase tracking-[0.12em] text-teal-100'
+          : 'inline-flex items-center gap-2 rounded-full border border-gold-300/35 bg-gold-300/12 px-3 py-1.5 text-xs font-black uppercase tracking-[0.12em] text-gold-100'
+      }
+    >
+      {icon}
+      {label}
+    </span>
+  )
+}
+
+function FutureModeCard({ label }: { label: string }) {
+  return (
+    <GameCard className="p-4 opacity-[0.86]" variant="felt">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-black uppercase tracking-[0.16em] text-teal-300">
+            Coming soon
+          </p>
+          <h3 className="mt-2 text-lg font-black text-cream-50">{label}</h3>
+        </div>
+        <span className="grid size-10 place-items-center rounded-2xl border border-cream-100/10 bg-green-950/45 text-gold-100">
+          <MessageCircle aria-hidden="true" size={17} />
+        </span>
+      </div>
+      <p className="mt-3 text-sm leading-6 text-cream-100/60">
+        Preview only. Not playable yet.
+      </p>
+    </GameCard>
   )
 }
