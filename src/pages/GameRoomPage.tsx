@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { Card } from '../components/common/Card'
+import { GameCard } from '../components/ui/GameCard'
+import { StateCard } from '../components/ui/StateCard'
 import { BoardStatePreview } from '../components/game/BoardStatePreview'
 import { CurrentTurnBanner } from '../components/game/CurrentTurnBanner'
 import { GamePlayerList } from '../components/game/GamePlayerList'
@@ -29,12 +30,11 @@ export function GameRoomPage() {
     return (
       <MobileShell>
         <div className="grid flex-1 place-items-center">
-          <Card>
-            <p className="text-sm font-bold text-cream-50">Loading game...</p>
-            <p className="mt-2 text-sm leading-6 text-cream-100/70">
-              Pulling the table, secure hand, and latest board state.
-            </p>
-          </Card>
+          <StateCard
+            copy="Pulling the table, secure hand, and latest board state."
+            title="Loading game..."
+            type="loading"
+          />
         </div>
       </MobileShell>
     )
@@ -44,18 +44,11 @@ export function GameRoomPage() {
     return (
       <MobileShell>
         <div className="grid flex-1 place-items-center">
-          <Card className="border-red-300/30 bg-red-800/20">
-            <p className="text-sm font-bold text-red-100">
-              Could not open game.
-            </p>
-            <p className="mt-2 text-sm leading-6 text-red-100/80">
-              {getFriendlyAuthError(gameRoom.error)}
-            </p>
-            <p className="mt-2 text-sm leading-6 text-red-100/65">
-              You may need to rejoin from the lobby if you are not seated in
-              this game.
-            </p>
-          </Card>
+          <StateCard
+            copy={`${getFriendlyAuthError(gameRoom.error)} You may need to rejoin from the lobby if you are not seated in this game.`}
+            title="Could not open game."
+            type="error"
+          />
         </div>
       </MobileShell>
     )
@@ -117,7 +110,7 @@ export function GameRoomPage() {
   }
 
   return (
-    <MobileShell>
+    <MobileShell className="max-w-6xl">
       <div className="flex flex-1 flex-col gap-4 py-4">
         <GameRoomHeader game={game} />
         <CurrentTurnBanner
@@ -127,61 +120,67 @@ export function GameRoomPage() {
           roundWinnerPlayerId={game.roundWinnerPlayerId}
           status={game.status}
         />
-        <OpponentHandCounts
-          currentPlayerId={gameRoom.myHand?.playerId}
-          currentTurnPlayerId={game.currentTurnPlayerId}
-          players={gameRoom.gameRoom.players}
-        />
-        <Card className="border-cream-100/10 bg-green-950/42">
-          <p className="text-sm leading-6 text-cream-100/72">
-            Disconnected-player handling arrives later. For now, players can
-            return and continue from this game room.
-          </p>
-        </Card>
-        <RoundFinishedPanel
-          currentUserPlayerId={currentUserPlayerId}
-          game={game}
-          isLeavingFinishedGame={gameRoom.leaveFinishedGame.isPending}
-          isStartingNextRound={gameRoom.startNextRound.isPending}
-          leaveFinishedGameErrorMessage={
-            leaveFinishedGameError
-              ? getFriendlyAuthError(leaveFinishedGameError)
-              : null
-          }
-          nextRoundErrorMessage={
-            nextRoundError ? getFriendlyAuthError(nextRoundError) : null
-          }
-          onReturnToLobby={handleReturnToLobby}
-          onStartNextRound={handleStartNextRound}
-          players={gameRoom.gameRoom.players}
-        />
-        <BoardStatePreview boardState={game.boardState} />
-        <TurnActionPanel
-          canPass={canPass}
-          errorMessage={actionError ? getFriendlyAuthError(actionError) : null}
-          isActionPending={gameRoom.isActionPending}
-          isMyTurn={isMyTurn}
-          isRoundActive={isRoundActive}
-          legalSides={selectedLegalSides}
-          onPlaySide={handlePlaySelectedSide}
-          onPass={handlePass}
-          openEnds={game.boardState.openEnds}
-          selectedTileId={activeSelectedTileId}
-          status={game.status}
-        />
-        <MyHandPreview
-          boardState={game.boardState}
-          hand={gameRoom.myHand}
-          isActionPending={gameRoom.isActionPending}
-          isMyTurn={isMyTurn}
-          isRoundActive={isRoundActive}
-          onSelectTile={setSelectedTileId}
-          selectedTileId={activeSelectedTileId}
-        />
-        <GamePlayerList
-          currentTurnPlayerId={game.currentTurnPlayerId}
-          players={gameRoom.gameRoom.players}
-        />
+        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
+          <div className="grid min-w-0 gap-4">
+            <BoardStatePreview boardState={game.boardState} />
+            <MyHandPreview
+              boardState={game.boardState}
+              hand={gameRoom.myHand}
+              isActionPending={gameRoom.isActionPending}
+              isMyTurn={isMyTurn}
+              isRoundActive={isRoundActive}
+              onSelectTile={setSelectedTileId}
+              selectedTileId={activeSelectedTileId}
+            />
+          </div>
+          <div className="grid gap-4 lg:sticky lg:top-4">
+            <OpponentHandCounts
+              currentPlayerId={gameRoom.myHand?.playerId}
+              currentTurnPlayerId={game.currentTurnPlayerId}
+              players={gameRoom.gameRoom.players}
+            />
+            <GameCard className="border-cream-100/10 bg-green-950/42 p-4">
+              <p className="text-sm leading-6 text-cream-100/72">
+                Active and away status is visible now. Disconnected-player
+                handling arrives later, so players can return and continue.
+              </p>
+            </GameCard>
+            <RoundFinishedPanel
+              currentUserPlayerId={currentUserPlayerId}
+              game={game}
+              isLeavingFinishedGame={gameRoom.leaveFinishedGame.isPending}
+              isStartingNextRound={gameRoom.startNextRound.isPending}
+              leaveFinishedGameErrorMessage={
+                leaveFinishedGameError
+                  ? getFriendlyAuthError(leaveFinishedGameError)
+                  : null
+              }
+              nextRoundErrorMessage={
+                nextRoundError ? getFriendlyAuthError(nextRoundError) : null
+              }
+              onReturnToLobby={handleReturnToLobby}
+              onStartNextRound={handleStartNextRound}
+              players={gameRoom.gameRoom.players}
+            />
+            <TurnActionPanel
+              canPass={canPass}
+              errorMessage={actionError ? getFriendlyAuthError(actionError) : null}
+              isActionPending={gameRoom.isActionPending}
+              isMyTurn={isMyTurn}
+              isRoundActive={isRoundActive}
+              legalSides={selectedLegalSides}
+              onPlaySide={handlePlaySelectedSide}
+              onPass={handlePass}
+              openEnds={game.boardState.openEnds}
+              selectedTileId={activeSelectedTileId}
+              status={game.status}
+            />
+            <GamePlayerList
+              currentTurnPlayerId={game.currentTurnPlayerId}
+              players={gameRoom.gameRoom.players}
+            />
+          </div>
+        </div>
       </div>
     </MobileShell>
   )

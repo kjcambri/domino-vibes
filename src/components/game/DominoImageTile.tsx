@@ -62,12 +62,12 @@ export function DominoImageTile({
     : sizeClasses[size][safeOrientation]
 
   const baseClassName = cn(
-    'relative inline-grid shrink-0 place-items-center overflow-hidden rounded-md transition duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-200 focus-visible:ring-offset-2 focus-visible:ring-offset-green-950',
+    'relative inline-grid shrink-0 place-items-center overflow-hidden rounded-lg transition duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-200 focus-visible:ring-offset-2 focus-visible:ring-offset-green-950',
     rootSizeClass,
-    playable && 'drop-shadow-[0_0_12px_rgba(217,184,102,0.58)]',
-    selected && 'ring-2 ring-gold-200 ring-offset-2 ring-offset-green-950',
+    playable && 'drop-shadow-[0_0_14px_rgba(242,193,78,0.62)]',
+    selected && 'ring-2 ring-gold-200 ring-offset-2 ring-offset-green-950 shadow-gold',
     disabled && 'opacity-45 grayscale',
-    onClick && !disabled && 'cursor-pointer active:scale-95',
+    onClick && !disabled && 'cursor-pointer hover:-translate-y-0.5 active:scale-95',
     className,
   )
   const fallbackParts = normalizedTileId.split('-')
@@ -82,9 +82,9 @@ export function DominoImageTile({
     </span>
   ) : (
     <img
-      alt=""
+      alt={ariaLabel ?? `Domino ${normalizedTileId}`}
       className={cn(
-        'pointer-events-none select-none drop-shadow-[0_8px_10px_rgba(0,0,0,0.3)]',
+        'pointer-events-none select-none drop-shadow-[0_8px_10px_rgba(0,0,0,0.36)]',
         isBoardTile ? 'object-cover' : 'object-contain',
         isBoardTile && 'h-full w-full max-w-none',
         !isBoardTile && safeOrientation === 'vertical' && 'h-full w-full',

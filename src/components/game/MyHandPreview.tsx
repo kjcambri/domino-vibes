@@ -1,4 +1,5 @@
-import { Card } from '../common/Card'
+import { GameCard } from '../ui/GameCard'
+import { StatusChip } from '../ui/StatusChip'
 import { DominoImageTile } from './DominoImageTile'
 import { getLegalSides } from '../../features/games/gameplayRules'
 import { type BoardStateDto, type MyHand } from '../../features/games/types'
@@ -21,25 +22,34 @@ export function MyHandPreview({
   onSelectTile: (tileId: string) => void
 }) {
   const canSelect = isRoundActive && isMyTurn && !isActionPending
+  const helperText = isRoundActive
+    ? isMyTurn
+      ? selectedTileId
+        ? 'Choose where this domino lands.'
+        : 'Choose a tile from your tray.'
+      : 'Your hand stays private while you wait.'
+    : 'Tile play is closed for this round.'
 
   return (
-    <Card className="border-gold-300/18 bg-gradient-to-b from-wood-900/85 via-green-950/95 to-wood-900/90 p-4 shadow-wood">
+    <GameCard className="border-gold-300/20 bg-gradient-to-b from-wood-800/38 via-wood-900/88 to-green-950/95 p-4 shadow-[0_-18px_50px_rgba(42,22,10,0.45)]" variant="wood">
       <div className="flex items-center justify-between gap-3">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.18em] text-gold-200">
+          <p className="text-xs font-black uppercase tracking-[0.18em] text-gold-200">
             Your Hand
           </p>
           <p className="mt-1 text-sm text-cream-100/65">
-            {hand?.tiles.length ?? 0} private tiles
+            {helperText}
           </p>
         </div>
         {isMyTurn && isRoundActive ? (
-          <span className="rounded-full bg-gold-300 px-3 py-1 text-xs font-black uppercase tracking-[0.12em] text-green-950">
+          <StatusChip className="bg-gold-300 text-green-950" tone="gold">
             Your turn
-          </span>
-        ) : null}
+          </StatusChip>
+        ) : (
+          <StatusChip tone="cream">{hand?.tiles.length ?? 0} tiles</StatusChip>
+        )}
       </div>
-      <div className="-mx-2 mt-4 flex gap-3 overflow-x-auto px-2 pb-3 pt-2">
+      <div className="-mx-2 mt-4 flex gap-3 overflow-x-auto rounded-3xl border border-cream-100/10 bg-green-950/42 px-2 pb-4 pt-4 shadow-[inset_0_0_28px_rgba(0,0,0,0.32)]">
         {hand?.tiles.map((tile) => {
           const legalSides = getLegalSides(tile, boardState)
           const playable = canSelect && legalSides.length > 0
@@ -59,11 +69,11 @@ export function MyHandPreview({
           )
         })}
       </div>
-      <p className="mt-4 text-sm leading-6 text-cream-100/72">
+      <p className="mt-3 text-sm leading-6 text-cream-100/72">
         {isMyTurn && isRoundActive
-          ? 'Select a domino, then choose where to play it. The server validates every move.'
-          : 'Secure hands stay private while you wait for your turn.'}
+          ? 'Glowing tiles can play right now. Every move is still validated by the server.'
+          : 'Only you can see these dominoes; opponents see counts only.'}
       </p>
-    </Card>
+    </GameCard>
   )
 }

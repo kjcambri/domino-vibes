@@ -1,6 +1,7 @@
 import { Armchair, UserRound } from 'lucide-react'
 import { Button } from '../common/Button'
-import { Card } from '../common/Card'
+import { GameCard } from '../ui/GameCard'
+import { StatusChip } from '../ui/StatusChip'
 import { getPlayerPresence } from '../../features/games/presence'
 import { type TableSeat } from '../../features/tables/types'
 import { cn } from '../../lib/cn'
@@ -28,23 +29,22 @@ export function SeatCard({
   })
 
   return (
-    <Card
+    <GameCard
       className={cn(
         'grid gap-4 p-4',
-        isCurrentUserSeat && 'border-gold-300/35 bg-gold-300/12',
+        isCurrentUserSeat && 'border-gold-300/45 bg-gold-300/12 shadow-gold',
       )}
+      variant={isCurrentUserSeat ? 'gold' : 'felt'}
     >
       <div className="flex items-center justify-between">
-        <span className="text-sm font-bold uppercase tracking-[0.14em] text-gold-200">
+        <span className="text-sm font-black uppercase tracking-[0.14em] text-gold-200">
           Seat {seat.seatNumber}
         </span>
         <div className="flex items-center gap-2">
           {seat.isReady ? (
-            <span className="rounded-full border border-felt-200/30 bg-felt-300/20 px-3 py-1 text-xs font-black uppercase tracking-[0.08em] text-felt-50">
-              Ready
-            </span>
+            <StatusChip tone="felt">Ready</StatusChip>
           ) : null}
-          <span className="grid size-10 place-items-center rounded-md border border-cream-100/12 bg-green-950/45 text-cream-100">
+          <span className="grid size-11 place-items-center rounded-2xl border border-cream-100/12 bg-green-950/45 text-cream-100 shadow-wood">
             {isOccupied ? (
               <UserRound aria-hidden="true" size={19} />
             ) : (
@@ -84,6 +84,6 @@ export function SeatCard({
           {isBusy ? 'Sitting...' : 'Sit Here'}
         </Button>
       ) : null}
-    </Card>
+    </GameCard>
   )
 }

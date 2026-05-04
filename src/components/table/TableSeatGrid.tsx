@@ -17,7 +17,7 @@ export function TableSeatGrid({
   onSit,
 }: TableSeatGridProps) {
   return (
-    <section className="grid gap-3">
+    <section className="grid gap-3 md:grid-cols-2">
       {seats.map((seat) => (
         <SeatCard
           canSit={canSit}

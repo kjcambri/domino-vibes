@@ -1,5 +1,7 @@
-import { Card } from '../common/Card'
+import { Crown, Sparkles } from 'lucide-react'
 import { Button } from '../common/Button'
+import { GameCard } from '../ui/GameCard'
+import { StatusChip } from '../ui/StatusChip'
 import {
   getGameOverReason,
   getGameOverTitle,
@@ -35,40 +37,46 @@ export function RoundFinishedPanel({
   const winner = players.find((player) => player.playerId === game.roundWinnerPlayerId)
   const endReason =
     game.roundEndedReason === 'blocked' ? 'Blocked table' : 'Player went out'
-  const isParticipant = Boolean(currentUserPlayerId) && players.some(
-    (player) => player.playerId === currentUserPlayerId,
-  )
+  const isParticipant =
+    Boolean(currentUserPlayerId) &&
+    players.some((player) => player.playerId === currentUserPlayerId)
   const canStartNextRound = Boolean(isParticipant && onStartNextRound)
   const isGameFinished = game.status === 'finished'
+  const Icon = isGameFinished ? Crown : Sparkles
 
   return (
-    <Card
-      className={
-        isGameFinished
-          ? 'border-red-300/30 bg-gradient-to-b from-red-900/28 to-green-950/82 shadow-warm'
-          : 'border-gold-300/35 bg-gradient-to-b from-gold-300/16 to-green-950/78 shadow-gold'
-      }
+    <GameCard
+      className="relative overflow-hidden shadow-gold"
+      variant={isGameFinished ? 'danger' : 'gold'}
     >
-      <p className="text-xs font-bold uppercase tracking-[0.18em] text-gold-200">
-        {isGameFinished ? 'Game complete' : 'Round complete'}
-      </p>
-      <h2 className="mt-2 text-2xl font-black text-cream-50">
-        {isGameFinished
-          ? getGameOverTitle(game, players)
-          : `${winner?.displayName || winner?.username || 'Winner'} takes the round`}
-      </h2>
-      <p className="mt-2 text-sm font-bold text-cream-100/75">
+      <div className="absolute -right-12 -top-12 size-36 rounded-full bg-gold-300/14 blur-2xl" />
+      <div className="relative flex items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-black uppercase tracking-[0.18em] text-gold-200">
+            {isGameFinished ? 'Game complete' : 'Round complete'}
+          </p>
+          <h2 className="mt-2 text-2xl font-black text-cream-50">
+            {isGameFinished
+              ? getGameOverTitle(game, players)
+              : `${winner?.displayName || winner?.username || 'Winner'} takes the round`}
+          </h2>
+        </div>
+        <span className="grid size-12 shrink-0 place-items-center rounded-2xl border border-gold-300/25 bg-green-950/35 text-gold-100">
+          <Icon aria-hidden="true" size={20} />
+        </span>
+      </div>
+      <p className="relative mt-2 text-sm font-bold text-cream-100/75">
         {isGameFinished ? getGameOverReason(game) : endReason}
       </p>
       {!isGameFinished ? (
-        <p className="mt-2 text-sm leading-6 text-cream-100/72">
+        <p className="relative mt-2 text-sm leading-6 text-cream-100/72">
           {getRoundResultText(game)}
         </p>
       ) : null}
-      <div className="mt-4 grid gap-2">
+      <div className="relative mt-4 grid gap-2">
         {players.map((player) => (
           <div
-            className="flex items-center justify-between rounded-md border border-cream-100/10 bg-green-950/50 px-4 py-3"
+            className="flex items-center justify-between rounded-2xl border border-cream-100/10 bg-green-950/50 px-4 py-3"
             key={player.seatNumber}
           >
             <div>
@@ -79,27 +87,27 @@ export function RoundFinishedPanel({
                 Seat {player.seatNumber}
               </p>
             </div>
-            <div className="text-right">
-              <p className="font-black text-gold-100">+{player.roundScore}</p>
-              <p className="text-xs text-cream-100/60">
-                {player.score} points
-              </p>
+            <div className="grid justify-items-end gap-1 text-right">
+              <StatusChip tone={player.roundScore > 0 ? 'gold' : 'cream'}>
+                +{player.roundScore}
+              </StatusChip>
+              <p className="text-xs text-cream-100/60">{player.score} points</p>
             </div>
           </div>
         ))}
       </div>
       {nextRoundErrorMessage && !isGameFinished ? (
-        <p className="mt-4 rounded-md border border-red-300/25 bg-red-900/25 px-3 py-2 text-sm font-semibold text-red-100">
+        <p className="relative mt-4 rounded-2xl border border-red-300/25 bg-red-800/25 px-3 py-2 text-sm font-semibold text-red-100">
           {nextRoundErrorMessage}
         </p>
       ) : null}
       {leaveFinishedGameErrorMessage && isGameFinished ? (
-        <p className="mt-4 rounded-md border border-red-300/25 bg-red-900/25 px-3 py-2 text-sm font-semibold text-red-100">
+        <p className="relative mt-4 rounded-2xl border border-red-300/25 bg-red-800/25 px-3 py-2 text-sm font-semibold text-red-100">
           {leaveFinishedGameErrorMessage}
         </p>
       ) : null}
       {isGameFinished ? (
-        <div className="mt-4 grid gap-2">
+        <div className="relative mt-4 grid gap-2">
           <Button
             className="w-full"
             disabled={isLeavingFinishedGame || !onReturnToLobby}
@@ -113,7 +121,7 @@ export function RoundFinishedPanel({
           </p>
         </div>
       ) : (
-        <div className="mt-4 grid gap-2">
+        <div className="relative mt-4 grid gap-2">
           <Button
             disabled={!canStartNextRound || isStartingNextRound}
             onClick={onStartNextRound}
@@ -127,6 +135,6 @@ export function RoundFinishedPanel({
           </p>
         </div>
       )}
-    </Card>
+    </GameCard>
   )
 }

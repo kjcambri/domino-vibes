@@ -1,6 +1,6 @@
 import { ArrowRight, LogOut } from 'lucide-react'
 import { Button } from '../common/Button'
-import { Card } from '../common/Card'
+import { GameCard } from '../ui/GameCard'
 import { type CurrentTable } from '../../features/tables/types'
 import { GameModeLabel } from './GameModeLabel'
 import { TableStatusBadge } from './TableStatusBadge'
@@ -22,10 +22,11 @@ export function CurrentTableBanner({
   const isActiveGame = currentTable.status === 'in_game'
 
   return (
-    <Card className="border-gold-300/30 bg-gold-300/12">
+    <GameCard className="relative overflow-hidden border-gold-300/35 bg-gold-300/12" variant="gold">
+      <div className="absolute -right-10 -top-12 size-32 rounded-full bg-gold-300/16 blur-2xl" />
       <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className="text-xs font-bold uppercase tracking-[0.18em] text-gold-200">
+        <div className="relative">
+          <p className="text-xs font-black uppercase tracking-[0.18em] text-gold-200">
             {isActiveGame ? 'You are in an active game' : 'You are currently seated'}
           </p>
           <h2 className="mt-2 text-2xl font-black leading-tight text-cream-50">
@@ -57,12 +58,12 @@ export function CurrentTableBanner({
             {isLeaving ? 'Leaving...' : 'Leave Table'}
           </Button>
         ) : (
-          <p className="rounded-md border border-cream-100/10 bg-green-950/35 px-4 py-3 text-sm leading-6 text-cream-100/72">
+          <p className="rounded-2xl border border-cream-100/10 bg-green-950/35 px-4 py-3 text-sm leading-6 text-cream-100/72">
             This table is in game, so leave is unavailable here. Rejoin to
             continue.
           </p>
         )}
       </div>
-    </Card>
+    </GameCard>
   )
 }

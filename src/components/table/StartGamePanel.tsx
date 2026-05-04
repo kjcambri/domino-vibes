@@ -1,6 +1,7 @@
 import { Play } from 'lucide-react'
 import { Button } from '../common/Button'
-import { Card } from '../common/Card'
+import { GameCard } from '../ui/GameCard'
+import { StatusChip } from '../ui/StatusChip'
 import { type ReadyState } from '../../features/tables/types'
 
 type StartGamePanelProps = {
@@ -20,22 +21,29 @@ export function StartGamePanel({
   const canStart = readyState.isFull && readyState.allReady
 
   return (
-    <Card className="bg-felt-700/35">
-      <p className="text-xs font-bold uppercase tracking-[0.18em] text-gold-200">
-        Start game
-      </p>
-      <h2 className="mt-2 text-xl font-black text-cream-50">
-        {canStart
-          ? 'All players ready'
-          : readyState.isFull
-            ? `${readyState.readyCount}/4 players ready`
-            : `Waiting for ${waitingForPlayers} more ${
-                waitingForPlayers === 1 ? 'player' : 'players'
-              }`}
-      </h2>
+    <GameCard className="bg-felt-700/35" variant={canStart ? 'gold' : 'felt'}>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-black uppercase tracking-[0.18em] text-gold-200">
+            Start game
+          </p>
+          <h2 className="mt-2 text-xl font-black text-cream-50">
+            {canStart
+              ? 'All players ready'
+              : readyState.isFull
+                ? `${readyState.readyCount}/4 players ready`
+                : `Waiting for ${waitingForPlayers} more ${
+                    waitingForPlayers === 1 ? 'player' : 'players'
+                  }`}
+          </h2>
+        </div>
+        <StatusChip tone={canStart ? 'gold' : 'cream'}>
+          {readyState.readyCount}/4 ready
+        </StatusChip>
+      </div>
       <p className="mt-3 text-sm leading-6 text-cream-100/72">
-        Starting creates a placeholder game record. The domino engine arrives in
-        Sprint 5.
+        Starting deals secure hands, opens the game room, and keeps the table
+        together for the round.
       </p>
       <Button
         className="mt-5 w-full gap-2"
@@ -45,6 +53,6 @@ export function StartGamePanel({
         <Play aria-hidden="true" size={18} />
         {isStarting ? 'Starting...' : 'Start Game'}
       </Button>
-    </Card>
+    </GameCard>
   )
 }

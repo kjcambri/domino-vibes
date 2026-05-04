@@ -2,7 +2,8 @@ import { LogOut } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Button } from '../components/common/Button'
-import { Card } from '../components/common/Card'
+import { GameCard } from '../components/ui/GameCard'
+import { StateCard } from '../components/ui/StateCard'
 import { MobileShell } from '../components/layout/MobileShell'
 import { ReadyToggle } from '../components/table/ReadyToggle'
 import { StartGamePanel } from '../components/table/StartGamePanel'
@@ -129,12 +130,11 @@ export function TableRoomPage() {
     return (
       <MobileShell>
         <div className="grid flex-1 place-items-center">
-          <Card>
-            <p className="text-sm font-bold text-cream-50">Loading table...</p>
-            <p className="mt-2 text-sm leading-6 text-cream-100/70">
-              Syncing seats and table status.
-            </p>
-          </Card>
+          <StateCard
+            copy="Syncing seats and table status."
+            title="Loading table..."
+            type="loading"
+          />
         </div>
       </MobileShell>
     )
@@ -144,27 +144,24 @@ export function TableRoomPage() {
     return (
       <MobileShell>
         <div className="grid flex-1 place-items-center">
-          <Card className="border-red-300/30 bg-red-800/20">
-            <p className="text-sm font-bold text-red-100">
-              Could not open table.
-            </p>
-            <p className="mt-2 text-sm leading-6 text-red-100/80">
-              {getFriendlyAuthError(tableRoom.error)}
-            </p>
-          </Card>
+          <StateCard
+            copy={getFriendlyAuthError(tableRoom.error)}
+            title="Could not open table."
+            type="error"
+          />
         </div>
       </MobileShell>
     )
   }
 
   return (
-    <MobileShell>
+    <MobileShell className="max-w-5xl">
       <div className="flex flex-1 flex-col gap-5 py-4">
         <TableRoomHeader table={room.table} />
 
         {error ? (
           <div
-            className="rounded-md border border-red-300/30 bg-red-800/20 px-4 py-3 text-sm leading-6 text-red-100"
+            className="rounded-2xl border border-red-300/30 bg-red-800/20 px-4 py-3 text-sm leading-6 text-red-100"
             role="alert"
           >
             {error}
@@ -208,11 +205,11 @@ export function TableRoomPage() {
         ) : null}
 
         {room.table.status === 'in_game' ? (
-          <Card className="bg-felt-700/35">
+          <GameCard className="bg-felt-700/35">
             <p className="text-sm font-bold text-cream-50">
-              Game room arrives later.
+              Taking you to the game room...
             </p>
-          </Card>
+          </GameCard>
         ) : null}
       </div>
     </MobileShell>

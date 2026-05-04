@@ -6,7 +6,7 @@ const labels: Record<GameMode, string> = {
 
 export function GameModeLabel({ gameMode }: { gameMode: GameMode }) {
   return (
-    <span className="text-xs font-bold uppercase tracking-[0.14em] text-gold-200">
+    <span className="inline-flex min-h-7 items-center rounded-full border border-gold-300/25 bg-gold-300/12 px-3 text-xs font-black uppercase tracking-[0.14em] text-gold-100">
       {labels[gameMode]}
     </span>
   )

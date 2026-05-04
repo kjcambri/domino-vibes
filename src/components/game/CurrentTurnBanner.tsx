@@ -1,4 +1,6 @@
-import { Card } from '../common/Card'
+import { CircleDot, Clock, Crown, Sparkles } from 'lucide-react'
+import { GameCard } from '../ui/GameCard'
+import { StatusChip } from '../ui/StatusChip'
 import { type GameRoomPlayer } from '../../features/games/types'
 
 export function CurrentTurnBanner({
@@ -25,49 +27,55 @@ export function CurrentTurnBanner({
     currentPlayer?.displayName || currentPlayer?.username || 'another player'
   const winnerName = winner?.displayName || winner?.username || 'Round winner'
   const isFinished = status === 'finished'
+  const isRoundFinished = status === 'round_finished'
+  const Icon = isFinished ? Crown : isRoundFinished ? Sparkles : isMyTurn ? CircleDot : Clock
+  const variant =
+    isFinished || isRoundFinished ? 'gold' : isMyTurn && status === 'active' ? 'gold' : 'felt'
 
   return (
-    <Card
-      className={
-        isMyTurn && status === 'active'
-          ? 'border-gold-300/45 bg-gold-300/14 shadow-gold'
-          : 'border-cream-100/10 bg-green-950/65'
-      }
-    >
+    <GameCard className="relative overflow-hidden" variant={variant}>
+      {isMyTurn && status === 'active' ? (
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_82%_30%,rgba(242,193,78,0.18),transparent_12rem)]" />
+      ) : null}
       <div className="flex items-center justify-between gap-3">
-        <div>
+        <div className="relative min-w-0">
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-gold-200">
             {isFinished
               ? 'Game over'
-              : status === 'round_finished'
+              : isRoundFinished
                 ? 'Round finished'
                 : 'Current turn'}
           </p>
           <p className="mt-2 text-xl font-black text-cream-50">
             {isFinished
               ? 'Final points are in'
-              : status === 'round_finished'
+              : isRoundFinished
                 ? `${winnerName} won the round`
                 : isMyTurn
                   ? 'Your turn'
                   : `Waiting for ${currentName}`}
           </p>
         </div>
-        {isMyTurn && status === 'active' ? (
-          <span className="rounded-full bg-gold-300 px-3 py-1 text-xs font-black uppercase tracking-[0.12em] text-green-950">
-            Play
+        <div className="relative grid justify-items-end gap-2">
+          <span className="grid size-12 place-items-center rounded-2xl border border-gold-300/25 bg-green-950/35 text-gold-100">
+            <Icon aria-hidden="true" size={20} />
           </span>
-        ) : null}
+          {isMyTurn && status === 'active' ? (
+            <StatusChip className="bg-gold-300 text-green-950" tone="gold">
+              Play
+            </StatusChip>
+          ) : null}
+        </div>
       </div>
-      <p className="mt-2 text-sm leading-6 text-cream-100/72">
+      <p className="relative mt-2 text-sm leading-6 text-cream-100/72">
         {isFinished
           ? 'This game is complete. Return to the lobby when you are ready.'
-          : status === 'round_finished'
+          : isRoundFinished
             ? 'Round-win points are updated. Start the next round if the game is still alive.'
             : isMyTurn
               ? 'Pick a tile from your tray, then choose a side.'
               : 'The table will update as soon as the move lands.'}
       </p>
-    </Card>
+    </GameCard>
   )
 }

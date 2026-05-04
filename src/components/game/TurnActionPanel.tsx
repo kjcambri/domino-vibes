@@ -1,5 +1,7 @@
-import { Card } from '../common/Card'
+import { AlertTriangle, ArrowLeft, ArrowRight, CircleSlash, Play } from 'lucide-react'
 import { Button } from '../common/Button'
+import { GameCard } from '../ui/GameCard'
+import { StatusChip } from '../ui/StatusChip'
 import { type BoardSide, type GameStatus } from '../../features/games/types'
 
 export function TurnActionPanel({
@@ -34,7 +36,7 @@ export function TurnActionPanel({
     const isFinished = status === 'finished'
 
     return (
-      <Card className="border-gold-300/25 bg-gold-300/10">
+      <GameCard className="border-gold-300/25 bg-gold-300/10" variant="gold">
         <p className="text-sm font-black text-cream-50">
           {isFinished ? 'Game over' : 'Round complete'}
         </p>
@@ -43,51 +45,71 @@ export function TurnActionPanel({
             ? 'Final points are saved. Tile play is closed for this game.'
             : 'Round-win points are saved. Start the next round when the table is ready.'}
         </p>
-      </Card>
+      </GameCard>
     )
   }
 
   const isBoardEmpty = openEnds.left === null && openEnds.right === null
   const playSides: BoardSide[] = isBoardEmpty ? ['start'] : ['left', 'right']
   const controlsDisabled = !isMyTurn || isActionPending || !selectedTileId
+  const selectedLabel = selectedTileId ? `Selected ${selectedTileId}` : 'No tile selected'
 
   return (
-    <Card className="border-gold-300/15 bg-green-950/70">
-      <p className="text-xs font-bold uppercase tracking-[0.18em] text-gold-200">
-        Turn actions
-      </p>
-      <p className="mt-2 text-lg font-black text-cream-50">
-        {!isMyTurn
-          ? 'Waiting for your turn'
-          : selectedTileId
-            ? `Selected ${selectedTileId}`
-            : 'Select a tile to play'}
-      </p>
-      <div className="mt-4 grid gap-2">
+    <GameCard className="bg-green-950/72">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-black uppercase tracking-[0.18em] text-gold-200">
+            Turn actions
+          </p>
+          <p className="mt-2 text-lg font-black text-cream-50">
+            {!isMyTurn
+              ? 'Waiting for your turn'
+              : selectedTileId
+                ? selectedLabel
+                : 'Select a tile to play'}
+          </p>
+        </div>
+        <StatusChip tone={isMyTurn ? 'gold' : 'cream'}>
+          {isMyTurn ? 'Ready' : 'Locked'}
+        </StatusChip>
+      </div>
+      <div className="mt-4 grid grid-cols-2 gap-2">
         {playSides.map((side) => (
           <Button
-            className="w-full"
+            className={playSides.length === 1 ? 'col-span-2 w-full gap-2' : 'w-full gap-2'}
             disabled={controlsDisabled || !legalSides.includes(side)}
             key={side}
             onClick={() => onPlaySide(side)}
             variant={legalSides.includes(side) ? 'primary' : 'ghost'}
           >
+            {side === 'left' ? (
+              <ArrowLeft aria-hidden="true" size={18} />
+            ) : side === 'right' ? (
+              <ArrowRight aria-hidden="true" size={18} />
+            ) : (
+              <Play aria-hidden="true" size={18} />
+            )}
             Play {side === 'start' ? 'Start' : side === 'left' ? 'Left' : 'Right'}
           </Button>
         ))}
         <Button
-          className="w-full"
+          className="col-span-2 w-full gap-2"
           disabled={!isMyTurn || !canPass || isActionPending}
           onClick={onPass}
           variant="secondary"
         >
+          <CircleSlash aria-hidden="true" size={18} />
           Pass Turn
         </Button>
       </div>
       {errorMessage ? (
-        <p className="mt-3 rounded-md border border-red-300/25 bg-red-800/20 px-3 py-2 text-sm font-bold text-red-100">
-          {errorMessage}
-        </p>
+        <div
+          className="mt-3 flex gap-2 rounded-2xl border border-red-300/25 bg-red-800/20 px-3 py-3 text-sm font-bold text-red-100"
+          role="alert"
+        >
+          <AlertTriangle aria-hidden="true" className="mt-0.5 shrink-0" size={16} />
+          <p>{errorMessage}</p>
+        </div>
       ) : null}
       <p className="mt-3 text-sm leading-6 text-cream-100/72">
         {isMyTurn
@@ -98,6 +120,6 @@ export function TurnActionPanel({
               : 'Pick one of your glowing tiles to continue the chain.'
           : 'Pass becomes available only on your turn when no legal tile fits.'}
       </p>
-    </Card>
+    </GameCard>
   )
 }

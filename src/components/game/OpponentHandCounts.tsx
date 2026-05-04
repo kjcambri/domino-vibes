@@ -1,4 +1,5 @@
-import { Card } from '../common/Card'
+import { GameCard } from '../ui/GameCard'
+import { StatusChip } from '../ui/StatusChip'
 import { getPlayerPresence } from '../../features/games/presence'
 import { type GameRoomPlayer } from '../../features/games/types'
 
@@ -14,12 +15,12 @@ export function OpponentHandCounts({
   const opponents = players.filter((player) => player.playerId !== currentPlayerId)
 
   return (
-    <Card className="bg-green-950/58">
+    <GameCard className="bg-green-950/58">
       <div className="flex items-center justify-between">
-        <p className="text-xs font-bold uppercase tracking-[0.18em] text-gold-200">
+        <p className="text-xs font-black uppercase tracking-[0.18em] text-gold-200">
           Opponents
         </p>
-        <p className="text-xs font-bold text-cream-100/55">Counts only</p>
+        <StatusChip tone="cream">Counts only</StatusChip>
       </div>
       <div className="mt-4 grid gap-2">
         {opponents.map((player) => (
@@ -30,7 +31,7 @@ export function OpponentHandCounts({
           />
         ))}
       </div>
-    </Card>
+    </GameCard>
   )
 }
 
@@ -50,8 +51,8 @@ function OpponentRow({
     <div
       className={
         player.playerId === currentTurnPlayerId
-          ? 'rounded-md border border-gold-300/35 bg-gold-300/10 px-4 py-3'
-          : 'rounded-md border border-cream-100/10 bg-green-950/45 px-4 py-3'
+          ? 'rounded-2xl border border-gold-300/35 bg-gold-300/10 px-4 py-3 shadow-gold'
+          : 'rounded-2xl border border-cream-100/10 bg-green-950/45 px-4 py-3'
       }
     >
       <div className="flex items-center justify-between gap-3">
@@ -64,7 +65,7 @@ function OpponentRow({
           </p>
         </div>
         {player.playerId === currentTurnPlayerId ? (
-          <span className="rounded-full bg-gold-300 px-2 py-1 text-[0.65rem] font-black uppercase text-green-950">
+          <span className="rounded-full bg-gold-300 px-2 py-1 text-[0.65rem] font-black uppercase tracking-[0.08em] text-green-950">
             Turn
           </span>
         ) : null}

@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
-import { Card } from '../common/Card'
+import { GameCard } from '../ui/GameCard'
+import { StatusChip } from '../ui/StatusChip'
 import { DominoImageTile } from './DominoImageTile'
 import { createDominoBoardLayout } from '../../features/games/boardLayout'
 import { type BoardStateDto } from '../../features/games/types'
@@ -58,42 +59,30 @@ export function BoardStatePreview({ boardState }: { boardState: BoardStateDto })
   }, [invalidPlacements])
 
   return (
-    <Card className="overflow-hidden border-gold-300/20 bg-green-950/70 p-0 shadow-wood">
-      <div className="border-b border-cream-100/10 bg-gradient-to-r from-wood-900/80 via-felt-700/50 to-wood-900/80 px-4 py-3">
-        <p className="text-xs font-bold uppercase tracking-[0.18em] text-gold-200">
-          Table board
-        </p>
-        <p className="mt-1 text-sm text-cream-100/70">
-          {isEmpty
-            ? 'Board is empty. Start the round by playing a tile.'
-            : `${boardState.placements.length} dominoes in play.`}
-        </p>
-      </div>
-      <div className="grid grid-cols-2 gap-2 px-4 pt-3 text-left">
-        <div className="rounded-md border border-cream-100/10 bg-green-950/45 px-3 py-2">
-          <p className="text-[0.62rem] font-bold uppercase tracking-[0.12em] text-gold-200">
-            Left open
+    <GameCard className="overflow-hidden p-0 shadow-[0_28px_80px_rgba(17,7,2,0.46)]" variant="wood">
+      <div className="flex items-center justify-between gap-3 border-b border-gold-300/15 bg-gradient-to-r from-wood-900/86 via-green-950/72 to-wood-800/40 px-4 py-3">
+        <div>
+          <p className="text-xs font-black uppercase tracking-[0.18em] text-gold-200">
+            Felt table
           </p>
-          <p className="mt-0.5 text-base font-black text-cream-50">
-            {boardState.openEnds.left ?? '-'}
+          <p className="mt-1 text-sm text-cream-100/70">
+            {isEmpty
+              ? 'Center table is open.'
+              : `${boardState.placements.length} dominoes in play.`}
           </p>
         </div>
-        <div className="rounded-md border border-cream-100/10 bg-green-950/45 px-3 py-2">
-          <p className="text-[0.62rem] font-bold uppercase tracking-[0.12em] text-gold-200">
-            Right open
-          </p>
-          <p className="mt-0.5 text-base font-black text-cream-50">
-            {boardState.openEnds.right ?? '-'}
-          </p>
+        <div className="flex shrink-0 gap-2">
+          <StatusChip tone="gold">L {boardState.openEnds.left ?? '-'}</StatusChip>
+          <StatusChip tone="gold">R {boardState.openEnds.right ?? '-'}</StatusChip>
         </div>
       </div>
       <div
-        className="mt-3 h-[400px] max-h-[460px] w-full overflow-auto border-t border-cream-100/10 overscroll-contain sm:h-[430px]"
+        className="h-[390px] max-h-[460px] w-full overflow-auto overscroll-contain border-[10px] border-wood-900/85 bg-green-950 shadow-[inset_0_0_0_1px_rgba(255,244,214,0.12)] sm:h-[430px]"
         ref={viewportRef}
         style={{
-          backgroundColor: '#073321',
+          backgroundColor: '#0b3d2e',
           backgroundImage:
-            'radial-gradient(circle at 50% 42%, rgba(217,184,102,0.13), transparent 28rem), linear-gradient(135deg, rgba(255,255,255,0.045) 0%, transparent 42%), repeating-linear-gradient(90deg, rgba(255,255,255,0.025) 0 1px, transparent 1px 42px), linear-gradient(180deg, #0b3e28 0%, #082f20 48%, #062317 100%)',
+            'radial-gradient(circle at 50% 42%, rgba(242,193,78,0.12), transparent 25rem), radial-gradient(circle at 18% 16%, rgba(31,138,91,0.26), transparent 18rem), repeating-linear-gradient(135deg, rgba(255,255,255,0.035) 0 1px, transparent 1px 28px), linear-gradient(180deg, #146B4A 0%, #0B3D2E 54%, #061F18 100%)',
           backgroundPosition: 'center',
           backgroundSize: '100% 100%, 100% 100%, auto, 100% 100%',
         }}
@@ -109,11 +98,11 @@ export function BoardStatePreview({ boardState }: { boardState: BoardStateDto })
         >
           {isEmpty ? (
             <div
-              className="absolute left-1/2 top-1/2 w-60 -translate-x-1/2 -translate-y-1/2 rounded-md border border-gold-200/20 bg-green-950/70 px-4 py-5 text-center shadow-wood"
+              className="absolute left-1/2 top-1/2 w-64 -translate-x-1/2 -translate-y-1/2 rounded-3xl border border-gold-200/25 bg-green-950/78 px-5 py-6 text-center shadow-gold backdrop-blur"
             >
               <p className="text-lg font-black text-cream-50">Center table</p>
               <p className="mt-2 text-sm leading-6 text-cream-100/70">
-                Select a domino from your tray and play it on Start.
+                Select a domino from your tray and start the chain.
               </p>
             </div>
           ) : null}
@@ -135,7 +124,7 @@ export function BoardStatePreview({ boardState }: { boardState: BoardStateDto })
                 }
                 className={
                   placement.isStart
-                    ? 'ring-1 ring-gold-200/70 ring-offset-1 ring-offset-green-950 drop-shadow-[0_0_10px_rgba(217,184,102,0.35)]'
+                    ? 'ring-1 ring-gold-200/80 ring-offset-1 ring-offset-green-950 drop-shadow-[0_0_14px_rgba(242,193,78,0.45)]'
                     : ''
                 }
                 playable={placement.isLatest}
@@ -147,6 +136,6 @@ export function BoardStatePreview({ boardState }: { boardState: BoardStateDto })
           ))}
         </div>
       </div>
-    </Card>
+    </GameCard>
   )
 }
