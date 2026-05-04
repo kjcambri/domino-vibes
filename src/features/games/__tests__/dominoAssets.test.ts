@@ -38,6 +38,12 @@ describe('dominoAssets', () => {
     expect(getDominoImageSrc('6-4', { preferOptimized: true })).toBe(
       '/assets/dominoes-webp/domino-4-6.webp',
     )
+    expect(
+      getDominoImageSrc('6-4', {
+        preferNormalized: true,
+        preferOptimized: true,
+      }),
+    ).toBe('/assets/dominoes-normalized-webp/domino-4-6.webp')
     expect(getDominoImageSrc('bad-value')).toBe('/assets/dominoes/domino-back.png')
     expect(getDominoBackSrc()).toBe('/assets/dominoes/domino-back.png')
     expect(getTableImageSrc()).toBe('/assets/tables/domino-table.png')

@@ -114,17 +114,20 @@ function DominoPhotoAssetTile({
       ? orientation
       : 'horizontal'
   const isBoardTile = size === 'board'
+  const isHandTile = size === 'hand' || size === 'large'
   const rootSizeClass = isBoardTile
     ? sizeClasses.board.vertical
     : sizeClasses[size][safeOrientation]
   const style = Number.isFinite(rotation) ? { rotate: `${rotation}deg` } : undefined
 
   const baseClassName = cn(
-    'relative inline-grid shrink-0 place-items-center overflow-hidden rounded-lg border border-cream-950/10 bg-cream-50/10 transition-[box-shadow,filter,opacity,transform] duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-200 focus-visible:ring-offset-2 focus-visible:ring-offset-green-950',
+    'relative inline-grid shrink-0 place-items-center overflow-hidden rounded-lg transition-[box-shadow,filter,opacity,transform] duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-200 focus-visible:ring-offset-2 focus-visible:ring-offset-green-950',
     rootSizeClass,
     isBoardTile
-      ? 'shadow-[0_5px_10px_rgba(0,0,0,0.38),0_1px_0_rgba(255,244,214,0.28)]'
-      : 'shadow-[0_14px_22px_rgba(17,7,2,0.42),0_2px_0_rgba(255,244,214,0.24)]',
+      ? 'border border-cream-950/10 bg-cream-50/10 shadow-[0_5px_10px_rgba(0,0,0,0.38),0_1px_0_rgba(255,244,214,0.28)]'
+      : 'border border-cream-900/10 bg-transparent shadow-[0_16px_24px_rgba(17,7,2,0.34),0_3px_0_rgba(255,244,214,0.18)]',
+    isHandTile &&
+      'rounded-xl shadow-[0_18px_30px_rgba(17,7,2,0.34),0_3px_0_rgba(255,244,214,0.2)]',
     playable &&
       'drop-shadow-[0_0_14px_rgba(242,193,78,0.58)] ring-1 ring-gold-200/65',
     selected &&
@@ -133,7 +136,7 @@ function DominoPhotoAssetTile({
       'ring-1 ring-teal-300/70 ring-offset-1 ring-offset-green-950 drop-shadow-[0_0_14px_rgba(69,221,189,0.34)]',
     isStart &&
       'ring-1 ring-gold-200/80 ring-offset-1 ring-offset-green-950 drop-shadow-[0_0_14px_rgba(242,193,78,0.42)]',
-    disabled && 'opacity-80 saturate-[0.92] brightness-[0.98]',
+    disabled && 'opacity-85 saturate-[0.96] brightness-[1.01]',
     onClick &&
       !disabled &&
       'cursor-pointer hover:-translate-y-1 hover:brightness-110 active:translate-y-0 active:scale-95',
@@ -155,12 +158,20 @@ function DominoPhotoAssetTile({
       alt={ariaLabel ?? (hidden ? 'Hidden domino' : `Domino ${normalizedTileId}`)}
       className={cn(
         'pointer-events-none select-none',
-        isBoardTile ? 'object-cover' : 'object-contain',
+        isBoardTile || isHandTile ? 'object-cover' : 'object-contain',
         isBoardTile && 'h-full w-full max-w-none',
+        isHandTile &&
+          safeOrientation === 'vertical' &&
+          'h-full w-full max-w-none',
+        isHandTile &&
+          safeOrientation === 'horizontal' &&
+          'h-[150%] w-auto max-w-none rotate-90',
         !isBoardTile &&
+          !isHandTile &&
           safeOrientation === 'vertical' &&
           'h-full w-full max-w-none object-cover',
         !isBoardTile &&
+          !isHandTile &&
           safeOrientation === 'horizontal' &&
           'h-[150%] w-auto max-w-none rotate-90',
       )}

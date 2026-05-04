@@ -95,13 +95,21 @@ Use this checklist before inviting private testers and before every beta deploy.
 - Confirm no `.DS_Store`, `__MACOSX/`, or `._filename.png` metadata files are present.
 - Confirm large PNG warnings are expected source-asset warnings, not missing assets.
 - If WebP copies are regenerated, confirm `public/assets/dominoes-webp/` contains 29 files.
+- Run `npm run assets:normalize` when evaluating photo-asset cleanup and confirm `public/assets/dominoes-normalized-webp/` contains 29 files.
+- Run `npm run assets:contact-sheet` and review `public/assets/dominoes-normalized-contact-sheet.png` for crooked tiles, gray halos, inconsistent crops, and inconsistent padding.
 - Confirm domino images load in the hand tray and on the board.
+- Confirm board tiles still use realistic optimized WebP/photo-style assets by default.
+- Confirm hand/rack tiles are not overly dark, blurry, or trapped inside heavy dark cards.
+- Confirm hand/rack tiles visually match the board tile brightness and crop style.
 - Temporarily break one local tile path in development only and confirm the text fallback remains fixed-size.
 - Confirm selected hand tiles lift/glow clearly.
+- Confirm disabled or round-ended hand tiles remain readable and only subtly muted.
 - Confirm latest move highlight is visible without overpowering the board.
 - Confirm start tile marker is subtle and readable.
+- Check doubles, blank `0` halves, and high-pip tiles for readability at board size and hand size.
 - Confirm open-end chips do not take focus away from the board.
 - Confirm board felt/wood styling stays usable on mobile and desktop.
+- Confirm mobile hand tray horizontal scrolling remains smooth after tile style changes.
 - Confirm current assets are acceptable for beta, while production-quality consistent assets remain future work.
 
 ## 9. Security Testing

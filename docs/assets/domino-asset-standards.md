@@ -15,10 +15,11 @@ Default behavior:
 - If image loading fails entirely, the component still renders a fixed-size text fallback.
 - Board and hand tile dimensions remain controlled by component CSS so image assets cannot render at natural source size.
 - Hand/rack tiles should use the same image treatment as board tiles: fixed dimensions, image fill/crop, readable shadows, and only subtle disabled-state muting.
+- Hand/rack tiles should not sit inside heavy dark overlays. The hand rack can use felt/wood styling, but the tile image itself should stay bright, sharp, and visually close to the board tiles.
 
 ## Photo Asset Normalization Pipeline
 
-Sprint 19 adds an optional normalization pipeline for the current photo-style assets:
+Sprint 20 keeps photo/WebP dominoes as the default and improves the optional normalization pipeline for the current photo-style assets:
 
 ```bash
 npm run assets:normalize
@@ -32,13 +33,15 @@ public/assets/dominoes-normalized-webp/
 
 It does not overwrite PNG originals or the current optimized WebP set.
 
-The normalization pipeline helps with:
+The normalization pipeline now:
 
 - consistent output canvas size
 - consistent vertical tile dimensions
-- consistent transparent padding
+- consistent transparent padding on a 320x640 canvas
 - centered tile placement
 - smaller WebP output size
+- conservative transparent trim
+- mild brightness/saturation/sharpening for review candidates
 
 It cannot fully fix:
 
@@ -46,8 +49,22 @@ It cannot fully fix:
 - source perspective
 - baked-in shadows
 - mismatched source crops that already lost visual detail
+- gray/white edge halos baked into source pixels
+- source tilt or skew that needs manual cleanup
 
-Normalized assets are not the default yet. To preview them in a branch deploy, set `USE_NORMALIZED_DOMINO_ASSETS` to `true` in `src/features/games/dominoAssets.ts`. Keep the flag off until the generated set is visually approved.
+Normalized assets are not the default yet. To preview them in a branch deploy, set `USE_NORMALIZED_DOMINO_ASSETS` to `true` in `src/features/games/dominoAssets.ts`, or use `getDominoImageSrc(tileId, { preferOptimized: true, preferNormalized: true })` for one-off checks. Keep the flag off until the generated set is visually approved.
+
+Generate a normalized contact sheet after running the normalizer:
+
+```bash
+npm run assets:contact-sheet
+```
+
+Review:
+
+```text
+public/assets/dominoes-normalized-contact-sheet.png
+```
 
 ## Experimental Procedural Domino Tile System
 
@@ -114,11 +131,13 @@ This convention matters because board geometry rotates assets so matching pips f
 
 ## Source Quality
 
-- Recommended source size: 512x1024 or 256x512 vertical canvas.
+- Recommended source size: 512x1024 or 320x640 vertical canvas.
 - Transparent background is required.
 - Use consistent canvas/crop, pip placement, lighting, and bevels.
 - Avoid baked-in table shadows; CSS provides table shadows at runtime.
 - Avoid perspective distortion. Assets should feel like clean top-down game pieces.
+- Avoid gray halos; source assets should be cleanly masked before WebP export.
+- Straighten tilted source pieces manually in Photopea, Photoshop, Figma, or a future asset-rendering pipeline.
 - PNG is acceptable for source/master files.
 - WebP is recommended for production delivery.
 
