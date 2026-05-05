@@ -19,6 +19,7 @@ const normalizedOutputPath = path.join(
   'assets',
   'dominoes-normalized-contact-sheet.png',
 )
+const allowedContactSheetExtensions = ['png', 'webp', 'jpg', 'jpeg']
 
 const tileWidth = 96
 const tileHeight = 144
@@ -57,6 +58,18 @@ async function getDominoFiles(sourceDir, extension) {
         filename === `domino-back.${extension}`,
     )
     .sort((first, second) => first.localeCompare(second, undefined, { numeric: true }))
+}
+
+async function getDominoFilesByKnownExtensions(sourceDir) {
+  const files = []
+
+  for (const extension of allowedContactSheetExtensions) {
+    files.push(...(await getDominoFiles(sourceDir, extension)))
+  }
+
+  return files.sort((first, second) =>
+    first.localeCompare(second, undefined, { numeric: true }),
+  )
 }
 
 async function createContactSheet({
@@ -131,7 +144,49 @@ async function createContactSheet({
   console.log(output)
 }
 
+function readArg(name) {
+  const index = process.argv.indexOf(name)
+
+  if (index === -1) {
+    return null
+  }
+
+  return process.argv[index + 1] ?? null
+}
+
+async function createCustomContactSheetIfRequested() {
+  const sourceArg = readArg('--source')
+
+  if (!sourceArg) {
+    return false
+  }
+
+  const outputArg = readArg('--output')
+  const titleArg = readArg('--title')
+  const sourceDir = path.resolve(projectRoot, sourceArg)
+  const output = outputArg
+    ? path.resolve(projectRoot, outputArg)
+    : path.join(projectRoot, 'public', 'assets', 'domino-contact-sheet-custom.png')
+  const files = await getDominoFilesByKnownExtensions(sourceDir)
+
+  await createContactSheet({
+    extension: 'image',
+    files,
+    output,
+    sourceDir,
+    title:
+      titleArg ??
+      'Domino Vibes contact sheet: expected low-on-top / high-on-bottom',
+  })
+
+  return true
+}
+
 async function main() {
+  if (await createCustomContactSheetIfRequested()) {
+    return
+  }
+
   const pngFiles = await getDominoFiles(dominoesDir, 'png')
 
   await createContactSheet({

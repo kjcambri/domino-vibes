@@ -13,6 +13,8 @@
     "test:run": "vitest run",
     "assets:audit": "node scripts/audit-domino-assets.mjs",
     "assets:contact-sheet": "node scripts/create-domino-contact-sheet.mjs",
+    "assets:contact-sheet-real": "node scripts/create-domino-contact-sheet.mjs --source public/assets/dominoes-real-webp --output public/assets/dominoes-real-contact-sheet.png --title \"Domino Vibes real WebP audit: primary production asset set\"",
+    "assets:import-real": "node scripts/import-real-domino-assets.mjs",
     "assets:optimize": "node scripts/optimize-domino-assets.mjs",
     "assets:normalize": "node scripts/normalize-domino-assets.mjs",
     "assets:rotate": "node scripts/rotate-domino-assets.mjs"

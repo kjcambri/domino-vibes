@@ -94,11 +94,18 @@ Use this checklist before inviting private testers and before every beta deploy.
 - Run `npm run assets:audit` and confirm all 28 tile fronts plus `domino-back` exist.
 - Confirm no `.DS_Store`, `__MACOSX/`, or `._filename.png` metadata files are present.
 - Confirm large PNG warnings are expected source-asset warnings, not missing assets.
+- Run `npm run assets:import-real` after updating `~/Desktop/Real Domino Assets` and confirm `public/assets/dominoes-real-webp/` contains 29 files.
+- Run `npm run assets:contact-sheet-real` and review `public/assets/dominoes-real-contact-sheet.png`.
+- Confirm real assets are exported on a consistent 320x640 WebP canvas.
+- Confirm every tile value is correct and uses low-on-top/high-on-bottom orientation.
+- Confirm `domino-back` exists and looks acceptable for hidden/opponent tiles.
 - If WebP copies are regenerated, confirm `public/assets/dominoes-webp/` contains 29 files.
 - Run `npm run assets:normalize` when evaluating photo-asset cleanup and confirm `public/assets/dominoes-normalized-webp/` contains 29 files.
 - Run `npm run assets:contact-sheet` and review `public/assets/dominoes-normalized-contact-sheet.png` for crooked tiles, gray halos, inconsistent crops, and inconsistent padding.
 - Confirm domino images load in the hand tray and on the board.
-- Confirm board tiles still use realistic optimized WebP/photo-style assets by default.
+- Confirm board tiles use the Sprint 22 real WebP assets by default.
+- Confirm hand/rack tiles use the Sprint 22 real WebP assets by default.
+- Confirm homepage fallback and live mini-board previews use the Sprint 22 real WebP assets.
 - Confirm hand/rack tiles are not overly dark, blurry, or trapped inside heavy dark cards.
 - Confirm hand/rack tiles visually match the board tile brightness and crop style.
 - Temporarily break one local tile path in development only and confirm the text fallback remains fixed-size.

@@ -5,12 +5,55 @@ import sharp from 'sharp'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const projectRoot = path.resolve(__dirname, '..')
-const dominoesDir = path.join(projectRoot, 'public', 'assets', 'dominoes')
-const optimizedDir = path.join(projectRoot, 'public', 'assets', 'dominoes-webp')
-const largeFileThresholdBytes = 500 * 1024
+const dominoAssetsSourcePath = path.join(
+  projectRoot,
+  'src',
+  'features',
+  'games',
+  'dominoAssets.ts',
+)
 
-const ignoredNames = new Set(['domino-contact-sheet.png'])
-const ignoredDirectories = new Set(['originals-backup'])
+const requiredAssetIds = [
+  ...Array.from({ length: 7 }, (_unused, left) =>
+    Array.from({ length: 7 - left }, (_nestedUnused, offset) => {
+      const right = left + offset
+
+      return `domino-${left}-${right}`
+    }),
+  ).flat(),
+  'domino-back',
+]
+
+const folders = [
+  {
+    directory: path.join(projectRoot, 'public', 'assets', 'dominoes'),
+    extension: 'png',
+    key: 'original',
+    label: 'Original PNG assets',
+    largeFileThresholdBytes: 500 * 1024,
+  },
+  {
+    directory: path.join(projectRoot, 'public', 'assets', 'dominoes-webp'),
+    extension: 'webp',
+    key: 'optimized',
+    label: 'Optimized WebP fallback assets',
+    largeFileThresholdBytes: 180 * 1024,
+  },
+  {
+    directory: path.join(projectRoot, 'public', 'assets', 'dominoes-normalized-webp'),
+    extension: 'webp',
+    key: 'normalized',
+    label: 'Normalized WebP candidate assets',
+    largeFileThresholdBytes: 180 * 1024,
+  },
+  {
+    directory: path.join(projectRoot, 'public', 'assets', 'dominoes-real-webp'),
+    extension: 'webp',
+    key: 'real',
+    label: 'Real WebP primary assets',
+    largeFileThresholdBytes: 180 * 1024,
+  },
+]
 
 function formatBytes(bytes) {
   if (bytes < 1024) {
@@ -26,19 +69,20 @@ function formatBytes(bytes) {
   return `${(kb / 1024).toFixed(2)} MB`
 }
 
-function createRequiredTileNames() {
-  const names = []
-
-  for (let low = 0; low <= 6; low += 1) {
-    for (let high = low; high <= 6; high += 1) {
-      names.push(`domino-${low}-${high}.png`)
-    }
+async function fileExists(filePath) {
+  try {
+    await fs.access(filePath)
+    return true
+  } catch {
+    return false
   }
-
-  return names
 }
 
 async function walk(directory, relativeBase = '') {
+  if (!(await fileExists(directory))) {
+    return []
+  }
+
   const entries = await fs.readdir(directory, { withFileTypes: true })
   const paths = []
 
@@ -57,7 +101,7 @@ async function walk(directory, relativeBase = '') {
   return paths
 }
 
-async function readImageMetadata(fullPath) {
+async function readImageDimensions(fullPath) {
   try {
     const metadata = await sharp(fullPath).metadata()
 
@@ -67,9 +111,127 @@ async function readImageMetadata(fullPath) {
   }
 }
 
+async function readDefaultFlags() {
+  const source = await fs.readFile(dominoAssetsSourcePath, 'utf8')
+
+  return {
+    useNormalized: /USE_NORMALIZED_DOMINO_ASSETS\s*=\s*true/.test(source),
+    useProcedural: /USE_PROCEDURAL_DOMINOES\s*=\s*true/.test(source),
+    useReal: /USE_REAL_DOMINO_ASSETS\s*=\s*true/.test(source),
+  }
+}
+
+async function auditFolder(folder) {
+  const result = {
+    ...folder,
+    backFound: false,
+    dimensions: new Map(),
+    files: [],
+    frontsFound: 0,
+    isPresent: await fileExists(folder.directory),
+    missing: [],
+    totalBytes: 0,
+    warnings: [],
+  }
+
+  if (!result.isPresent) {
+    result.missing = requiredAssetIds.map(
+      (assetId) => `${assetId}.${folder.extension}`,
+    )
+    result.warnings.push('folder not found')
+    return result
+  }
+
+  const entries = await fs.readdir(folder.directory, { withFileTypes: true })
+  const directFiles = entries
+    .filter((entry) => entry.isFile())
+    .map((entry) => entry.name)
+  const directFileSet = new Set(directFiles)
+  const requiredFiles = requiredAssetIds.map(
+    (assetId) => `${assetId}.${folder.extension}`,
+  )
+
+  result.missing = requiredFiles.filter((filename) => !directFileSet.has(filename))
+  result.backFound = directFileSet.has(`domino-back.${folder.extension}`)
+
+  for (const filename of requiredFiles.filter((file) => directFileSet.has(file))) {
+    const fullPath = path.join(folder.directory, filename)
+    const stat = await fs.stat(fullPath)
+    const dimensions = await readImageDimensions(fullPath)
+
+    result.totalBytes += stat.size
+    result.dimensions.set(dimensions, (result.dimensions.get(dimensions) ?? 0) + 1)
+
+    if (/^domino-[0-6]-[0-6]\./.test(filename)) {
+      result.frontsFound += 1
+    }
+
+    result.files.push({
+      dimensions,
+      filename,
+      isLarge: stat.size > folder.largeFileThresholdBytes,
+      size: stat.size,
+    })
+  }
+
+  return result
+}
+
 async function main() {
-  const allRelativePaths = await walk(dominoesDir)
-  const macMetadata = allRelativePaths.filter((relativePath) => {
+  const flags = await readDefaultFlags()
+  const audits = []
+  const allWarnings = []
+
+  console.log('Domino Vibes asset audit')
+  console.log(
+    `Defaults: real=${flags.useReal}, normalized=${flags.useNormalized}, procedural=${flags.useProcedural}`,
+  )
+
+  for (const folder of folders) {
+    const audit = await auditFolder(folder)
+    audits.push(audit)
+
+    console.log(`\n${audit.label}`)
+    console.log(`Directory: ${audit.directory}`)
+    console.log(`Required fronts found: ${audit.frontsFound}/28`)
+    console.log(`Domino back found: ${audit.backFound ? 'yes' : 'no'}`)
+    console.log(`Audited files: ${audit.files.length}`)
+    console.log(`Total size: ${formatBytes(audit.totalBytes)}`)
+    console.log(
+      `Dimensions: ${
+        audit.dimensions.size > 0
+          ? [...audit.dimensions.entries()]
+              .map(([dimensions, count]) => `${dimensions} (${count})`)
+              .join(', ')
+          : 'none'
+      }`,
+    )
+
+    const largeFiles = audit.files.filter((file) => file.isLarge)
+
+    if (largeFiles.length > 0) {
+      audit.warnings.push(
+        `${largeFiles.length} large file(s): ${largeFiles
+          .map((file) => `${file.filename} ${formatBytes(file.size)}`)
+          .join(', ')}`,
+      )
+    }
+
+    if (audit.missing.length > 0) {
+      audit.warnings.push(`missing required files: ${audit.missing.join(', ')}`)
+    }
+
+    if (audit.warnings.length > 0) {
+      console.log('Warnings:')
+      for (const warning of audit.warnings) {
+        console.log(`- ${warning}`)
+        allWarnings.push(`${audit.key}: ${warning}`)
+      }
+    }
+  }
+
+  const dominoAssetFolders = await walk(path.join(projectRoot, 'public', 'assets'))
+  const macMetadata = dominoAssetFolders.filter((relativePath) => {
     const parts = relativePath.split(path.sep)
     const filename = parts.at(-1) ?? ''
 
@@ -79,120 +241,31 @@ async function main() {
       filename.startsWith('._')
     )
   })
-  const directEntries = await fs.readdir(dominoesDir, { withFileTypes: true })
-  const directFiles = directEntries
-    .filter((entry) => entry.isFile())
-    .map((entry) => entry.name)
-  const auditFiles = directFiles
-    .filter((filename) => filename.endsWith('.png'))
-    .filter((filename) => !ignoredNames.has(filename))
-    .filter((filename) => /^domino-(?:[0-6]-[0-6]|back)\.png$/.test(filename))
-    .sort((first, second) =>
-      first.localeCompare(second, undefined, { numeric: true }),
-    )
-  const skippedDirectories = directEntries
-    .filter((entry) => entry.isDirectory() && ignoredDirectories.has(entry.name))
-    .map((entry) => entry.name)
-  const requiredTiles = createRequiredTileNames()
-  const missingTiles = requiredTiles.filter((filename) => !directFiles.includes(filename))
-  const hasBack = directFiles.includes('domino-back.png')
-  const fileRows = []
-  let totalBytes = 0
-
-  for (const filename of auditFiles) {
-    const fullPath = path.join(dominoesDir, filename)
-    const stat = await fs.stat(fullPath)
-    const dimensions = await readImageMetadata(fullPath)
-
-    totalBytes += stat.size
-    fileRows.push({
-      dimensions,
-      filename,
-      isLarge: stat.size > largeFileThresholdBytes,
-      size: stat.size,
-    })
-  }
-
-  console.log('Domino Vibes asset audit')
-  console.log(`Directory: ${dominoesDir}`)
-  console.log(`Required fronts found: ${requiredTiles.length - missingTiles.length}/${requiredTiles.length}`)
-  console.log(`Domino back found: ${hasBack ? 'yes' : 'no'}`)
-  console.log(`Audited files: ${fileRows.length}`)
-  console.log(`Total audited PNG size: ${formatBytes(totalBytes)}`)
-
-  if (skippedDirectories.length > 0) {
-    console.log(`Skipped backup folders: ${skippedDirectories.join(', ')}`)
-  }
-
-  console.log('\nFiles')
-  for (const row of fileRows) {
-    const marker = row.isLarge ? '  WARN large' : ''
-    console.log(
-      `- ${row.filename.padEnd(16)} ${formatBytes(row.size).padStart(9)} ${row.dimensions}${marker}`,
-    )
-  }
-
-  const largeFiles = fileRows.filter((row) => row.isLarge)
-
-  try {
-    const optimizedEntries = await fs.readdir(optimizedDir, { withFileTypes: true })
-    const optimizedFiles = optimizedEntries
-      .filter((entry) => entry.isFile())
-      .map((entry) => entry.name)
-      .filter((filename) => /^domino-(?:[0-6]-[0-6]|back)\.webp$/.test(filename))
-      .sort((first, second) =>
-        first.localeCompare(second, undefined, { numeric: true }),
-      )
-    let optimizedBytes = 0
-
-    for (const filename of optimizedFiles) {
-      const stat = await fs.stat(path.join(optimizedDir, filename))
-      optimizedBytes += stat.size
-    }
-
-    if (optimizedFiles.length > 0) {
-      console.log('\nOptimized WebP assets')
-      console.log(`Directory: ${optimizedDir}`)
-      console.log(`Files found: ${optimizedFiles.length}`)
-      console.log(`Total optimized size: ${formatBytes(optimizedBytes)}`)
-    }
-  } catch (error) {
-    if (error && typeof error === 'object' && 'code' in error && error.code === 'ENOENT') {
-      console.log('\nOptimized WebP assets: not generated yet.')
-    } else {
-      throw error
-    }
-  }
-
-  if (largeFiles.length > 0) {
-    console.log('\nLarge asset warnings')
-    for (const row of largeFiles) {
-      console.log(`- ${row.filename}: ${formatBytes(row.size)} exceeds ${formatBytes(largeFileThresholdBytes)}`)
-    }
-  }
 
   if (macMetadata.length > 0) {
     console.log('\nMac metadata warnings')
     for (const relativePath of macMetadata) {
       console.log(`- ${relativePath}`)
+      allWarnings.push(`mac metadata: ${relativePath}`)
     }
   }
 
-  if (missingTiles.length > 0 || !hasBack) {
-    console.error('\nMissing required assets')
+  const defaultAudit = flags.useReal
+    ? audits.find((audit) => audit.key === 'real')
+    : audits.find((audit) => audit.key === 'optimized')
 
-    for (const filename of missingTiles) {
-      console.error(`- ${filename}`)
-    }
-
-    if (!hasBack) {
-      console.error('- domino-back.png')
-    }
-
+  if (defaultAudit && defaultAudit.missing.length > 0) {
+    console.error(
+      `\nDefault domino asset folder is incomplete: ${defaultAudit.label}`,
+    )
     process.exit(1)
   }
 
-  console.log('\nAsset audit complete.')
+  if (allWarnings.length > 0) {
+    console.log('\nAsset audit completed with warnings.')
+  } else {
+    console.log('\nAsset audit complete.')
+  }
 }
 
 main().catch((error) => {

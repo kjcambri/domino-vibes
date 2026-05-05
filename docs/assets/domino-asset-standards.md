@@ -1,21 +1,56 @@
 # Domino Asset Standards
 
-Domino Vibes currently uses optimized WebP/photo-style domino assets as the default in-app tile system. These standards keep board rotation, mobile loading, and visual polish predictable while the app moves toward a future consistent realistic 2.5D rendered tile set.
+Domino Vibes currently uses the Sprint 22 real WebP domino asset set as the default in-app tile system. These standards keep board rotation, mobile loading, and visual polish predictable while retaining older photo/WebP, normalized WebP, PNG, and experimental procedural renderers as fallback paths.
 
 ## Current Production Tile System
 
-Domino Vibes renders optimized WebP domino fronts from `public/assets/dominoes-webp/` by default, with PNG files in `public/assets/dominoes/` as the fallback path. These photo-style assets currently fit the Domino Vibes visual mood better than the experimental procedural renderer, even though they still have some lighting and crop inconsistencies.
+Domino Vibes renders Sprint 22 real WebP domino fronts from `public/assets/dominoes-real-webp/` by default. The source set was imported from `~/Desktop/Real Domino Assets`, normalized onto a 320x640 transparent canvas, and exported as WebP at quality 90.
 
 Default behavior:
 
+- `USE_REAL_DOMINO_ASSETS` is `true` in `src/features/games/dominoAssets.ts`.
 - `USE_PROCEDURAL_DOMINOES` is `false` in `src/features/games/dominoAssets.ts`.
 - `USE_NORMALIZED_DOMINO_ASSETS` is `false` in `src/features/games/dominoAssets.ts`.
-- `DominoImageTile` tries optimized WebP first.
-- If WebP fails, it falls back to PNG.
+- `DominoImageTile` tries real WebP first.
+- If real WebP fails, it falls back to the existing optimized WebP set.
+- If normalized assets are intentionally enabled in a branch, they are tried after optimized WebP.
+- If WebP loading fails, it falls back to PNG.
 - If image loading fails entirely, the component still renders a fixed-size text fallback.
 - Board and hand tile dimensions remain controlled by component CSS so image assets cannot render at natural source size.
 - Hand/rack tiles should use the same image treatment as board tiles: fixed dimensions, image fill/crop, readable shadows, and only subtle disabled-state muting.
 - Hand/rack tiles should not sit inside heavy dark overlays. The hand rack can use felt/wood styling, but the tile image itself should stay bright, sharp, and visually close to the board tiles.
+
+Primary asset import:
+
+```bash
+npm run assets:import-real
+```
+
+This reads from:
+
+```text
+~/Desktop/Real Domino Assets
+```
+
+and writes:
+
+```text
+public/assets/dominoes-real-webp/
+```
+
+Generate the real asset contact sheet:
+
+```bash
+npm run assets:contact-sheet-real
+```
+
+Review:
+
+```text
+public/assets/dominoes-real-contact-sheet.png
+```
+
+The Sprint 22 real set contains all 28 fronts plus `domino-back`, all exported at 320x640 WebP. The imported `domino-back` is intentionally kept from the supplied source set; visual review can decide later whether a branded emerald back should replace it.
 
 ## Photo Asset Normalization Pipeline
 
@@ -52,7 +87,7 @@ It cannot fully fix:
 - gray/white edge halos baked into source pixels
 - source tilt or skew that needs manual cleanup
 
-Normalized assets are not the default yet. To preview them in a branch deploy, set `USE_NORMALIZED_DOMINO_ASSETS` to `true` in `src/features/games/dominoAssets.ts`, or use `getDominoImageSrc(tileId, { preferOptimized: true, preferNormalized: true })` for one-off checks. Keep the flag off until the generated set is visually approved.
+Normalized assets are not the default. To preview them in a branch deploy, set `USE_NORMALIZED_DOMINO_ASSETS` to `true` in `src/features/games/dominoAssets.ts`, or use `getDominoImageSrc(tileId, { preferOptimized: true, preferNormalized: true })` for one-off checks. Keep the flag off unless specifically evaluating the older normalized candidate set.
 
 Generate a normalized contact sheet after running the normalizer:
 
@@ -110,12 +145,14 @@ Visual states are component-owned:
 - Disabled: dimmed and lower contrast.
 - Hidden/back: emerald back with gold/cream rim and subtle Domino Vibes mark.
 
-To test procedural tiles in a branch deploy, set `USE_PROCEDURAL_DOMINOES` to `true` in `src/features/games/dominoAssets.ts`. Keep that as an experimental preview only; production should continue using optimized WebP/photo-style assets until a consistent realistic 2.5D rendered tile set is accepted.
+To test procedural tiles in a branch deploy, set `USE_PROCEDURAL_DOMINOES` to `true` in `src/features/games/dominoAssets.ts`. Keep that as an experimental preview only; production should continue using the Sprint 22 real WebP asset set unless a future consistent rendered tile set is accepted.
 
 ## Naming
 
-- Source PNG files live in `public/assets/dominoes/`.
-- Optimized WebP files live in `public/assets/dominoes-webp/`.
+- Sprint 22 real WebP files live in `public/assets/dominoes-real-webp/`.
+- Legacy source PNG files live in `public/assets/dominoes/`.
+- Legacy optimized WebP files live in `public/assets/dominoes-webp/`.
+- Optional normalized WebP files live in `public/assets/dominoes-normalized-webp/`.
 - Tile fronts use low-high naming: `domino-low-high.png` or `domino-low-high.webp`.
 - Examples: `domino-0-1.png`, `domino-2-6.png`, `domino-6-6.png`.
 - The back tile is `domino-back.png` and `domino-back.webp`.
@@ -155,10 +192,22 @@ Run the audit:
 npm run assets:audit
 ```
 
+Import and format the Sprint 22 real asset set:
+
+```bash
+npm run assets:import-real
+```
+
 Generate the visual contact sheet:
 
 ```bash
 npm run assets:contact-sheet
+```
+
+Generate the real asset contact sheet:
+
+```bash
+npm run assets:contact-sheet-real
 ```
 
 Create optimized WebP copies without overwriting PNG originals:
