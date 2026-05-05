@@ -36,6 +36,14 @@ VITE_SUPABASE_ANON_KEY=
 
 The app warns when Supabase variables are missing during Sprint 1 instead of crashing.
 
+## Supabase Auth Email
+
+Domino Vibes keeps Supabase email confirmation enabled. The default Supabase Auth
+email sender is suitable for quick local checks, but it is limited to 2 auth
+emails per hour. For production or multi-user testing, configure custom SMTP in
+Supabase so signup confirmations and resend-confirmation emails are delivered
+reliably.
+
 ## Scripts
 
 ```bash

@@ -1,5 +1,11 @@
 import { lazy } from 'react'
 
+export const AuthCallbackPage = lazy(() =>
+  import('../pages/AuthCallbackPage').then((module) => ({
+    default: module.AuthCallbackPage,
+  })),
+)
+
 export const GameRoomPage = lazy(() =>
   import('../pages/GameRoomPage').then((module) => ({
     default: module.GameRoomPage,
