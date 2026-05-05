@@ -4,6 +4,7 @@ import { ProtectedRoute } from '../components/auth/ProtectedRoute'
 import { PublicOnlyRoute } from '../components/auth/PublicOnlyRoute'
 import { RouteLoadingFallback } from '../components/layout/RouteLoadingFallback'
 import {
+  AuthCallbackPage,
   GameRoomPage,
   LandingPage,
   LobbyPage,
@@ -39,6 +40,10 @@ export const router = createBrowserRouter([
         {lazyRoute(<SignupPage />)}
       </PublicOnlyRoute>
     ),
+  },
+  {
+    path: '/auth/callback',
+    element: lazyRoute(<AuthCallbackPage />),
   },
   {
     path: '/profile',

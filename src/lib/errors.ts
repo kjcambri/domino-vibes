@@ -30,6 +30,35 @@ export function getFriendlyAuthError(error: unknown) {
     return 'That email is already registered. Try logging in instead.'
   }
 
+  if (message.includes('email not confirmed')) {
+    return 'Please confirm your email before logging in. You can resend the confirmation email from sign up.'
+  }
+
+  if (
+    message.includes('only request this once every') ||
+    message.includes('rate limit') ||
+    message.includes('too many requests')
+  ) {
+    return 'Confirmation email could not be sent right now. Please wait a few minutes and try resending.'
+  }
+
+  if (
+    message.includes('error sending confirmation email') ||
+    message.includes('email provider') ||
+    message.includes('smtp') ||
+    message.includes('send email')
+  ) {
+    return 'Confirmation email could not be sent right now. Please wait a few minutes and try resending.'
+  }
+
+  if (
+    message.includes('invalid email') ||
+    message.includes('unable to validate email') ||
+    (message.includes('email') && message.includes('invalid'))
+  ) {
+    return 'Enter a valid email address.'
+  }
+
   if (message.includes('email signups are disabled')) {
     return 'Email signups are disabled in Supabase. Enable the Email provider to create accounts.'
   }

@@ -10,6 +10,7 @@ type AuthFormProps = {
   submitLabel: string
   isLoading: boolean
   error?: string
+  success?: string
   children: ReactNode
   footer?: ReactNode
   onSubmit: (event: FormEvent<HTMLFormElement>) => void
@@ -22,6 +23,7 @@ export function AuthForm({
   submitLabel,
   isLoading,
   error,
+  success,
   children,
   footer,
   onSubmit,
@@ -46,6 +48,14 @@ export function AuthForm({
             role="alert"
           >
             {error}
+          </div>
+        ) : null}
+        {success ? (
+          <div
+            className="rounded-md border border-teal-200/30 bg-teal-300/10 px-4 py-3 text-sm leading-6 text-teal-50"
+            role="status"
+          >
+            {success}
           </div>
         ) : null}
         <Button disabled={isLoading} type="submit">
