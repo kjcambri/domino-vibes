@@ -1,9 +1,8 @@
 import { useMemo, useState } from 'react'
 import { cn } from '../../lib/cn'
 import {
-  getDominoAssetCandidates,
+  getDominoImageFallbackSources,
   normalizeTileId,
-  USE_NORMALIZED_DOMINO_ASSETS,
   USE_PROCEDURAL_DOMINOES,
 } from '../../features/games/dominoAssets'
 import { type DominoTileDto } from '../../features/games/types'
@@ -93,14 +92,10 @@ function DominoPhotoAssetTile({
 }: DominoImageTileProps) {
   const safeTileId = hidden ? 'domino-back' : tileId ?? '0-0'
   const normalizedTileId = normalizeTileId(safeTileId)
-  const imageSources = useMemo(() => {
-    const { normalizedSrc, optimizedSrc, pngSrc } =
-      getDominoAssetCandidates(safeTileId)
-
-    return USE_NORMALIZED_DOMINO_ASSETS
-      ? [normalizedSrc, optimizedSrc, pngSrc]
-      : [optimizedSrc, pngSrc]
-  }, [safeTileId])
+  const imageSources = useMemo(
+    () => getDominoImageFallbackSources(safeTileId),
+    [safeTileId],
+  )
   const [imageSourceState, setImageSourceState] = useState({
     index: 0,
     tileId: safeTileId,
