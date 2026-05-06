@@ -1,6 +1,7 @@
 import { type ReactNode } from 'react'
 import {
   Crown,
+  Gem,
   LogIn,
   MessageCircle,
   RotateCcw,
@@ -31,7 +32,7 @@ export function LandingPage() {
   return (
     <MobileShell className="max-w-7xl">
       <section className="flex flex-1 flex-col gap-8 py-4">
-        <header className="flex items-center justify-between gap-4">
+        <header className="flex items-center justify-between gap-4 rounded-2xl border border-gold-300/14 bg-wood-900/42 px-3 py-3 shadow-wood backdrop-blur">
           <Link
             aria-label="Domino Vibes home"
             className="flex items-center gap-3"
@@ -49,12 +50,21 @@ export function LandingPage() {
               </span>
             </span>
           </Link>
-          <StatusChip className="hidden border-teal-300/35 bg-teal-300/12 text-teal-100 sm:inline-flex" tone="felt">
-            Private beta live
-          </StatusChip>
+          <nav
+            aria-label="Landing navigation"
+            className="hidden items-center gap-2 text-sm font-black text-cream-100/78 md:flex"
+          >
+            <span className="rounded-xl bg-gold-300/12 px-3 py-2 text-gold-100">
+              Play
+            </span>
+            <span className="rounded-xl px-3 py-2">Live Tables</span>
+            <span className="rounded-xl px-3 py-2 text-cream-100/55">
+              Coming Soon
+            </span>
+          </nav>
         </header>
 
-        <section className="relative overflow-hidden rounded-[2rem] border border-gold-300/20 bg-[radial-gradient(circle_at_24%_0%,rgba(69,221,189,0.2),transparent_18rem),linear-gradient(135deg,rgba(6,31,24,0.88),rgba(23,19,4,0.94)_62%,rgba(42,22,10,0.92))] p-5 shadow-[0_36px_110px_rgba(17,7,2,0.55)] md:p-8">
+        <section className="relative overflow-hidden rounded-2xl border border-gold-300/22 bg-[radial-gradient(circle_at_24%_0%,rgba(107,216,203,0.18),transparent_18rem),radial-gradient(circle_at_76%_68%,rgba(249,189,34,0.14),transparent_18rem),repeating-linear-gradient(90deg,rgba(255,244,214,0.035)_0_1px,transparent_1px_24px),linear-gradient(135deg,rgba(23,19,10,0.96),rgba(32,27,17,0.95)_42%,rgba(6,31,24,0.9))] p-5 shadow-[0_36px_110px_rgba(17,7,2,0.55)] md:p-8">
           <div className="pointer-events-none absolute inset-0 opacity-35 [background-image:linear-gradient(110deg,transparent_0_34%,rgba(255,244,214,0.12)_36%,transparent_42%),linear-gradient(70deg,transparent_0_66%,rgba(69,221,189,0.1)_68%,transparent_74%)]" />
           <div className="relative grid gap-8 lg:grid-cols-[minmax(0,1fr)_430px] lg:items-center">
             <div className="grid gap-6">
@@ -62,12 +72,13 @@ export function LandingPage() {
                 Cutthroat 4 live now
               </StatusChip>
               <div>
-                <h1 className="max-w-3xl text-5xl font-black leading-[0.98] tracking-tight text-cream-50 md:text-7xl">
-                  Experience the thrill of online domino gaming
+                <h1 className="max-w-3xl font-serif text-5xl font-black leading-[0.98] tracking-tight text-cream-50 md:text-7xl">
+                  The Caribbean&apos;s premier domino social club
                 </h1>
                 <p className="mt-5 max-w-2xl border-l-4 border-gold-300 pl-4 text-lg leading-8 text-cream-100/80">
-                  Pull up a seat, talk your talk, and play Caribbean-style
-                  dominoes with real people.
+                  Experience the thrill of online domino gaming. Pull up a
+                  seat, talk your talk, and play Caribbean-style dominoes with
+                  real people.
                 </p>
               </div>
               <div className="flex flex-col gap-3 sm:flex-row">
@@ -144,6 +155,21 @@ export function LandingPage() {
             </p>
           </GameCard>
         </section>
+
+        <section className="grid gap-4 md:grid-cols-3">
+          <ComingSoonCard
+            copy="Invite-only and friend tables are planned after the core public rooms finish beta hardening."
+            label="Private Tables"
+          />
+          <ComingSoonCard
+            copy="Competitive ladders will stay disabled until the rule set and anti-abuse flows are production-ready."
+            label="Ranked Matches"
+          />
+          <ComingSoonCard
+            copy="Community events can arrive later as bragging-rights competitions with clear beta guardrails."
+            label="Community Tournaments"
+          />
+        </section>
       </section>
     </MobileShell>
   )
@@ -157,10 +183,37 @@ function FeaturePill({
   label: string
 }) {
   return (
-    <div className="flex items-center gap-2 rounded-2xl border border-cream-100/10 bg-green-950/42 px-3 py-3 text-sm font-black text-cream-100/82">
+    <div className="flex min-h-12 items-center gap-2 rounded-xl border border-cream-100/10 bg-green-950/42 px-3 py-3 text-sm font-black text-cream-100/82">
       <span className="text-teal-300">{icon}</span>
       {label}
     </div>
+  )
+}
+
+function ComingSoonCard({ label, copy }: { label: string; copy: string }) {
+  return (
+    <GameCard
+      aria-disabled="true"
+      className="relative overflow-hidden p-4 opacity-90"
+      variant="wood"
+    >
+      <div className="absolute -right-10 -top-10 size-24 rounded-full bg-gold-300/10 blur-2xl" />
+      <div className="relative flex items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-black uppercase tracking-[0.18em] text-gold-200">
+            Coming soon
+          </p>
+          <h2 className="mt-2 text-xl font-black text-cream-50">{label}</h2>
+        </div>
+        <span className="grid size-11 place-items-center rounded-xl border border-gold-300/25 bg-gold-300/10 text-gold-100">
+          <Gem aria-hidden="true" size={18} />
+        </span>
+      </div>
+      <p className="relative mt-3 text-sm leading-6 text-cream-100/68">{copy}</p>
+      <StatusChip className="relative mt-4" tone="cream">
+        Preview only
+      </StatusChip>
+    </GameCard>
   )
 }
 
@@ -197,7 +250,7 @@ function LivePreviewCard({ preview }: { preview: FeaturedLiveGamePreview }) {
 
   return (
     <div className="grid gap-4">
-      <div className="rounded-3xl border border-gold-300/18 bg-green-950/44 p-4">
+      <div className="rounded-2xl border border-gold-300/18 bg-green-950/44 p-4">
         <p className="text-2xl font-black text-cream-50">{preview.tableName}</p>
         <p className="mt-1 text-sm font-bold text-cream-100/74">
           {getGameModeLabel(preview.gameMode)} • Points to Win: {preview.pointsToWin}
@@ -258,55 +311,55 @@ function FallbackFeaturedTablePreview({
   isLoading: boolean
 }) {
   return (
-    <div className="relative min-h-72 overflow-hidden rounded-3xl border border-gold-300/18 bg-[radial-gradient(circle_at_50%_42%,rgba(31,138,91,0.35),transparent_12rem),linear-gradient(145deg,#146B4A,#061F18)] shadow-[inset_0_0_70px_rgba(0,0,0,0.48)]">
-        <div
-          aria-hidden="true"
-          className="absolute inset-0"
-        >
-          <div className="absolute left-[18%] top-[18%] -rotate-12">
-            <DominoImageTile
-              orientation="vertical"
-              size="medium"
-              tileId={noLiveMatchFallback.dominoTileIds[0]}
-            />
-          </div>
-          <div className="absolute right-[18%] top-[31%] rotate-12">
-            <DominoImageTile
-              orientation="vertical"
-              size="medium"
-              tileId={noLiveMatchFallback.dominoTileIds[1]}
-            />
-          </div>
-          <div className="absolute left-1/2 top-[42%] -translate-x-1/2 rotate-90">
-            <DominoImageTile
-              orientation="vertical"
-              size="medium"
-              tileId={noLiveMatchFallback.dominoTileIds[2]}
-            />
-          </div>
-          <div className="absolute inset-x-10 top-[22%] h-28 rounded-full bg-gold-300/10 blur-2xl" />
+    <div className="relative min-h-72 overflow-hidden rounded-2xl border border-gold-300/18 bg-[radial-gradient(circle_at_50%_42%,rgba(31,138,91,0.35),transparent_12rem),linear-gradient(145deg,#146B4A,#061F18)] shadow-[inset_0_0_70px_rgba(0,0,0,0.48)]">
+      <div
+        aria-hidden="true"
+        className="absolute inset-0"
+      >
+        <div className="absolute left-[18%] top-[18%] -rotate-12">
+          <DominoImageTile
+            orientation="vertical"
+            size="medium"
+            tileId={noLiveMatchFallback.dominoTileIds[0]}
+          />
         </div>
-        <div className="absolute inset-x-6 bottom-5 rounded-2xl border border-cream-100/10 bg-green-950/78 px-4 py-3 shadow-[0_18px_42px_rgba(0,0,0,0.32)] backdrop-blur">
-          <p className="text-xs font-black uppercase tracking-[0.16em] text-teal-300">
-            {isLoading ? 'Checking live tables' : noLiveMatchFallback.label}
-          </p>
-          <p className="mt-1 text-base font-black text-cream-50">
-            {isError
-              ? 'Live preview is unavailable right now.'
-              : noLiveMatchFallback.title}
-          </p>
-          <p className="mt-1 text-sm font-bold text-cream-100/74">
-            {isError
-              ? 'The lobby is still open for Cutthroat 4.'
-              : noLiveMatchFallback.body}
-          </p>
-          {!isError ? (
-            <p className="mt-2 text-xs font-black uppercase tracking-[0.14em] text-gold-200">
-              {noLiveMatchFallback.cta}
-            </p>
-          ) : null}
+        <div className="absolute right-[18%] top-[31%] rotate-12">
+          <DominoImageTile
+            orientation="vertical"
+            size="medium"
+            tileId={noLiveMatchFallback.dominoTileIds[1]}
+          />
         </div>
+        <div className="absolute left-1/2 top-[42%] -translate-x-1/2 rotate-90">
+          <DominoImageTile
+            orientation="vertical"
+            size="medium"
+            tileId={noLiveMatchFallback.dominoTileIds[2]}
+          />
+        </div>
+        <div className="absolute inset-x-10 top-[22%] h-28 rounded-full bg-gold-300/10 blur-2xl" />
       </div>
+      <div className="absolute inset-x-6 bottom-5 rounded-2xl border border-cream-100/10 bg-green-950/78 px-4 py-3 shadow-[0_18px_42px_rgba(0,0,0,0.32)] backdrop-blur">
+        <p className="text-xs font-black uppercase tracking-[0.16em] text-teal-300">
+          {isLoading ? 'Checking live tables' : noLiveMatchFallback.label}
+        </p>
+        <p className="mt-1 text-base font-black text-cream-50">
+          {isError
+            ? 'Live preview is unavailable right now.'
+            : noLiveMatchFallback.title}
+        </p>
+        <p className="mt-1 text-sm font-bold text-cream-100/74">
+          {isError
+            ? 'The lobby is still open for Cutthroat 4.'
+            : noLiveMatchFallback.body}
+        </p>
+        {!isError ? (
+          <p className="mt-2 text-xs font-black uppercase tracking-[0.14em] text-gold-200">
+            {noLiveMatchFallback.cta}
+          </p>
+        ) : null}
+      </div>
+    </div>
   )
 }
 

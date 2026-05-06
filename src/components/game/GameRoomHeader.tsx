@@ -25,7 +25,7 @@ export function GameRoomHeader({ game }: { game: GameRoomInfo }) {
         <div className="relative flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
           <div className="min-w-0">
             <GameModeLabel gameMode={game.gameMode} />
-            <h1 className="mt-2 text-3xl font-black leading-tight text-cream-50">
+            <h1 className="mt-2 font-serif text-3xl font-black leading-tight text-cream-50">
               {game.tableName}
             </h1>
             <div className="mt-3 flex flex-wrap gap-2">
@@ -36,9 +36,9 @@ export function GameRoomHeader({ game }: { game: GameRoomInfo }) {
               <StatusChip tone="wood">Move {game.moveCount}</StatusChip>
             </div>
           </div>
-          <div className="grid gap-2 rounded-3xl border border-gold-300/20 bg-green-950/50 p-3 shadow-[inset_0_1px_0_rgba(255,244,214,0.08)] sm:grid-cols-2">
+          <div className="grid gap-2 rounded-2xl border border-gold-300/20 bg-green-950/50 p-3 shadow-[inset_0_1px_0_rgba(255,244,214,0.08)] sm:grid-cols-2">
             <div className="flex items-center gap-3">
-              <span className="grid size-11 shrink-0 place-items-center rounded-2xl border border-gold-300/25 bg-gold-300/12 text-gold-100 shadow-gold">
+              <span className="grid size-11 shrink-0 place-items-center rounded-xl border border-gold-300/25 bg-gold-300/12 text-gold-100 shadow-gold">
                 <Trophy aria-hidden="true" size={19} />
               </span>
               <div>

@@ -1,5 +1,14 @@
 import { type ReactNode, useState } from 'react'
-import { Crown, MessageCircle, Sparkles, UsersRound } from 'lucide-react'
+import {
+  Crown,
+  Eye,
+  Home,
+  MessageCircle,
+  Sparkles,
+  Table2,
+  Trophy,
+  UsersRound,
+} from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { LogoutButton } from '../components/auth/LogoutButton'
 import { ChatPanel } from '../components/chat/ChatPanel'
@@ -107,7 +116,7 @@ export function LobbyPage() {
               <StatusPill icon={<Crown size={14} />} label="Domino Vibes Lobby" />
               <StatusPill icon={<Sparkles size={14} />} label="Private beta live" tone="teal" />
             </div>
-            <h1 className="mt-4 text-4xl font-black leading-tight text-cream-50 md:text-5xl">
+            <h1 className="mt-4 font-serif text-4xl font-black leading-tight text-cream-50 md:text-5xl">
               Welcome back, {playerName}.
             </h1>
             <p className="mt-4 max-w-3xl text-base leading-7 text-cream-100/78">
@@ -150,86 +159,146 @@ export function LobbyPage() {
           />
         ) : null}
 
-        <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_360px] xl:items-start">
-          <section className="grid gap-3">
-            <SectionHeader
-              copy="System tables are live now. Future private and ranked rooms stay clearly marked until playable."
-              eyebrow="Club tables"
-              title="Choose your table"
-            />
+        <div className="grid gap-5 xl:grid-cols-[260px_minmax(0,1fr)] xl:items-start">
+          <ClubLobbyRail />
 
-            {lobbyTables.isLoading ? (
-              <StateCard
-                copy="Pulling the latest seats from Domino Vibes."
-                title="Loading tables..."
-                type="loading"
+          <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_360px] xl:items-start">
+            <section className="grid gap-3">
+              <SectionHeader
+                copy="System Cutthroat 4 tables are live now. Future private and ranked rooms stay clearly marked until playable."
+                eyebrow="Club tables"
+                title="Choose your table"
               />
-            ) : null}
 
-            {lobbyTables.isError ? (
-              <StateCard
-                copy={getFriendlyAuthError(lobbyTables.error)}
-                title="Could not load tables."
-                type="error"
-              />
-            ) : null}
-
-            {lobbyTables.data?.length === 0 ? (
-              <StateCard
-                copy="System-created tables will appear here when available."
-                title="No tables are open."
-                type="empty"
-              />
-            ) : null}
-
-            <div className="grid gap-4 md:grid-cols-2">
-              {lobbyTables.data?.map((table) => (
-                <LobbyTableCard
-                  hasOtherCurrentTable={
-                    Boolean(currentTable) && currentTable?.tableId !== table.id
-                  }
-                  isJoining={joinTable.isPending && joinTable.variables === table.id}
-                  isCurrentTable={currentTable?.tableId === table.id}
-                  key={table.id}
-                  onJoin={handleJoinTable}
-                  onRejoin={handleRejoinTable}
-                  table={table}
+              {lobbyTables.isLoading ? (
+                <StateCard
+                  copy="Pulling the latest seats from Domino Vibes."
+                  title="Loading tables..."
+                  type="loading"
                 />
-              ))}
-            </div>
+              ) : null}
 
-            <div className="grid gap-3 md:grid-cols-3">
-              <FutureModeCard label="Private Tables" />
-              <FutureModeCard label="Ranked" />
-              <FutureModeCard label="Community Tournament" />
-            </div>
-          </section>
+              {lobbyTables.isError ? (
+                <StateCard
+                  copy={getFriendlyAuthError(lobbyTables.error)}
+                  title="Could not load tables."
+                  type="error"
+                />
+              ) : null}
 
-          <aside className="grid gap-4 xl:sticky xl:top-4">
-            <GameCard className="p-4" variant="felt">
-              <div className="flex items-center gap-3">
-                <span className="grid size-11 place-items-center rounded-2xl border border-teal-300/30 bg-teal-300/12 text-teal-100 shadow-teal">
-                  <UsersRound aria-hidden="true" size={19} />
-                </span>
-                <div>
-                  <p className="text-xs font-black uppercase tracking-[0.16em] text-teal-300">
-                    Club lounge
-                  </p>
-                  <p className="mt-1 text-sm font-bold text-cream-100/75">
-                    Say hello before you sit.
-                  </p>
-                </div>
+              {lobbyTables.data?.length === 0 ? (
+                <StateCard
+                  copy="System-created tables will appear here when available."
+                  title="No tables are open."
+                  type="empty"
+                />
+              ) : null}
+
+              <div className="grid gap-4 md:grid-cols-2">
+                {lobbyTables.data?.map((table) => (
+                  <LobbyTableCard
+                    hasOtherCurrentTable={
+                      Boolean(currentTable) && currentTable?.tableId !== table.id
+                    }
+                    isJoining={joinTable.isPending && joinTable.variables === table.id}
+                    isCurrentTable={currentTable?.tableId === table.id}
+                    key={table.id}
+                    onJoin={handleJoinTable}
+                    onRejoin={handleRejoinTable}
+                    table={table}
+                  />
+                ))}
               </div>
-            </GameCard>
-            <ChatPanel
-              defaultOpen
-              roomType="lobby"
-              title="Lobby Chat"
-            />
-          </aside>
+
+              <div className="grid gap-3 md:grid-cols-3">
+                <FutureModeCard label="Private Tables" />
+                <FutureModeCard label="Ranked Matches" />
+                <FutureModeCard label="Community Tournaments" />
+              </div>
+            </section>
+
+            <aside className="grid gap-4 xl:sticky xl:top-4">
+              <GameCard className="p-4" variant="felt">
+                <div className="flex items-center gap-3">
+                  <span className="grid size-11 place-items-center rounded-xl border border-teal-300/30 bg-teal-300/12 text-teal-100 shadow-teal">
+                    <UsersRound aria-hidden="true" size={19} />
+                  </span>
+                  <div>
+                    <p className="text-xs font-black uppercase tracking-[0.16em] text-teal-300">
+                      Club lounge
+                    </p>
+                    <p className="mt-1 text-sm font-bold text-cream-100/75">
+                      Say hello before you sit.
+                    </p>
+                  </div>
+                </div>
+              </GameCard>
+              <ChatPanel
+                defaultOpen
+                roomType="lobby"
+                title="Lobby Chat"
+              />
+            </aside>
+          </div>
         </div>
       </div>
     </MobileShell>
+  )
+}
+
+function ClubLobbyRail() {
+  return (
+    <aside className="grid gap-3 xl:sticky xl:top-4">
+      <GameCard className="p-4" variant="wood">
+        <p className="text-2xl font-black text-gold-200">Domino Vibes</p>
+        <p className="mt-1 text-sm font-bold text-cream-100/72">
+          Elite Social Club
+        </p>
+      </GameCard>
+      <nav
+        aria-label="Club sections"
+        className="grid gap-2 rounded-2xl border border-gold-300/16 bg-wood-900/50 p-2 shadow-wood"
+      >
+        <ClubRailItem icon={<Home size={17} />} label="Home" />
+        <ClubRailItem active icon={<Table2 size={17} />} label="Play" />
+        <ClubRailItem comingSoon icon={<Eye size={17} />} label="Watch" />
+        <ClubRailItem comingSoon icon={<UsersRound size={17} />} label="Clubs" />
+        <ClubRailItem comingSoon icon={<Trophy size={17} />} label="Leaderboards" />
+      </nav>
+    </aside>
+  )
+}
+
+function ClubRailItem({
+  active = false,
+  comingSoon = false,
+  icon,
+  label,
+}: {
+  active?: boolean
+  comingSoon?: boolean
+  icon: ReactNode
+  label: string
+}) {
+  return (
+    <div
+      aria-disabled={comingSoon || undefined}
+      className={
+        active
+          ? 'flex min-h-11 items-center justify-between gap-3 rounded-xl border border-gold-300/24 bg-gold-300/12 px-3 text-sm font-black text-gold-100'
+          : 'flex min-h-11 items-center justify-between gap-3 rounded-xl px-3 text-sm font-black text-cream-100/58'
+      }
+    >
+      <span className="flex items-center gap-3">
+        {icon}
+        {label}
+      </span>
+      {comingSoon ? (
+        <span className="rounded-full border border-cream-100/10 px-2 py-1 text-[0.55rem] uppercase tracking-[0.12em] text-cream-100/45">
+          Soon
+        </span>
+      ) : null}
+    </div>
   )
 }
 

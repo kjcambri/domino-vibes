@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { ArrowLeft, UsersRound } from 'lucide-react'
+import { ArrowLeft, Crown, UsersRound } from 'lucide-react'
 import { buttonClasses } from '../common/buttonStyles'
 import { GameCard } from '../ui/GameCard'
 import { type TableRoomInfo } from '../../features/tables/types'
@@ -25,8 +25,14 @@ export function TableRoomHeader({ table }: { table: TableRoomInfo }) {
         <div className="absolute left-8 top-0 h-px w-32 bg-gradient-to-r from-transparent via-teal-300/70 to-transparent" />
         <div className="relative flex items-start justify-between gap-3">
           <div>
-            <GameModeLabel gameMode={table.gameMode} />
-            <h1 className="mt-3 text-3xl font-black leading-tight text-cream-50">
+            <div className="flex flex-wrap items-center gap-2">
+              <GameModeLabel gameMode={table.gameMode} />
+              <span className="inline-flex items-center gap-2 rounded-full border border-gold-300/25 bg-gold-300/10 px-3 py-1 text-xs font-black uppercase tracking-[0.12em] text-gold-100">
+                <Crown aria-hidden="true" size={13} />
+                Ready room
+              </span>
+            </div>
+            <h1 className="mt-3 font-serif text-3xl font-black leading-tight text-cream-50">
               {table.name}
             </h1>
             <p className="mt-3 text-sm leading-6 text-cream-100/70">

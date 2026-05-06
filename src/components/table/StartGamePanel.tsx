@@ -46,8 +46,8 @@ export function StartGamePanel({
         </StatusChip>
       </div>
       <p className="relative mt-3 text-sm leading-6 text-cream-100/72">
-        Starting deals secure hands, opens the game room, and keeps the table
-        together for the round.
+        Starting deals secure hands, opens the board-first game room, and keeps
+        the table together for the round.
       </p>
       <Button
         className="relative mt-5 w-full gap-2"
