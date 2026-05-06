@@ -31,7 +31,7 @@ export function SeatCard({
   return (
     <GameCard
       className={cn(
-        'grid gap-4 p-4 transition hover:border-teal-300/25',
+        'grid gap-4 p-4 transition hover:border-teal-300/25 hover:shadow-[0_18px_45px_rgba(0,0,0,0.18)]',
         isCurrentUserSeat &&
           'border-gold-300/45 bg-gold-300/12 shadow-gold',
       )}
@@ -47,7 +47,7 @@ export function SeatCard({
               Ready
             </StatusChip>
           ) : null}
-          <span className="grid size-11 place-items-center rounded-2xl border border-cream-100/12 bg-green-950/45 text-cream-100 shadow-wood">
+          <span className="grid size-11 place-items-center rounded-xl border border-cream-100/12 bg-green-950/45 text-cream-100 shadow-wood">
             {isOccupied ? (
               <UserRound aria-hidden="true" size={19} />
             ) : (
@@ -71,7 +71,7 @@ export function SeatCard({
             : 'Waiting for a player'}
         </p>
         {isOccupied ? (
-          <p className="mt-2 text-xs font-semibold text-teal-100/70">
+          <p className="mt-2 text-xs font-black uppercase tracking-[0.1em] text-teal-100/70">
             {presence.label} · {presence.description}
           </p>
         ) : null}

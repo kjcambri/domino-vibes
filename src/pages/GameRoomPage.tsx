@@ -121,20 +121,12 @@ export function GameRoomPage() {
           roundWinnerPlayerId={game.roundWinnerPlayerId}
           status={game.status}
         />
-        <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_380px] xl:items-start">
-          <div className="grid min-w-0 gap-4">
-            <BoardStatePreview boardState={game.boardState} />
-            <MyHandPreview
-              boardState={game.boardState}
-              hand={gameRoom.myHand}
-              isActionPending={gameRoom.isActionPending}
-              isMyTurn={isMyTurn}
-              isRoundActive={isRoundActive}
-              onSelectTile={setSelectedTileId}
-              selectedTileId={activeSelectedTileId}
+        <div className="grid gap-4 xl:grid-cols-[300px_minmax(0,1fr)_380px] xl:items-start">
+          <aside className="order-3 grid gap-4 xl:order-1 xl:sticky xl:top-4">
+            <GamePlayerList
+              currentTurnPlayerId={game.currentTurnPlayerId}
+              players={gameRoom.gameRoom.players}
             />
-          </div>
-          <div className="grid gap-4 xl:sticky xl:top-4">
             <OpponentHandCounts
               currentPlayerId={gameRoom.myHand?.playerId}
               currentTurnPlayerId={game.currentTurnPlayerId}
@@ -149,6 +141,22 @@ export function GameRoomPage() {
                 handling arrives later, so players can return and continue.
               </p>
             </GameCard>
+          </aside>
+
+          <div className="order-1 grid min-w-0 gap-4 xl:order-2">
+            <BoardStatePreview boardState={game.boardState} />
+            <MyHandPreview
+              boardState={game.boardState}
+              hand={gameRoom.myHand}
+              isActionPending={gameRoom.isActionPending}
+              isMyTurn={isMyTurn}
+              isRoundActive={isRoundActive}
+              onSelectTile={setSelectedTileId}
+              selectedTileId={activeSelectedTileId}
+            />
+          </div>
+
+          <aside className="order-2 grid gap-4 xl:order-3 xl:sticky xl:top-4">
             <RoundFinishedPanel
               currentUserPlayerId={currentUserPlayerId}
               game={game}
@@ -179,10 +187,6 @@ export function GameRoomPage() {
               selectedTileId={activeSelectedTileId}
               status={game.status}
             />
-            <GamePlayerList
-              currentTurnPlayerId={game.currentTurnPlayerId}
-              players={gameRoom.gameRoom.players}
-            />
             <ChatPanel
               compact
               defaultOpen
@@ -190,7 +194,7 @@ export function GameRoomPage() {
               roomType="game"
               title="Table Talk"
             />
-          </div>
+          </aside>
         </div>
       </div>
     </MobileShell>

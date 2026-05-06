@@ -171,18 +171,19 @@ export function TableRoomPage() {
 
         <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_360px] xl:items-start">
           <section className="grid gap-4">
-            <GameCard className="p-4" variant="felt">
+            <GameCard className="relative overflow-hidden p-4" variant="felt">
+              <div className="absolute -right-10 -top-12 size-28 rounded-full bg-teal-300/12 blur-2xl" />
               <div className="flex flex-wrap items-center justify-between gap-3">
-                <div>
+                <div className="relative">
                   <p className="text-xs font-black uppercase tracking-[0.18em] text-teal-300">
-                    Table status
+                    Seating table
                   </p>
                   <p className="mt-1 text-sm font-bold text-cream-100/75">
                     {readyState.seatedCount}/{room.table.maxPlayers} seated ·{' '}
                     {readyState.readyCount}/{room.table.maxPlayers} ready
                   </p>
                 </div>
-                <p className="rounded-full border border-gold-300/25 bg-gold-300/12 px-3 py-2 text-xs font-black uppercase tracking-[0.1em] text-gold-100">
+                <p className="relative rounded-full border border-gold-300/25 bg-gold-300/12 px-3 py-2 text-xs font-black uppercase tracking-[0.1em] text-gold-100">
                   Points to Win: 6
                 </p>
               </div>

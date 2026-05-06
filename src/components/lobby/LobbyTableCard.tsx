@@ -1,5 +1,6 @@
 import { DoorOpen } from 'lucide-react'
 import { Button } from '../common/Button'
+import { DominoImageTile } from '../game/DominoImageTile'
 import { GameCard } from '../ui/GameCard'
 import { StatusChip } from '../ui/StatusChip'
 import { type LobbyTable } from '../../features/lobby/types'
@@ -39,9 +40,19 @@ export function LobbyTableCard({
     >
       <div className="absolute right-0 top-0 h-24 w-24 rounded-bl-full bg-gold-300/8" />
       <div className="relative -mx-4 -mt-4 grid h-28 place-items-center border-b border-cream-100/10 bg-[radial-gradient(circle_at_50%_42%,rgba(69,221,189,0.18),transparent_9rem),linear-gradient(145deg,#146B4A,#061F18)]">
-        <div className="flex items-center gap-1.5">
-          <span className="h-12 w-6 rotate-[-8deg] rounded-md border border-cream-900/15 bg-cream-50 shadow-wood" />
-          <span className="h-12 w-6 translate-y-1 rotate-[8deg] rounded-md border border-gold-300/45 bg-cream-50 shadow-gold" />
+        <div aria-hidden="true" className="flex items-center gap-1.5">
+          <DominoImageTile
+            className="rotate-[-8deg]"
+            orientation="vertical"
+            size="tiny"
+            tileId="domino-6-4"
+          />
+          <DominoImageTile
+            className="translate-y-1 rotate-[8deg]"
+            orientation="vertical"
+            size="tiny"
+            tileId="domino-2-1"
+          />
         </div>
       </div>
       <div className="flex items-start justify-between gap-3">
