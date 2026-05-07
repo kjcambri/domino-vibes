@@ -65,11 +65,14 @@ Expected result: Netlify serves the React app and the route loads or shows the a
 Open these URLs on the deployed site:
 
 ```text
+/assets/dominoes-real-webp/domino-6-6.webp
+/assets/dominoes-real-webp/domino-back.webp
+/assets/dominoes-real-contact-sheet.png
 /assets/dominoes-webp/domino-6-6.webp
 /assets/dominoes/domino-6-6.png
 ```
 
-Expected result: both assets load. In the game room, dominoes should render as optimized images and fall back safely if needed.
+Expected result: all assets load. In the game room, dominoes should render from the real WebP set first and fall back safely if needed.
 
 ## Mobile
 

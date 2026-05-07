@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Private beta tester guide
+    url: https://github.com/kjcambri/domino-vibes/blob/main/docs/qa/private-beta-tester-guide.md
+    about: Read the tester flow and bug-report expectations before filing.

@@ -17,6 +17,7 @@ This document tracks private beta guardrails and known MVP limitations.
 - The normalized WebP candidate set is generated for review only. Production uses the Sprint 22 real WebP set unless `USE_NORMALIZED_DOMINO_ASSETS` is intentionally enabled in a branch.
 - Domino asset loading falls back from real WebP to legacy optimized WebP, optional normalized WebP, PNG, and then text, so broken files should be caught during asset QA rather than blocking gameplay.
 - Homepage live match preview is read-only and falls back to the static featured table card when no active game is available or the preview RPC fails.
+- After major UI passes, production still needs a quick mobile/desktop smoke test and at least one full four-player manual game before inviting a wider tester group.
 - No bots or AFK takeover exist yet.
 - Chat is MVP text-only chat with basic room scoping and guardrails.
 - No advanced moderation, reports, blocks, or admin dashboard exist yet.

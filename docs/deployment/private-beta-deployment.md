@@ -48,8 +48,9 @@ Do not add secrets to GitHub commits. Configure production values in the hosting
 
 ## 6. Asset Loading
 
-- Confirm `/assets/dominoes/domino-back.png` loads.
-- Confirm a few tile assets load, for example `/assets/dominoes/domino-0-0.png` and `/assets/dominoes/domino-6-6.png`.
+- Confirm the primary real WebP assets load, for example `/assets/dominoes-real-webp/domino-0-0.webp`, `/assets/dominoes-real-webp/domino-6-6.webp`, and `/assets/dominoes-real-webp/domino-back.webp`.
+- Confirm the contact sheet loads at `/assets/dominoes-real-contact-sheet.png` for quick visual review.
+- Confirm fallback assets still load, for example `/assets/dominoes-webp/domino-6-6.webp` and `/assets/dominoes/domino-6-6.png`.
 - Confirm `/assets/tables/domino-table.png` exists if still used by any UI.
 
 ## 7. Local Checks
