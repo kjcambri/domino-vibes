@@ -39,14 +39,41 @@ Checked with `curl -I`:
 
 Result: primary real domino assets are available from production.
 
+## Four-Player Production QA
+
+Ran a four-account production QA pass against `https://dominovibes.com` using throwaway/private beta test accounts.
+
+Covered:
+
+- Four accounts logged in and reached the lobby.
+- A waiting table was joined and filled with four seats.
+- All four accounts toggled ready state.
+- The game started and all four accounts loaded the game room.
+- Game chat sent from one participant and appeared for another participant.
+- Multiple turns were played by all four accounts.
+- Pass flow occurred during blocked turns.
+- Round complete was reached multiple times.
+- Start Next Round worked after completed rounds.
+- A Game Over state was reached.
+- All four accounts used Return to Lobby from the finished game.
+
+Automation summary:
+
+- Initial smoke: 4 turns across all accounts, chat visibility, own rack/opponent count labels, and `get_game_room` network responses checked for absence of `game_player_hands`.
+- Full-game continuation: 138 automated play/pass actions, 5 next-round starts, Game Over reached, and 4/4 accounts returned to lobby.
+- Failures: 0.
+- Warnings: 0.
+
+Security observation:
+
+- Captured `get_game_room` RPC responses did not contain `game_player_hands`.
+- `get_my_hand` responses contained only the authenticated player's hand data, as expected.
+
 ## Still Required Manual QA
 
-- Log in with real beta test accounts.
-- Run a four-player table from lobby through game over.
-- Verify hidden hands using browser/network inspection.
-- Test lobby, table, and game chat across two or more sessions.
-- Test mobile Safari/Chrome for overflow and tap target issues.
-- Confirm return-to-lobby cleanup after finished games.
+- Test mobile Safari/Chrome on real devices for overflow and tap target issues.
+- Spot-check production visually with a human reviewer after Netlify deploys.
+- Rotate or delete private beta test-account passwords used during this QA pass.
 
 ## Notes
 
