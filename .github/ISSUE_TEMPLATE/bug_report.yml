@@ -1,0 +1,79 @@
+name: Private beta bug report
+description: Report a Domino Vibes private beta issue.
+title: "[Beta Bug]: "
+labels:
+  - beta
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for testing Domino Vibes. Do not include passwords, tokens, hidden-hand payloads, or private Supabase keys.
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      options:
+        - blocker
+        - major
+        - minor
+        - polish
+      description: Use blocker for login/gameplay/security issues that stop testing.
+    validations:
+      required: true
+  - type: input
+    id: device
+    attributes:
+      label: Device and browser
+      placeholder: "iPhone Safari, Android Chrome, Mac Chrome, etc."
+    validations:
+      required: true
+  - type: input
+    id: route
+    attributes:
+      label: URL or route
+      placeholder: "https://dominovibes.com/games/... or /lobby"
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Log in as...
+        2. Join table...
+        3. Click...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      placeholder: "What did you expect to happen?"
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      placeholder: "What actually happened?"
+    validations:
+      required: true
+  - type: textarea
+    id: media
+    attributes:
+      label: Screenshot or video
+      placeholder: "Drag screenshots/videos here if available."
+  - type: textarea
+    id: console
+    attributes:
+      label: Console or network notes
+      placeholder: "Paste safe error messages only. Do not paste auth tokens, hidden hands, or private payloads."
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Quick checks
+      options:
+        - label: I refreshed or rejoined and the issue still happened.
+        - label: I tested with more than one browser/session.
+        - label: This may involve hidden-hand or private data exposure.
