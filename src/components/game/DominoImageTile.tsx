@@ -154,7 +154,7 @@ function DominoPhotoAssetTile({
       className={cn(
         'pointer-events-none select-none',
         isBoardTile || isHandTile ? 'object-cover' : 'object-contain',
-        isBoardTile && 'h-full w-full max-w-none',
+        isBoardTile && 'h-full w-full max-w-none scale-[1.12]',
         isHandTile &&
           safeOrientation === 'vertical' &&
           'h-full w-full max-w-none',
