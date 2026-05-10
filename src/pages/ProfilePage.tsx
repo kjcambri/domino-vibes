@@ -1,6 +1,7 @@
 import { UserRound } from 'lucide-react'
 import { useState } from 'react'
 import { LogoutButton } from '../components/auth/LogoutButton'
+import { BetaFeedbackLink } from '../components/beta/BetaFeedbackLink'
 import { Card } from '../components/common/Card'
 import { MobileShell } from '../components/layout/MobileShell'
 import { useAuth } from '../features/auth/useAuth'
@@ -52,6 +53,24 @@ export function ProfilePage() {
           <LogoutButton
             className="mt-6 w-full gap-2"
             onError={setError}
+          />
+        </Card>
+        <Card>
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-teal-300">
+            Private beta support
+          </p>
+          <h2 className="mt-2 text-xl font-black text-cream-50">
+            Help us make the table smoother.
+          </h2>
+          <p className="mt-3 text-sm leading-6 text-cream-100/72">
+            Report bugs with your device, browser, page URL, steps, what you
+            expected, and a screenshot. Never include passwords or hidden hand
+            tile details.
+          </p>
+          <BetaFeedbackLink
+            className="mt-5 w-full"
+            label="Send feedback"
+            source="Profile beta support"
           />
         </Card>
       </div>

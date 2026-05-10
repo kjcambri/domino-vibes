@@ -70,6 +70,10 @@ npm run assets:normalize
 - [Supabase RLS checklist](docs/security/supabase-rls-checklist.md)
 - [Known issues](docs/known-issues.md)
 
+Private beta testers can also use the in-app **Report a bug** / **Send beta feedback**
+links on the landing, lobby, and profile screens. These links open an email draft
+to `feedback@dominovibes.com` with the expected bug-report fields.
+
 ## Guardrails
 
 - Use test accounts and test data for beta.

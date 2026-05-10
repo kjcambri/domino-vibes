@@ -59,7 +59,10 @@ Use this guide when inviting a small group of testers to `https://dominovibes.co
 
 ## Bug Report Template
 
-If GitHub Issues are available, use the "Private beta bug report" template. Otherwise send the following:
+Use the in-app **Report a bug** or **Send beta feedback** link from the landing,
+lobby, or profile screens. It opens an email draft to
+`feedback@dominovibes.com` with this template. If GitHub Issues are available,
+use the "Private beta bug report" template instead.
 
 ```text
 Title:
@@ -73,6 +76,8 @@ Screenshot/video:
 Console error, if any:
 Severity: blocker / major / minor / polish
 ```
+
+Do not include passwords, auth tokens, or hidden hand tile details in feedback.
 
 ## Stop-and-Report Issues
 
