@@ -1,6 +1,8 @@
 import { GameCard } from '../ui/GameCard'
 import { StatusChip } from '../ui/StatusChip'
 import { DominoImageTile } from './DominoImageTile'
+import { useAppStore } from '../../app/store'
+import { playSound } from '../../features/audio/soundService'
 import { getLegalSides } from '../../features/games/gameplayRules'
 import { type BoardStateDto, type MyHand } from '../../features/games/types'
 
@@ -21,6 +23,7 @@ export function MyHandPreview({
   selectedTileId: string | null
   onSelectTile: (tileId: string) => void
 }) {
+  const tableSoundEnabled = useAppStore((state) => state.tableSoundEnabled)
   const canSelect = isRoundActive && isMyTurn && !isActionPending
   const helperText = isRoundActive
     ? isMyTurn
@@ -64,7 +67,10 @@ export function MyHandPreview({
               }
               disabled={!canSelect}
               key={tile.id}
-              onClick={() => onSelectTile(tile.id)}
+              onClick={() => {
+                void playSound('tile-select', { enabled: tableSoundEnabled })
+                onSelectTile(tile.id)
+              }}
               playable={playable}
               selected={selectedTileId === tile.id}
               size="hand"

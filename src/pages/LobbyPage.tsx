@@ -11,6 +11,7 @@ import {
 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { LogoutButton } from '../components/auth/LogoutButton'
+import { SoundToggleButton } from '../components/audio/SoundToggleButton'
 import { BetaReadinessCard } from '../components/beta/BetaReadinessCard'
 import { ChatPanel } from '../components/chat/ChatPanel'
 import { GameCard } from '../components/ui/GameCard'
@@ -113,9 +114,12 @@ export function LobbyPage() {
           <div className="absolute -right-16 -top-16 size-44 rounded-full bg-gold-300/14 blur-3xl" />
           <div className="absolute left-8 top-0 h-px w-40 bg-gradient-to-r from-transparent via-teal-300/70 to-transparent" />
           <div className="relative">
-            <div className="flex flex-wrap items-center gap-2">
-              <StatusPill icon={<Crown size={14} />} label="Domino Vibes Lobby" />
-              <StatusPill icon={<Sparkles size={14} />} label="Private beta live" tone="teal" />
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex flex-wrap items-center gap-2">
+                <StatusPill icon={<Crown size={14} />} label="Domino Vibes Lobby" />
+                <StatusPill icon={<Sparkles size={14} />} label="Private beta live" tone="teal" />
+              </div>
+              <SoundToggleButton />
             </div>
             <h1 className="mt-4 font-serif text-4xl font-black leading-tight text-cream-50 md:text-5xl">
               Welcome back, {playerName}.

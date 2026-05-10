@@ -3,6 +3,8 @@ import { useState } from 'react'
 import { Button } from '../common/Button'
 import { GameCard } from '../ui/GameCard'
 import { StatusChip } from '../ui/StatusChip'
+import { useAppStore } from '../../app/store'
+import { useChatSoundEvents } from '../../features/audio/useSoundEvents'
 import { useAuth } from '../../features/auth/useAuth'
 import { getFriendlyChatError } from '../../features/chat/chatUtils'
 import { type ChatRoomType } from '../../features/chat/types'
@@ -26,12 +28,18 @@ export function ChatPanel({
   defaultOpen?: boolean
 }) {
   const { user } = useAuth()
+  const tableSoundEnabled = useAppStore((state) => state.tableSoundEnabled)
   const [isOpen, setIsOpen] = useState(defaultOpen)
   const messagesQuery = useChatMessages({ roomType, roomId, isOpen })
   const sendMessage = useSendChatMessage({ roomType, roomId })
   useChatRealtime({ roomType, roomId, enabled: isOpen })
   const messageCount = messagesQuery.data?.length ?? 0
   const error = messagesQuery.error ?? sendMessage.error
+  useChatSoundEvents({
+    currentUserId: user?.id,
+    enabled: tableSoundEnabled && isOpen,
+    messages: messagesQuery.data ?? null,
+  })
 
   async function handleSend(body: string) {
     await sendMessage.mutateAsync(body)

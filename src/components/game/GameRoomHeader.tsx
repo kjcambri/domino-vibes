@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { ArrowLeft, Trophy } from 'lucide-react'
+import { SoundToggleButton } from '../audio/SoundToggleButton'
 import { buttonClasses } from '../common/buttonStyles'
 import { GameCard } from '../ui/GameCard'
 import { StatusChip } from '../ui/StatusChip'
@@ -9,16 +10,19 @@ import { type GameRoomInfo } from '../../features/games/types'
 export function GameRoomHeader({ game }: { game: GameRoomInfo }) {
   return (
     <header className="grid gap-4">
-      <Link
-        className={buttonClasses({
-          variant: 'ghost',
-          className: 'w-fit gap-2 px-2 text-cream-100/82',
-        })}
-        to="/lobby"
-      >
-        <ArrowLeft aria-hidden="true" size={18} />
-        Lobby
-      </Link>
+      <div className="flex items-center justify-between gap-3">
+        <Link
+          className={buttonClasses({
+            variant: 'ghost',
+            className: 'w-fit gap-2 px-2 text-cream-100/82',
+          })}
+          to="/lobby"
+        >
+          <ArrowLeft aria-hidden="true" size={18} />
+          Lobby
+        </Link>
+        <SoundToggleButton />
+      </div>
       <GameCard className="relative overflow-hidden p-4" variant="wood">
         <div className="absolute -right-10 -top-14 size-36 rounded-full bg-gold-300/10 blur-2xl" />
         <div className="absolute left-8 top-0 h-px w-36 bg-gradient-to-r from-transparent via-teal-300/70 to-transparent" />

@@ -12,6 +12,8 @@ import { OpponentHandCounts } from '../components/game/OpponentHandCounts'
 import { RoundFinishedPanel } from '../components/game/RoundFinishedPanel'
 import { TurnActionPanel } from '../components/game/TurnActionPanel'
 import { MobileShell } from '../components/layout/MobileShell'
+import { useAppStore } from '../app/store'
+import { useGameSoundEvents } from '../features/audio/useSoundEvents'
 import { canHandPlay, getLegalSides } from '../features/games/gameplayRules'
 import { type BoardSide } from '../features/games/types'
 import { useGamePresence } from '../features/games/useGamePresence'
@@ -23,9 +25,15 @@ export function GameRoomPage() {
   const { gameId } = useParams()
   const navigate = useNavigate()
   const [selectedTileId, setSelectedTileId] = useState<string | null>(null)
+  const tableSoundEnabled = useAppStore((state) => state.tableSoundEnabled)
   const gameRoom = useGameRoom(gameId)
   useGameRealtime(gameId)
   useGamePresence(gameId, Boolean(gameRoom.gameRoom?.currentUser))
+  useGameSoundEvents({
+    currentUserPlayerId: gameRoom.gameRoom?.currentUser?.playerId,
+    enabled: tableSoundEnabled,
+    game: gameRoom.gameRoom?.game ?? null,
+  })
 
   if (gameRoom.isLoading) {
     return (

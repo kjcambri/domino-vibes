@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { ArrowLeft, Crown, UsersRound } from 'lucide-react'
+import { SoundToggleButton } from '../audio/SoundToggleButton'
 import { buttonClasses } from '../common/buttonStyles'
 import { GameCard } from '../ui/GameCard'
 import { type TableRoomInfo } from '../../features/tables/types'
@@ -9,16 +10,19 @@ import { TableStatusBadge } from '../lobby/TableStatusBadge'
 export function TableRoomHeader({ table }: { table: TableRoomInfo }) {
   return (
     <header className="grid gap-4">
-      <Link
-        className={buttonClasses({
-          variant: 'ghost',
-          className: 'w-fit gap-2 px-2',
-        })}
-        to="/lobby"
-      >
-        <ArrowLeft aria-hidden="true" size={18} />
-        Lobby
-      </Link>
+      <div className="flex items-center justify-between gap-3">
+        <Link
+          className={buttonClasses({
+            variant: 'ghost',
+            className: 'w-fit gap-2 px-2',
+          })}
+          to="/lobby"
+        >
+          <ArrowLeft aria-hidden="true" size={18} />
+          Lobby
+        </Link>
+        <SoundToggleButton />
+      </div>
 
       <GameCard className="relative overflow-hidden" variant="wood">
         <div className="absolute -right-12 -top-12 size-36 rounded-full bg-gold-300/12 blur-2xl" />
