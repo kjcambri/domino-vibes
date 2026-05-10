@@ -26,6 +26,8 @@ export type TableRoomInfo = {
   maxPlayers: number
   currentGameId: string | null
   isSystemCreated: boolean
+  isPrivate?: boolean
+  inviteCode?: string | null
   createdAt: string
   updatedAt: string
 }
@@ -68,4 +70,10 @@ export type TablePresenceHeartbeatResult = {
   tableId: string
   playerId: string
   lastSeenAt: string
+}
+
+export type PrivateTableResult = {
+  tableId: string
+  inviteCode: string
+  seatNumber: number
 }

@@ -20,12 +20,17 @@ import { SectionHeader } from '../components/ui/SectionHeader'
 import { StateCard } from '../components/ui/StateCard'
 import { CurrentTableBanner } from '../components/lobby/CurrentTableBanner'
 import { LobbyTableCard } from '../components/lobby/LobbyTableCard'
+import { PrivateTablePanel } from '../components/lobby/PrivateTablePanel'
 import { MobileShell } from '../components/layout/MobileShell'
 import { useLobbyRealtime } from '../features/lobby/useLobbyRealtime'
 import { useJoinTable, useLobbyTables } from '../features/lobby/useLobbyTables'
 import { useProfile } from '../features/profiles/useProfile'
 import { useMyCurrentTable } from '../features/tables/useMyCurrentTable'
-import { useLeaveTable } from '../features/tables/useTableRoom'
+import {
+  useCreatePrivateTable,
+  useJoinPrivateTable,
+  useLeaveTable,
+} from '../features/tables/useTableRoom'
 import { getFriendlyAuthError } from '../lib/errors'
 
 export function LobbyPage() {
@@ -40,6 +45,8 @@ export function LobbyPage() {
     refetchCurrentTable,
   } = useMyCurrentTable()
   const leaveCurrentTable = useLeaveTable(currentTable?.tableId)
+  const createPrivateTable = useCreatePrivateTable()
+  const joinPrivateTable = useJoinPrivateTable()
   useLobbyRealtime()
 
   const playerName = profile?.displayName || profile?.username || 'Player'
@@ -103,6 +110,28 @@ export function LobbyPage() {
     try {
       await leaveCurrentTable.mutateAsync()
       await Promise.all([lobbyTables.refetch(), refetchCurrentTable()])
+    } catch (caughtError) {
+      setTableError(getFriendlyAuthError(caughtError))
+    }
+  }
+
+  async function handleCreatePrivateTable(tableName?: string) {
+    setTableError('')
+
+    try {
+      const result = await createPrivateTable.mutateAsync(tableName)
+      navigate(`/tables/${result.tableId}`)
+    } catch (caughtError) {
+      setTableError(getFriendlyAuthError(caughtError))
+    }
+  }
+
+  async function handleJoinPrivateTable(inviteCode: string) {
+    setTableError('')
+
+    try {
+      const result = await joinPrivateTable.mutateAsync(inviteCode)
+      navigate(`/tables/${result.tableId}`)
     } catch (caughtError) {
       setTableError(getFriendlyAuthError(caughtError))
     }
@@ -216,10 +245,17 @@ export function LobbyPage() {
                 ))}
               </div>
 
+              <PrivateTablePanel
+                isCreating={createPrivateTable.isPending}
+                isJoining={joinPrivateTable.isPending}
+                onCreate={handleCreatePrivateTable}
+                onJoin={handleJoinPrivateTable}
+              />
+
               <div className="grid gap-3 md:grid-cols-3">
-                <FutureModeCard label="Private Tables" />
                 <FutureModeCard label="Ranked Matches" />
                 <FutureModeCard label="Community Tournaments" />
+                <FutureModeCard label="Clubs" />
               </div>
             </section>
 

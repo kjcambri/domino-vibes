@@ -38,6 +38,18 @@ describe('getFriendlyAuthError', () => {
     )
   })
 
+  it('maps private table invite errors to safe messages', () => {
+    expect(getFriendlyAuthError(new Error('private_table_not_found'))).toBe(
+      'That private table code did not match an open table.',
+    )
+    expect(getFriendlyAuthError(new Error('invalid_invite_code'))).toBe(
+      'Enter a valid private table code.',
+    )
+    expect(getFriendlyAuthError(new Error('private_invite_required'))).toBe(
+      'Use a private table invite code to join that table.',
+    )
+  })
+
   it('maps Supabase email rate limits to confirmation resend guidance', () => {
     expect(
       getFriendlyAuthError({

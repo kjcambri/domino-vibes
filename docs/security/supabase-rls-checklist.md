@@ -12,14 +12,19 @@ Use this checklist against the Supabase project that powers the beta environment
 ## Game Tables
 
 - Confirm lobby/table reads expose public table state only.
+- Confirm private table rows are not visible to users who are not the creator or seated at that private table.
+- Confirm private table invite codes are not exposed through the public lobby table list.
 - Confirm direct unsafe writes to `game_tables` are blocked from the frontend.
 - Confirm table status changes happen through RPCs.
+- Confirm `create_private_table` sets `created_by = auth.uid()` and generates the invite code server-side.
+- Confirm `join_private_table` uses the invite code and `auth.uid()` instead of trusting client-supplied user ids.
 
 ## Table Seats
 
 - Confirm users cannot directly take occupied seats.
 - Confirm users cannot directly clear another user's seat.
 - Confirm `sit_at_table`, `leave_table`, and `leave_finished_game` use `auth.uid()`.
+- Confirm non-seated users cannot read private table seats through direct table access.
 - Confirm stale waiting-seat cleanup does not affect active `in_game` tables.
 
 ## Games
@@ -75,6 +80,8 @@ Use this checklist against the Supabase project that powers the beta environment
 Each sensitive RPC should use `auth.uid()` and reject invalid users:
 
 - `join_table`
+- `join_private_table`
+- `create_private_table`
 - `sit_at_table`
 - `leave_table`
 - `start_game`

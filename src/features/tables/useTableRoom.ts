@@ -2,7 +2,9 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { lobbyTablesQueryKey } from '../lobby/useLobbyTables'
 import { myCurrentTableQueryKey } from './useMyCurrentTable'
 import {
+  createPrivateTable,
   getTableRoom,
+  joinPrivateTableByInviteCode,
   leaveTable,
   sitAtTable,
   startGame,
@@ -67,6 +69,30 @@ export function useStartGame(tableId?: string) {
     mutationFn: () => startGame(tableId!),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: tableRoomQueryKey(tableId) })
+      void queryClient.invalidateQueries({ queryKey: lobbyTablesQueryKey })
+      void queryClient.invalidateQueries({ queryKey: myCurrentTableQueryKey })
+    },
+  })
+}
+
+export function useCreatePrivateTable() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: createPrivateTable,
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: lobbyTablesQueryKey })
+      void queryClient.invalidateQueries({ queryKey: myCurrentTableQueryKey })
+    },
+  })
+}
+
+export function useJoinPrivateTable() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: joinPrivateTableByInviteCode,
+    onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: lobbyTablesQueryKey })
       void queryClient.invalidateQueries({ queryKey: myCurrentTableQueryKey })
     },
