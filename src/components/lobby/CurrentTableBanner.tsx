@@ -1,4 +1,4 @@
-import { ArrowRight, LogOut } from 'lucide-react'
+import { ArrowRight, LogOut, Sparkles } from 'lucide-react'
 import { Button } from '../common/Button'
 import { GameCard } from '../ui/GameCard'
 import { type CurrentTable } from '../../features/tables/types'
@@ -22,12 +22,13 @@ export function CurrentTableBanner({
   const isActiveGame = currentTable.status === 'in_game'
 
   return (
-    <GameCard className="relative overflow-hidden border-gold-300/40 bg-gold-300/12" variant="gold">
-      <div className="absolute -right-10 -top-12 size-32 rounded-full bg-gold-300/16 blur-2xl" />
-      <div className="absolute -left-12 bottom-0 size-28 rounded-full bg-teal-300/10 blur-2xl" />
-      <div className="flex items-start justify-between gap-3">
+    <GameCard className="relative overflow-hidden rounded-xl border-gold-300/40 bg-gold-300/12 p-4" variant="gold">
+      <div className="absolute -right-10 -top-12 size-32 rounded-full bg-gold-300/18 blur-2xl" />
+      <div className="absolute -left-12 bottom-0 size-28 rounded-full bg-teal-300/12 blur-2xl" />
+      <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="relative">
-          <p className="text-xs font-black uppercase tracking-[0.18em] text-gold-200">
+          <p className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.18em] text-gold-200">
+            <Sparkles aria-hidden="true" size={14} />
             {isActiveGame ? 'You are in an active game' : 'You are currently seated'}
           </p>
           <h2 className="mt-2 text-2xl font-black leading-tight text-cream-50">
@@ -46,14 +47,14 @@ export function CurrentTableBanner({
         <TableStatusBadge status={currentTable.status} />
       </div>
 
-      <div className="mt-5 grid gap-3">
-        <Button className="w-full gap-2" onClick={onRejoin}>
+      <div className="relative mt-5 grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto]">
+        <Button className="w-full gap-2 rounded-lg" onClick={onRejoin}>
           <ArrowRight aria-hidden="true" size={18} />
           {isActiveGame ? 'Rejoin Game' : 'Rejoin Table'}
         </Button>
         {canLeave ? (
           <Button
-            className="w-full gap-2"
+            className="w-full gap-2 rounded-lg"
             disabled={isLeaving}
             onClick={onLeave}
             variant="danger"
