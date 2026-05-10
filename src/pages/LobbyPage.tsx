@@ -7,9 +7,10 @@ import {
   Sparkles,
   Table2,
   Trophy,
+  UserRound,
   UsersRound,
 } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { LogoutButton } from '../components/auth/LogoutButton'
 import { SoundToggleButton } from '../components/audio/SoundToggleButton'
 import { BetaReadinessCard } from '../components/beta/BetaReadinessCard'
@@ -269,8 +270,9 @@ function ClubLobbyRail() {
         aria-label="Club sections"
         className="grid gap-2 rounded-2xl border border-gold-300/16 bg-wood-900/50 p-2 shadow-wood"
       >
-        <ClubRailItem icon={<Home size={17} />} label="Home" />
-        <ClubRailItem active icon={<Table2 size={17} />} label="Play" />
+        <ClubRailItem icon={<Home size={17} />} label="Home" to="/" />
+        <ClubRailItem active icon={<Table2 size={17} />} label="Play" to="/lobby" />
+        <ClubRailItem icon={<UserRound size={17} />} label="Profile" to="/profile" />
         <ClubRailItem comingSoon icon={<Eye size={17} />} label="Watch" />
         <ClubRailItem comingSoon icon={<UsersRound size={17} />} label="Clubs" />
         <ClubRailItem comingSoon icon={<Trophy size={17} />} label="Leaderboards" />
@@ -284,21 +286,19 @@ function ClubRailItem({
   comingSoon = false,
   icon,
   label,
+  to,
 }: {
   active?: boolean
   comingSoon?: boolean
   icon: ReactNode
   label: string
+  to?: string
 }) {
-  return (
-    <div
-      aria-disabled={comingSoon || undefined}
-      className={
-        active
-          ? 'flex min-h-11 items-center justify-between gap-3 rounded-xl border border-gold-300/24 bg-gold-300/12 px-3 text-sm font-black text-gold-100'
-          : 'flex min-h-11 items-center justify-between gap-3 rounded-xl px-3 text-sm font-black text-cream-100/58'
-      }
-    >
+  const className = active
+    ? 'flex min-h-11 items-center justify-between gap-3 rounded-xl border border-gold-300/24 bg-gold-300/12 px-3 text-sm font-black text-gold-100 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-300 focus-visible:ring-offset-2 focus-visible:ring-offset-green-950'
+    : 'flex min-h-11 items-center justify-between gap-3 rounded-xl px-3 text-sm font-black text-cream-100/58 transition hover:bg-cream-100/8 hover:text-cream-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300 focus-visible:ring-offset-2 focus-visible:ring-offset-green-950'
+  const content = (
+    <>
       <span className="flex items-center gap-3">
         {icon}
         {label}
@@ -308,6 +308,23 @@ function ClubRailItem({
           Soon
         </span>
       ) : null}
+    </>
+  )
+
+  if (to && !comingSoon) {
+    return (
+      <Link aria-current={active ? 'page' : undefined} className={className} to={to}>
+        {content}
+      </Link>
+    )
+  }
+
+  return (
+    <div
+      aria-disabled={comingSoon || undefined}
+      className={className}
+    >
+      {content}
     </div>
   )
 }

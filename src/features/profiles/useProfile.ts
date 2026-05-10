@@ -1,6 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useAuth } from '../auth/useAuth'
-import { createProfile, getProfile, type ProfileInput } from './profileService'
+import {
+  createProfile,
+  getProfile,
+  updateProfile,
+  type ProfileInput,
+  type ProfileUpdateInput,
+} from './profileService'
 
 export function profileQueryKey(userId?: string) {
   return ['profile', userId] as const
@@ -28,6 +34,17 @@ export function useCreateProfile() {
 
   return useMutation({
     mutationFn: (input: ProfileInput) => createProfile(input),
+    onSuccess: (profile) => {
+      queryClient.setQueryData(profileQueryKey(profile.id), profile)
+    },
+  })
+}
+
+export function useUpdateProfile() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (input: ProfileUpdateInput) => updateProfile(input),
     onSuccess: (profile) => {
       queryClient.setQueryData(profileQueryKey(profile.id), profile)
     },

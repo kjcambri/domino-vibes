@@ -4,9 +4,8 @@ import { AuthForm, Field } from '../components/auth/AuthForm'
 import { MobileShell } from '../components/layout/MobileShell'
 import { useAuth } from '../features/auth/useAuth'
 import { useCreateProfile } from '../features/profiles/useProfile'
+import { normalizeProfileForm, validateProfileForm } from '../features/profiles/profileForm'
 import { getFriendlyAuthError } from '../lib/errors'
-
-const usernamePattern = /^[a-z0-9_]+$/
 
 export function ProfileSetupPage() {
   const navigate = useNavigate()
@@ -20,28 +19,10 @@ export function ProfileSetupPage() {
     event.preventDefault()
     setError('')
 
-    const normalizedUsername = username.trim().toLowerCase()
-    const normalizedDisplayName = displayName.trim()
+    const validationError = validateProfileForm({ username, displayName })
 
-    if (!normalizedUsername) {
-      setError('Username is required.')
-      return
-    }
-
-    if (
-      normalizedUsername.length < 3 ||
-      normalizedUsername.length > 20 ||
-      !usernamePattern.test(normalizedUsername)
-    ) {
-      setError('Username must be 3 to 20 letters, numbers, or underscores.')
-      return
-    }
-
-    if (
-      normalizedDisplayName.length < 2 ||
-      normalizedDisplayName.length > 40
-    ) {
-      setError('Display name must be 2 to 40 characters.')
+    if (validationError) {
+      setError(validationError)
       return
     }
 
@@ -50,11 +31,13 @@ export function ProfileSetupPage() {
       return
     }
 
+    const normalizedProfile = normalizeProfileForm({ username, displayName })
+
     try {
       await createProfile.mutateAsync({
         userId: user.id,
-        username: normalizedUsername,
-        displayName: normalizedDisplayName,
+        username: normalizedProfile.username,
+        displayName: normalizedProfile.displayName,
       })
       navigate('/lobby', { replace: true })
     } catch (caughtError) {
