@@ -40,6 +40,8 @@ This document tracks private beta guardrails and known MVP limitations.
 
 ## Roadmap Items Not Included Yet
 
+- Multi-mode domino engine and mode expansion are ordered in `docs/roadmap/domino-engine-and-modes-implementation-plan.md`.
+- Product layout, player-loved features, and monetization strategy are researched in `docs/roadmap/product-layout-features-and-monetization-research.md`.
 - Bots and disconnected-player takeover.
 - Chat moderation, reports, blocks, and table reactions.
 - Ranked tables.

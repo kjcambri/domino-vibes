@@ -4,6 +4,8 @@ Use this guide to turn tester feedback into actionable fixes without losing secu
 
 ## Intake Rules
 
+- In-app beta feedback arrives through `feedback@dominovibes.com` with a
+  prefilled report template.
 - Ask for browser, device, route, account, table/game URL, exact steps, expected behavior, actual behavior, and screenshots or video.
 - Ask whether the tester refreshed, rejoined, or used multiple tabs.
 - For game issues, capture the game ID and round number.

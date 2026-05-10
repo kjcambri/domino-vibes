@@ -92,9 +92,10 @@ function DominoPhotoAssetTile({
 }: DominoImageTileProps) {
   const safeTileId = hidden ? 'domino-back' : tileId ?? '0-0'
   const normalizedTileId = normalizeTileId(safeTileId)
+  const isBoardTile = size === 'board'
   const imageSources = useMemo(
-    () => getDominoImageFallbackSources(safeTileId),
-    [safeTileId],
+    () => getDominoImageFallbackSources(safeTileId, { preferBoard: isBoardTile }),
+    [isBoardTile, safeTileId],
   )
   const [imageSourceState, setImageSourceState] = useState({
     index: 0,
@@ -108,29 +109,34 @@ function DominoPhotoAssetTile({
     orientation === 'vertical' || orientation === 'horizontal'
       ? orientation
       : 'horizontal'
-  const isBoardTile = size === 'board'
   const isHandTile = size === 'hand' || size === 'large'
   const rootSizeClass = isBoardTile
     ? sizeClasses.board.vertical
     : sizeClasses[size][safeOrientation]
   const style = Number.isFinite(rotation) ? { rotate: `${rotation}deg` } : undefined
+  const playableClassName = isBoardTile
+    ? 'shadow-[inset_0_0_0_1px_rgba(242,193,78,0.34)]'
+    : 'drop-shadow-[0_0_14px_rgba(242,193,78,0.58)] ring-1 ring-gold-200/65'
+  const latestClassName = isBoardTile
+    ? 'ring-2 ring-inset ring-teal-300/70 shadow-[inset_0_0_0_1px_rgba(6,31,24,0.42),inset_0_0_10px_rgba(69,221,189,0.3)]'
+    : 'ring-1 ring-teal-300/70 ring-offset-1 ring-offset-green-950 drop-shadow-[0_0_14px_rgba(69,221,189,0.34)]'
+  const startClassName = isBoardTile
+    ? 'ring-2 ring-inset ring-gold-200/70 shadow-[inset_0_0_0_1px_rgba(6,31,24,0.34),inset_0_0_8px_rgba(242,193,78,0.28)]'
+    : 'ring-1 ring-gold-200/80 ring-offset-1 ring-offset-green-950 drop-shadow-[0_0_14px_rgba(242,193,78,0.42)]'
 
   const baseClassName = cn(
     'relative inline-grid shrink-0 place-items-center overflow-hidden rounded-lg transition-[box-shadow,filter,opacity,transform] duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-200 focus-visible:ring-offset-2 focus-visible:ring-offset-green-950',
     rootSizeClass,
     isBoardTile
-      ? 'border border-cream-950/10 bg-cream-50/10 shadow-[0_5px_10px_rgba(0,0,0,0.38),0_1px_0_rgba(255,244,214,0.28)]'
+      ? 'border border-transparent bg-transparent shadow-none'
       : 'border border-cream-900/10 bg-transparent shadow-[0_16px_24px_rgba(17,7,2,0.34),0_3px_0_rgba(255,244,214,0.18)]',
     isHandTile &&
       'rounded-xl shadow-[0_18px_30px_rgba(17,7,2,0.34),0_3px_0_rgba(255,244,214,0.2)]',
-    playable &&
-      'drop-shadow-[0_0_14px_rgba(242,193,78,0.58)] ring-1 ring-gold-200/65',
+    playable && playableClassName,
     selected &&
       'z-10 -translate-y-1 ring-2 ring-gold-200 ring-offset-2 ring-offset-green-950 shadow-[0_18px_34px_rgba(242,193,78,0.3),0_12px_28px_rgba(0,0,0,0.5)]',
-    isLatest &&
-      'ring-1 ring-teal-300/70 ring-offset-1 ring-offset-green-950 drop-shadow-[0_0_14px_rgba(69,221,189,0.34)]',
-    isStart &&
-      'ring-1 ring-gold-200/80 ring-offset-1 ring-offset-green-950 drop-shadow-[0_0_14px_rgba(242,193,78,0.42)]',
+    isLatest && latestClassName,
+    isStart && startClassName,
     disabled && 'opacity-85 saturate-[0.96] brightness-[1.01]',
     onClick &&
       !disabled &&
@@ -154,7 +160,7 @@ function DominoPhotoAssetTile({
       className={cn(
         'pointer-events-none select-none',
         isBoardTile || isHandTile ? 'object-cover' : 'object-contain',
-        isBoardTile && 'h-full w-full max-w-none scale-[1.12]',
+        isBoardTile && 'h-full w-full max-w-none',
         isHandTile &&
           safeOrientation === 'vertical' &&
           'h-full w-full max-w-none',

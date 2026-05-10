@@ -39,163 +39,54 @@ const placement = ({
   }
 }
 
-const TILE_LONG = 56
-const TILE_SHORT = 28
+type LayoutPlacement = ReturnType<typeof createDominoBoardLayout>[number]
 
-function visualBounds(
-  visual: ReturnType<typeof createDominoBoardLayout>[number],
-) {
-  const width = visual.orientation === 'horizontal' ? TILE_LONG : TILE_SHORT
-  const height = visual.orientation === 'horizontal' ? TILE_SHORT : TILE_LONG
+function visualBounds(visual: LayoutPlacement) {
+  const halfWidth = visual.orientation === 'horizontal' ? 28 : 14
+  const halfHeight = visual.orientation === 'horizontal' ? 14 : 28
 
   return {
-    left: visual.x - width / 2,
-    right: visual.x + width / 2,
-    top: visual.y - height / 2,
-    bottom: visual.y + height / 2,
+    left: visual.x - halfWidth,
+    right: visual.x + halfWidth,
+    top: visual.y - halfHeight,
+    bottom: visual.y + halfHeight,
   }
 }
 
-function overlapArea(
-  first: ReturnType<typeof createDominoBoardLayout>[number],
-  second: ReturnType<typeof createDominoBoardLayout>[number],
-) {
+function boundsOverlap(first: LayoutPlacement, second: LayoutPlacement) {
   const firstBounds = visualBounds(first)
   const secondBounds = visualBounds(second)
-  const overlapWidth = Math.max(
-    0,
-    Math.min(firstBounds.right, secondBounds.right) -
-      Math.max(firstBounds.left, secondBounds.left),
-  )
-  const overlapHeight = Math.max(
-    0,
-    Math.min(firstBounds.bottom, secondBounds.bottom) -
-      Math.max(firstBounds.top, secondBounds.top),
-  )
 
-  return overlapWidth * overlapHeight
-}
-
-function rotateVector(vector: { x: number; y: number }, rotation: number) {
-  const radians = (rotation * Math.PI) / 180
-
-  return {
-    x: Math.round(vector.x * Math.cos(radians) - vector.y * Math.sin(radians)),
-    y: Math.round(vector.x * Math.sin(radians) + vector.y * Math.cos(radians)),
-  }
-}
-
-function pipAnchor(
-  visual: ReturnType<typeof createDominoBoardLayout>[number],
-  side: 'left' | 'right' | 'doubleCenter' = 'doubleCenter',
-) {
-  if (side === 'doubleCenter') {
-    return { x: visual.x, y: visual.y }
-  }
-
-  const baseVector =
-    side === 'left'
-      ? { x: 0, y: -TILE_SHORT / 2 }
-      : { x: 0, y: TILE_SHORT / 2 }
-  const rotatedVector = rotateVector(baseVector, visual.rotation)
-
-  return {
-    x: visual.x + rotatedVector.x,
-    y: visual.y + rotatedVector.y,
-  }
-}
-
-function connectedAnchor(
-  visual: ReturnType<typeof createDominoBoardLayout>[number],
-) {
-  if (visual.isDouble) {
-    return pipAnchor(visual)
-  }
-
-  return pipAnchor(visual, visual.connectedTileSide ?? 'left')
-}
-
-function exposedAnchor(
-  visual: ReturnType<typeof createDominoBoardLayout>[number],
-) {
-  if (visual.isDouble) {
-    return pipAnchor(visual)
-  }
-
-  return pipAnchor(
-    visual,
-    visual.connectedTileSide === 'left' ? 'right' : 'left',
+  return (
+    firstBounds.left < secondBounds.right &&
+    firstBounds.right > secondBounds.left &&
+    firstBounds.top < secondBounds.bottom &&
+    firstBounds.bottom > secondBounds.top
   )
 }
 
-function anchorDistance(
-  first: { x: number; y: number },
-  second: { x: number; y: number },
+function expectRightToDownTurnConnection(
+  previous: LayoutPlacement,
+  next: LayoutPlacement,
 ) {
-  return Math.hypot(first.x - second.x, first.y - second.y)
+  const previousBounds = visualBounds(previous)
+  const nextBounds = visualBounds(next)
+
+  expect(boundsOverlap(previous, next)).toBe(false)
+  expect(previousBounds.bottom).toBe(nextBounds.top)
+  expect(previousBounds.right).toBe(nextBounds.right)
 }
 
-function directionVector(
-  direction: NonNullable<
-    ReturnType<typeof createDominoBoardLayout>[number]['direction']
-  >,
-  amount: number,
+function expectDownToLeftTurnConnection(
+  previous: LayoutPlacement,
+  next: LayoutPlacement,
 ) {
-  if (direction === 'right') {
-    return { x: amount, y: 0 }
-  }
+  const previousBounds = visualBounds(previous)
+  const nextBounds = visualBounds(next)
 
-  if (direction === 'left') {
-    return { x: -amount, y: 0 }
-  }
-
-  if (direction === 'up') {
-    return { x: 0, y: -amount }
-  }
-
-  return { x: 0, y: amount }
-}
-
-function directionMatchesOrientation(
-  direction: NonNullable<
-    ReturnType<typeof createDominoBoardLayout>[number]['direction']
-  >,
-  orientation: ReturnType<typeof createDominoBoardLayout>[number]['orientation'],
-) {
-  const isHorizontalDirection = direction === 'left' || direction === 'right'
-
-  return isHorizontalDirection
-    ? orientation === 'horizontal'
-    : orientation === 'vertical'
-}
-
-function exposedAnchorForConnection(
-  previous: ReturnType<typeof createDominoBoardLayout>[number],
-  next: ReturnType<typeof createDominoBoardLayout>[number],
-) {
-  if (!previous.isDouble || !next.direction) {
-    return exposedAnchor(previous)
-  }
-
-  if (directionMatchesOrientation(next.direction, previous.orientation)) {
-    const offset = directionVector(next.direction, TILE_SHORT / 2)
-
-    return {
-      x: previous.x + offset.x,
-      y: previous.y + offset.y,
-    }
-  }
-
-  return pipAnchor(previous)
-}
-
-function expectAnchorsTouch(
-  previous: ReturnType<typeof createDominoBoardLayout>[number],
-  next: ReturnType<typeof createDominoBoardLayout>[number],
-) {
-  expect(
-    anchorDistance(exposedAnchorForConnection(previous, next), connectedAnchor(next)),
-  ).toBe(TILE_SHORT)
+  expect(boundsOverlap(previous, next)).toBe(false)
+  expect(previousBounds.left).toBe(nextBounds.right)
+  expect(previousBounds.bottom).toBe(nextBounds.bottom)
 }
 
 describe('boardLayout', () => {
@@ -359,50 +250,6 @@ describe('boardLayout', () => {
     })
   })
 
-  it('aligns matching pip cells on straight regular connections', () => {
-    const layout = createDominoBoardLayout([
-      placement({ turnNumber: 1, id: '5-5', side: 'start' }),
-      placement({ turnNumber: 2, id: '5-6', side: 'right' }),
-      placement({ turnNumber: 3, id: '4-6', side: 'right' }),
-    ])
-    const fiveSix = layout.find((visual) => visual.turnNumber === 2)!
-    const fourSix = layout.find((visual) => visual.turnNumber === 3)!
-
-    expect(fiveSix).toMatchObject({
-      tileId: '5-6',
-      connectedPip: 5,
-      exposedPip: 6,
-    })
-    expect(fourSix).toMatchObject({
-      tileId: '4-6',
-      connectedPip: 6,
-      exposedPip: 4,
-    })
-    expectAnchorsTouch(fiveSix, fourSix)
-    expect(exposedAnchor(fiveSix).y).toBe(connectedAnchor(fourSix).y)
-  })
-
-  it('aligns matching pip cells through a normal corner turn', () => {
-    const layout = createDominoBoardLayout([
-      placement({ turnNumber: 1, id: '6-6', side: 'start' }),
-      placement({ turnNumber: 2, id: '0-6', side: 'right' }),
-      placement({ turnNumber: 3, id: '0-1', side: 'right' }),
-      placement({ turnNumber: 4, id: '1-2', side: 'right' }),
-      placement({ turnNumber: 5, id: '2-3', side: 'right' }),
-      placement({ turnNumber: 6, id: '3-4', side: 'right' }),
-    ])
-    const turnIn = layout.find((visual) => visual.turnNumber === 5)!
-    const turnOut = layout.find((visual) => visual.turnNumber === 6)!
-
-    expect(turnOut).toMatchObject({
-      direction: 'down',
-      connectedPip: 3,
-      exposedPip: 4,
-    })
-    expectAnchorsTouch(turnIn, turnOut)
-    expect(exposedAnchor(turnIn).x).toBe(connectedAnchor(turnOut).x)
-  })
-
   it('advances fallback endpoints from exposed tile edges without a connection gap', () => {
     const layout = createDominoBoardLayout([
       placement({ turnNumber: 1, id: '1-2', side: 'start' }),
@@ -561,7 +408,132 @@ describe('boardLayout', () => {
     })
   })
 
-  it('keeps right-side turn placements touching without rectangle overlap', () => {
+  it('connects [5|6] to [6|4] at a turn without stacking the matching halves', () => {
+    const layout = createDominoBoardLayout([
+      placement({ turnNumber: 1, id: '0-1', side: 'start' }),
+      placement({ turnNumber: 2, id: '1-2', side: 'right' }),
+      placement({ turnNumber: 3, id: '2-3', side: 'right' }),
+      placement({ turnNumber: 4, id: '3-5', side: 'right' }),
+      placement({ turnNumber: 5, id: '5-6', side: 'right' }),
+      placement({ turnNumber: 6, id: '4-6', side: 'right' }),
+    ])
+    const previous = layout.find((visual) => visual.turnNumber === 5)!
+    const next = layout.find((visual) => visual.turnNumber === 6)!
+
+    expect(previous).toMatchObject({ tileId: '5-6', exposedPip: 6 })
+    expect(next).toMatchObject({
+      tileId: '4-6',
+      connectedPip: 6,
+      direction: 'down',
+    })
+    expectRightToDownTurnConnection(previous, next)
+  })
+
+  it('keeps a straight [6|6] to [1|6] to [1|2] connection edge-to-edge', () => {
+    const layout = createDominoBoardLayout([
+      placement({ turnNumber: 1, id: '6-6', side: 'start' }),
+      placement({ turnNumber: 2, id: '1-6', side: 'right' }),
+      placement({ turnNumber: 3, id: '1-2', side: 'right' }),
+    ])
+    const first = layout.find((visual) => visual.turnNumber === 2)!
+    const second = layout.find((visual) => visual.turnNumber === 3)!
+    const firstBounds = visualBounds(first)
+    const secondBounds = visualBounds(second)
+
+    expect(first).toMatchObject({
+      tileId: '1-6',
+      connectedPip: 6,
+      exposedPip: 1,
+      x: 42,
+      y: 0,
+    })
+    expect(second).toMatchObject({
+      tileId: '1-2',
+      connectedPip: 1,
+      exposedPip: 2,
+      x: 98,
+      y: 0,
+    })
+    expect(boundsOverlap(first, second)).toBe(false)
+    expect(firstBounds.right).toBe(secondBounds.left)
+    expect(firstBounds.top).toBe(secondBounds.top)
+    expect(firstBounds.bottom).toBe(secondBounds.bottom)
+  })
+
+  it('keeps a straight [6|4] to [5|4] connection edge-to-edge', () => {
+    const layout = createDominoBoardLayout([
+      placement({ turnNumber: 1, id: '6-6', side: 'start' }),
+      placement({ turnNumber: 2, id: '4-6', side: 'right' }),
+      placement({ turnNumber: 3, id: '4-5', side: 'right' }),
+    ])
+    const first = layout.find((visual) => visual.turnNumber === 2)!
+    const second = layout.find((visual) => visual.turnNumber === 3)!
+    const firstBounds = visualBounds(first)
+    const secondBounds = visualBounds(second)
+
+    expect(first).toMatchObject({
+      tileId: '4-6',
+      connectedPip: 6,
+      exposedPip: 4,
+      x: 42,
+      y: 0,
+    })
+    expect(second).toMatchObject({
+      tileId: '4-5',
+      connectedPip: 4,
+      exposedPip: 5,
+      x: 98,
+      y: 0,
+    })
+    expect(boundsOverlap(first, second)).toBe(false)
+    expect(firstBounds.right).toBe(secondBounds.left)
+    expect(firstBounds.top).toBe(secondBounds.top)
+    expect(firstBounds.bottom).toBe(secondBounds.bottom)
+  })
+
+  it('connects [5|2] to [2|3] at a turn without stacking the matching halves', () => {
+    const layout = createDominoBoardLayout([
+      placement({ turnNumber: 1, id: '0-1', side: 'start' }),
+      placement({ turnNumber: 2, id: '1-4', side: 'right' }),
+      placement({ turnNumber: 3, id: '4-6', side: 'right' }),
+      placement({ turnNumber: 4, id: '5-6', side: 'right' }),
+      placement({ turnNumber: 5, id: '2-5', side: 'right' }),
+      placement({ turnNumber: 6, id: '2-3', side: 'right' }),
+    ])
+    const previous = layout.find((visual) => visual.turnNumber === 5)!
+    const next = layout.find((visual) => visual.turnNumber === 6)!
+
+    expect(previous).toMatchObject({ tileId: '2-5', exposedPip: 2 })
+    expect(next).toMatchObject({
+      tileId: '2-3',
+      connectedPip: 2,
+      direction: 'down',
+    })
+    expectRightToDownTurnConnection(previous, next)
+  })
+
+  it('connects [3|6] to [4|3] at a turn without stacking the matching halves', () => {
+    const layout = createDominoBoardLayout([
+      placement({ turnNumber: 1, id: '0-1', side: 'start' }),
+      placement({ turnNumber: 2, id: '1-2', side: 'right' }),
+      placement({ turnNumber: 3, id: '2-5', side: 'right' }),
+      placement({ turnNumber: 4, id: '5-6', side: 'right' }),
+      placement({ turnNumber: 5, id: '3-6', side: 'right' }),
+      placement({ turnNumber: 6, id: '3-4', side: 'right' }),
+    ])
+    const previous = layout.find((visual) => visual.turnNumber === 5)!
+    const next = layout.find((visual) => visual.turnNumber === 6)!
+
+    expect(previous).toMatchObject({ tileId: '3-6', exposedPip: 3 })
+    expect(next).toMatchObject({
+      tileId: '3-4',
+      connectedPip: 3,
+      direction: 'down',
+    })
+    expectRightToDownTurnConnection(previous, next)
+  })
+
+  it('turns from a vertical run to a horizontal run without corner overlap', () => {
     const layout = createDominoBoardLayout([
       placement({ turnNumber: 1, id: '6-6', side: 'start' }),
       placement({ turnNumber: 2, id: '0-6', side: 'right' }),
@@ -572,196 +544,37 @@ describe('boardLayout', () => {
       placement({ turnNumber: 7, id: '4-5', side: 'right' }),
       placement({ turnNumber: 8, id: '5-6', side: 'right' }),
     ])
-    const turnIn = layout.find((visual) => visual.turnNumber === 5)!
-    const firstVertical = layout.find((visual) => visual.turnNumber === 6)!
-    const secondVertical = layout.find((visual) => visual.turnNumber === 7)!
-    const turnOut = layout.find((visual) => visual.turnNumber === 8)!
+    const previous = layout.find((visual) => visual.turnNumber === 7)!
+    const next = layout.find((visual) => visual.turnNumber === 8)!
 
-    expect(overlapArea(turnIn, firstVertical)).toBe(0)
-    expect(overlapArea(firstVertical, secondVertical)).toBe(0)
-    expect(overlapArea(secondVertical, turnOut)).toBe(0)
+    expect(next).toMatchObject({ direction: 'left' })
+    expectDownToLeftTurnConnection(previous, next)
   })
 
-  it('defers a planned right-side turn until after a double is placed', () => {
+  it('defers a threshold turn when the threshold tile is a double', () => {
     const layout = createDominoBoardLayout([
-      placement({ turnNumber: 1, id: '6-6', side: 'start' }),
-      placement({ turnNumber: 2, id: '0-6', side: 'right' }),
-      placement({ turnNumber: 3, id: '0-1', side: 'right' }),
-      placement({ turnNumber: 4, id: '1-2', side: 'right' }),
-      placement({ turnNumber: 5, id: '2-3', side: 'right' }),
-      placement({ turnNumber: 6, id: '3-3', side: 'right' }),
-      placement({ turnNumber: 7, id: '3-4', side: 'right' }),
+      placement({ turnNumber: 1, id: '0-1', side: 'start' }),
+      placement({ turnNumber: 2, id: '1-2', side: 'right' }),
+      placement({ turnNumber: 3, id: '2-3', side: 'right' }),
+      placement({ turnNumber: 4, id: '3-4', side: 'right' }),
+      placement({ turnNumber: 5, id: '4-5', side: 'right' }),
+      placement({ turnNumber: 6, id: '5-5', side: 'right' }),
+      placement({ turnNumber: 7, id: '5-6', side: 'right' }),
     ])
-    const turnIn = layout.find((visual) => visual.turnNumber === 5)!
-    const doubleAtTurn = layout.find((visual) => visual.turnNumber === 6)!
-    const nextTile = layout.find((visual) => visual.turnNumber === 7)!
+    const double = layout.find((visual) => visual.turnNumber === 6)!
+    const next = layout.find((visual) => visual.turnNumber === 7)!
 
-    expect(doubleAtTurn).toMatchObject({
+    expect(double).toMatchObject({
+      tileId: '5-5',
       direction: 'right',
       orientation: 'vertical',
-      rotation: 0,
     })
-    expect(nextTile).toMatchObject({
+    expect(next).toMatchObject({
+      tileId: '5-6',
       direction: 'down',
       orientation: 'vertical',
-      rotation: 0,
-      connectedPip: 3,
     })
-    expect(overlapArea(turnIn, doubleAtTurn)).toBe(0)
-    expect(overlapArea(doubleAtTurn, nextTile)).toBe(0)
-  })
-
-  it('keeps the 0 side adjacent when a 0-0 double reaches the right turn', () => {
-    const layout = createDominoBoardLayout([
-      placement({ turnNumber: 1, id: '6-6', side: 'start' }),
-      placement({ turnNumber: 2, id: '0-6', side: 'right' }),
-      placement({ turnNumber: 3, id: '0-1', side: 'right' }),
-      placement({ turnNumber: 4, id: '1-2', side: 'right' }),
-      placement({ turnNumber: 5, id: '0-2', side: 'right' }),
-      placement({ turnNumber: 6, id: '0-0', side: 'right' }),
-      placement({ turnNumber: 7, id: '0-6', side: 'right' }),
-    ])
-    const doubleAtTurn = layout.find((visual) => visual.turnNumber === 6)!
-    const nextTile = layout.find((visual) => visual.turnNumber === 7)!
-
-    expect(doubleAtTurn).toMatchObject({
-      tileId: '0-0',
-      direction: 'right',
-      orientation: 'vertical',
-      connectedPip: 0,
-      exposedPip: 0,
-    })
-    expect(nextTile).toMatchObject({
-      tileId: '0-6',
-      direction: 'down',
-      orientation: 'vertical',
-      rotation: 0,
-      connectedPip: 0,
-      exposedPip: 6,
-    })
-    expectAnchorsTouch(doubleAtTurn, nextTile)
-    expect(pipAnchor(doubleAtTurn).x).toBe(connectedAnchor(nextTile).x)
-    expect(overlapArea(doubleAtTurn, nextTile)).toBe(0)
-  })
-
-  it('aligns the next tile from the center anchor of a deferred 2-2 double turn', () => {
-    const layout = createDominoBoardLayout([
-      placement({ turnNumber: 1, id: '6-6', side: 'start' }),
-      placement({ turnNumber: 2, id: '5-6', side: 'left' }),
-      placement({ turnNumber: 3, id: '4-5', side: 'left' }),
-      placement({ turnNumber: 4, id: '3-4', side: 'left' }),
-      placement({ turnNumber: 5, id: '2-3', side: 'left' }),
-      placement({ turnNumber: 6, id: '2-2', side: 'left' }),
-      placement({ turnNumber: 7, id: '2-4', side: 'left' }),
-    ])
-    const doubleAtTurn = layout.find((visual) => visual.turnNumber === 6)!
-    const nextTile = layout.find((visual) => visual.turnNumber === 7)!
-
-    expect(doubleAtTurn).toMatchObject({
-      tileId: '2-2',
-      direction: 'left',
-      orientation: 'vertical',
-      connectedPip: 2,
-      exposedPip: 2,
-    })
-    expect(nextTile).toMatchObject({
-      tileId: '2-4',
-      direction: 'up',
-      connectedPip: 2,
-      exposedPip: 4,
-    })
-    expectAnchorsTouch(doubleAtTurn, nextTile)
-    expect(pipAnchor(doubleAtTurn).x).toBe(connectedAnchor(nextTile).x)
-    expect(overlapArea(doubleAtTurn, nextTile)).toBe(0)
-  })
-
-  it('keeps the next matching pip aligned after the tile following a deferred double turn', () => {
-    const layout = createDominoBoardLayout([
-      placement({ turnNumber: 1, id: '6-6', side: 'start' }),
-      placement({ turnNumber: 2, id: '0-6', side: 'right' }),
-      placement({ turnNumber: 3, id: '0-1', side: 'right' }),
-      placement({ turnNumber: 4, id: '1-2', side: 'right' }),
-      placement({ turnNumber: 5, id: '2-3', side: 'right' }),
-      placement({ turnNumber: 6, id: '3-3', side: 'right' }),
-      placement({ turnNumber: 7, id: '3-4', side: 'right' }),
-      placement({ turnNumber: 8, id: '4-5', side: 'right' }),
-    ])
-    const firstAfterDouble = layout.find((visual) => visual.turnNumber === 7)!
-    const secondAfterDouble = layout.find((visual) => visual.turnNumber === 8)!
-
-    expect(firstAfterDouble).toMatchObject({
-      tileId: '3-4',
-      direction: 'down',
-      rotation: 0,
-      connectedPip: 3,
-      exposedPip: 4,
-    })
-    expect(secondAfterDouble).toMatchObject({
-      tileId: '4-5',
-      direction: 'down',
-      rotation: 0,
-      connectedPip: 4,
-      exposedPip: 5,
-    })
-    expectAnchorsTouch(firstAfterDouble, secondAfterDouble)
-    expect(exposedAnchor(firstAfterDouble).x).toBe(
-      connectedAnchor(secondAfterDouble).x,
-    )
-    expect(overlapArea(firstAfterDouble, secondAfterDouble)).toBe(0)
-  })
-
-  it('keeps left-side turn placements touching without rectangle overlap', () => {
-    const layout = createDominoBoardLayout([
-      placement({ turnNumber: 1, id: '6-6', side: 'start' }),
-      placement({ turnNumber: 2, id: '5-6', side: 'left' }),
-      placement({ turnNumber: 3, id: '4-5', side: 'left' }),
-      placement({ turnNumber: 4, id: '3-4', side: 'left' }),
-      placement({ turnNumber: 5, id: '2-3', side: 'left' }),
-      placement({ turnNumber: 6, id: '1-2', side: 'left' }),
-      placement({ turnNumber: 7, id: '0-1', side: 'left' }),
-      placement({ turnNumber: 8, id: '0-6', side: 'left' }),
-    ])
-    const turnIn = layout.find((visual) => visual.turnNumber === 5)!
-    const firstVertical = layout.find((visual) => visual.turnNumber === 6)!
-    const secondVertical = layout.find((visual) => visual.turnNumber === 7)!
-    const turnOut = layout.find((visual) => visual.turnNumber === 8)!
-
-    expect(overlapArea(turnIn, firstVertical)).toBe(0)
-    expect(overlapArea(firstVertical, secondVertical)).toBe(0)
-    expect(overlapArea(secondVertical, turnOut)).toBe(0)
-  })
-
-  it('defers a planned left-side turn until after a double is placed', () => {
-    const layout = createDominoBoardLayout([
-      placement({ turnNumber: 1, id: '6-6', side: 'start' }),
-      placement({ turnNumber: 2, id: '5-6', side: 'left' }),
-      placement({ turnNumber: 3, id: '4-5', side: 'left' }),
-      placement({ turnNumber: 4, id: '3-4', side: 'left' }),
-      placement({ turnNumber: 5, id: '2-3', side: 'left' }),
-      placement({ turnNumber: 6, id: '2-2', side: 'left' }),
-      placement({ turnNumber: 7, id: '1-2', side: 'left' }),
-    ])
-    const turnIn = layout.find((visual) => visual.turnNumber === 5)!
-    const doubleAtTurn = layout.find((visual) => visual.turnNumber === 6)!
-    const nextTile = layout.find((visual) => visual.turnNumber === 7)!
-
-    expect(doubleAtTurn).toMatchObject({
-      tileId: '2-2',
-      direction: 'left',
-      orientation: 'vertical',
-      rotation: 0,
-      connectedPip: 2,
-    })
-    expect(nextTile).toMatchObject({
-      tileId: '1-2',
-      direction: 'up',
-      orientation: 'vertical',
-      rotation: 0,
-      connectedPip: 2,
-      exposedPip: 1,
-    })
-    expect(overlapArea(turnIn, doubleAtTurn)).toBe(0)
-    expect(overlapArea(doubleAtTurn, nextTile)).toBe(0)
+    expect(boundsOverlap(double, next)).toBe(false)
   })
 
   it('separates left and right chains into mirrored vertical lanes', () => {

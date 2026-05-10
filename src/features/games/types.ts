@@ -29,11 +29,6 @@ export type BoardVisualEndpointDto = {
   horizontalRunCount?: number
   verticalRunCount?: number
   lastTurnDirection?: 'left' | 'right'
-  previousDirection?: BoardDirection
-  pendingDirection?: BoardDirection
-  turnFromDouble?: boolean
-  isDoubleEndpoint?: boolean
-  doubleOrientation?: DominoOrientation
 }
 
 export type BoardPlacementDto = {

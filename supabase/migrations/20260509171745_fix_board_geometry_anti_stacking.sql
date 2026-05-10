@@ -1,7 +1,41 @@
--- Sprint 25.1 patch: a double at a planned board turn keeps the incoming
--- direction; the following tile starts the turn so matching pips stay aligned.
--- This updates only saved board geometry helpers. Gameplay validation, scoring,
--- hands, and turn rules are unchanged.
+-- Sprint 25.3 patch: use exposed pip-cell anchors for visual board geometry.
+-- This replaces visual helper functions only. Gameplay validation, scoring,
+-- hands, RLS, chat, and presence behavior are unchanged.
+
+create or replace function public.domino_fallback_visual_endpoint(
+  p_board_state jsonb,
+  p_side text
+)
+returns jsonb
+language plpgsql
+stable
+as $$
+declare
+  v_pip integer;
+  v_direction text := case when p_side = 'left' then 'left' else 'right' end;
+  v_start_tile jsonb := p_board_state #> '{placements,0,tile}';
+  v_start_is_double boolean := coalesce(public.domino_tile_is_double(v_start_tile), false);
+  v_start_endpoint_offset integer := case when v_start_is_double then 0 else 14 end;
+begin
+  v_pip := case
+    when p_side = 'left' then (p_board_state #>> '{openEnds,left}')::integer
+    else (p_board_state #>> '{openEnds,right}')::integer
+  end;
+
+  return jsonb_build_object(
+    'x', case when p_side = 'left' then -v_start_endpoint_offset else v_start_endpoint_offset end,
+    'y', 0,
+    'direction', v_direction,
+    'pip', v_pip,
+    'side', p_side,
+    'row', 0,
+    'runCount', 0,
+    'horizontalDirection', v_direction,
+    'horizontalRunCount', 0,
+    'verticalRunCount', 0
+  );
+end;
+$$;
 
 create or replace function public.domino_turn_visual_endpoint_if_needed(
   p_endpoint jsonb,
@@ -10,11 +44,13 @@ create or replace function public.domino_turn_visual_endpoint_if_needed(
 returns jsonb
 language plpgsql
 immutable
-as $domino_turn_visual_endpoint_if_needed$
+as $$
 declare
   v_direction text := p_endpoint ->> 'direction';
-  v_pending_direction text := p_endpoint ->> 'pendingDirection';
   v_side text := coalesce(p_endpoint ->> 'side', 'right');
+  v_pending_direction text := p_endpoint ->> 'pendingDirection';
+  v_is_double_endpoint boolean := coalesce((p_endpoint ->> 'isDoubleEndpoint')::boolean, false);
+  v_is_double_tile boolean := public.domino_tile_is_double(p_tile);
   v_horizontal_direction text := coalesce(
     p_endpoint ->> 'horizontalDirection',
     case when v_direction in ('left', 'right') then v_direction else null end,
@@ -24,9 +60,8 @@ declare
   v_vertical_run_count integer := coalesce((p_endpoint ->> 'verticalRunCount')::integer, 0);
   v_horizontal_run_length integer := 4;
   v_vertical_run_length integer := 2;
-  v_orientation text;
-  v_length numeric;
-  v_connection_gap numeric := 0;
+  v_cell_size numeric := 28;
+  v_endpoint_advance numeric := case when v_is_double_tile then v_cell_size else v_cell_size * 2 end;
   v_next_x numeric;
   v_next_y numeric;
   v_bounds jsonb := public.domino_visual_bounds();
@@ -37,34 +72,41 @@ declare
   v_vertical_direction text;
   v_next_horizontal_direction text;
 begin
-  if v_pending_direction is not null then
-    v_horizontal_direction := case
-      when v_pending_direction in ('left', 'right') then v_pending_direction
-      when v_direction in ('left', 'right') then v_direction
-      else v_horizontal_direction
-    end;
+  if v_pending_direction is not null and not v_is_double_tile then
+    v_next_x := (p_endpoint ->> 'x')::numeric;
+    v_next_y := (p_endpoint ->> 'y')::numeric;
 
-    return (p_endpoint - 'pendingDirection') || jsonb_build_object(
-      'previousDirection', v_direction,
+    if v_is_double_endpoint then
+      if v_pending_direction = 'right' then
+        v_next_x := v_next_x + v_cell_size / 2;
+      elsif v_pending_direction = 'left' then
+        v_next_x := v_next_x - v_cell_size / 2;
+      elsif v_pending_direction = 'up' then
+        v_next_y := v_next_y - v_cell_size / 2;
+      else
+        v_next_y := v_next_y + v_cell_size / 2;
+      end if;
+    end if;
+
+    return (p_endpoint - 'pendingDirection' - 'isDoubleEndpoint') || jsonb_build_object(
+      'x', round(v_next_x)::integer,
+      'y', round(v_next_y)::integer,
       'direction', v_pending_direction,
-      'turnFromDouble', true,
-      'horizontalDirection', v_horizontal_direction,
+      'horizontalDirection', case
+        when v_pending_direction in ('left', 'right') then v_pending_direction
+        else v_horizontal_direction
+      end,
       'horizontalRunCount', 0,
-      'verticalRunCount', 0
+      'verticalRunCount', 0,
+      'runCount', 0
     );
   end if;
 
   if v_direction in ('left', 'right') then
-    v_orientation := public.domino_visual_orientation(
-      v_direction,
-      public.domino_tile_is_double(p_tile)
-    );
-    v_length := public.domino_visual_path_length(v_direction, v_orientation);
-
     if v_direction = 'right' then
-      v_next_x := (p_endpoint ->> 'x')::numeric + v_length + v_connection_gap;
+      v_next_x := (p_endpoint ->> 'x')::numeric + v_endpoint_advance;
     else
-      v_next_x := (p_endpoint ->> 'x')::numeric - v_length - v_connection_gap;
+      v_next_x := (p_endpoint ->> 'x')::numeric - v_endpoint_advance;
     end if;
 
     if
@@ -74,35 +116,30 @@ begin
     then
       v_vertical_direction := case when v_side = 'left' then 'up' else 'down' end;
 
-      if public.domino_tile_is_double(p_tile) then
-        return (p_endpoint - 'previousDirection' - 'turnFromDouble') || jsonb_build_object(
-          'pendingDirection', v_vertical_direction
+      if v_is_double_tile then
+        return p_endpoint || jsonb_build_object(
+          'pendingDirection', v_vertical_direction,
+          'horizontalDirection', v_direction
         );
       end if;
 
-      return (p_endpoint - 'pendingDirection' - 'turnFromDouble') || jsonb_build_object(
-        'previousDirection', v_direction,
+      return (p_endpoint - 'pendingDirection' - 'isDoubleEndpoint') || jsonb_build_object(
         'direction', v_vertical_direction,
         'horizontalDirection', v_direction,
         'horizontalRunCount', 0,
-        'verticalRunCount', 0
+        'verticalRunCount', 0,
+        'runCount', 0
       );
     end if;
 
-    return p_endpoint - 'previousDirection' - 'turnFromDouble';
+    return p_endpoint;
   end if;
 
   if v_direction in ('up', 'down') then
-    v_orientation := public.domino_visual_orientation(
-      v_direction,
-      public.domino_tile_is_double(p_tile)
-    );
-    v_length := public.domino_visual_path_length(v_direction, v_orientation);
-
     if v_direction = 'up' then
-      v_next_y := (p_endpoint ->> 'y')::numeric - v_length - v_connection_gap;
+      v_next_y := (p_endpoint ->> 'y')::numeric - v_endpoint_advance;
     else
-      v_next_y := (p_endpoint ->> 'y')::numeric + v_length + v_connection_gap;
+      v_next_y := (p_endpoint ->> 'y')::numeric + v_endpoint_advance;
     end if;
 
     if
@@ -115,25 +152,24 @@ begin
         else 'right'
       end;
 
-      if public.domino_tile_is_double(p_tile) then
-        return (p_endpoint - 'previousDirection' - 'turnFromDouble') || jsonb_build_object(
+      if v_is_double_tile then
+        return p_endpoint || jsonb_build_object(
           'pendingDirection', v_next_horizontal_direction
         );
       end if;
 
-      return (p_endpoint - 'pendingDirection' - 'turnFromDouble') || jsonb_build_object(
-        'previousDirection', v_direction,
+      return (p_endpoint - 'pendingDirection' - 'isDoubleEndpoint') || jsonb_build_object(
         'direction', v_next_horizontal_direction,
-        'horizontalDirection', v_next_horizontal_direction,
         'horizontalRunCount', 0,
-        'verticalRunCount', 0
+        'verticalRunCount', 0,
+        'runCount', 0
       );
     end if;
   end if;
 
-  return p_endpoint - 'previousDirection' - 'turnFromDouble';
+  return p_endpoint;
 end;
-$domino_turn_visual_endpoint_if_needed$;
+$$;
 
 create or replace function public.domino_advance_visual_endpoint(
   p_endpoint jsonb,
@@ -143,7 +179,7 @@ create or replace function public.domino_advance_visual_endpoint(
 returns jsonb
 language plpgsql
 immutable
-as $domino_advance_visual_endpoint$
+as $$
 declare
   v_direction text := p_placement ->> 'direction';
   v_side text := coalesce(p_endpoint ->> 'side', p_side);
@@ -180,7 +216,8 @@ begin
     'runCount', greatest(v_horizontal_run_count, v_vertical_run_count),
     'horizontalDirection', v_horizontal_direction,
     'horizontalRunCount', v_horizontal_run_count,
-    'verticalRunCount', v_vertical_run_count
+    'verticalRunCount', v_vertical_run_count,
+    'isDoubleEndpoint', coalesce((p_placement ->> 'isDouble')::boolean, false)
   );
 
   if p_endpoint ? 'pendingDirection' then
@@ -191,7 +228,7 @@ begin
 
   return v_new_endpoint;
 end;
-$domino_advance_visual_endpoint$;
+$$;
 
 create or replace function public.domino_calculate_next_visual_placement(
   p_board_state jsonb,
@@ -205,27 +242,24 @@ create or replace function public.domino_calculate_next_visual_placement(
 returns jsonb
 language plpgsql
 stable
-as $domino_calculate_next_visual_placement$
+as $$
 declare
   v_board jsonb := public.domino_ensure_visual_board_state(p_board_state);
   v_placement_count integer := jsonb_array_length(coalesce(v_board -> 'placements', '[]'::jsonb));
   v_visual jsonb := v_board -> 'visual';
   v_endpoint jsonb;
   v_direction text;
-  v_previous_direction text;
-  v_turn_from_double boolean;
   v_tile_left integer := public.domino_tile_left(p_tile);
   v_tile_right integer := public.domino_tile_right(p_tile);
+  v_is_double boolean := public.domino_tile_is_double(p_tile);
   v_connected_pip integer;
   v_exposed_pip integer;
   v_connected_tile_side text;
   v_orientation text;
-  v_length numeric;
-  v_connection_gap numeric := 0;
+  v_cell_size numeric := 28;
   v_offset numeric;
-  v_turn_clearance numeric := 14;
-  v_clearance_x numeric := 0;
-  v_clearance_y numeric := 0;
+  v_endpoint_advance numeric;
+  v_start_endpoint_offset integer;
   v_endpoint_x numeric;
   v_endpoint_y numeric;
   v_center_x numeric;
@@ -236,9 +270,9 @@ declare
   v_placement jsonb;
   v_new_endpoint jsonb;
   v_endpoint_key text;
-  v_clearance_direction text;
 begin
   if v_placement_count = 0 or p_side = 'start' then
+    v_start_endpoint_offset := case when v_is_double then 0 else 14 end;
     v_placement := public.domino_calculate_start_visual_placement(
       p_tile,
       p_player_id,
@@ -250,7 +284,7 @@ begin
 
     v_visual := v_visual || jsonb_build_object(
       'leftEndpoint', jsonb_build_object(
-        'x', case when public.domino_tile_is_double(p_tile) then -14 else -28 end,
+        'x', -v_start_endpoint_offset,
         'y', 0,
         'direction', 'left',
         'pip', p_left_value,
@@ -262,7 +296,7 @@ begin
         'verticalRunCount', 0
       ),
       'rightEndpoint', jsonb_build_object(
-        'x', case when public.domino_tile_is_double(p_tile) then 14 else 28 end,
+        'x', v_start_endpoint_offset,
         'y', 0,
         'direction', 'right',
         'pip', p_right_value,
@@ -303,8 +337,6 @@ begin
 
   v_endpoint := public.domino_turn_visual_endpoint_if_needed(v_endpoint, p_tile);
   v_direction := v_endpoint ->> 'direction';
-  v_previous_direction := v_endpoint ->> 'previousDirection';
-  v_turn_from_double := coalesce((v_endpoint ->> 'turnFromDouble')::boolean, false);
   v_endpoint_x := (v_endpoint ->> 'x')::numeric;
   v_endpoint_y := (v_endpoint ->> 'y')::numeric;
 
@@ -327,69 +359,31 @@ begin
 
   v_orientation := public.domino_visual_orientation(
     v_direction,
-    public.domino_tile_is_double(p_tile)
+    v_is_double
   );
-  v_length := public.domino_visual_path_length(v_direction, v_orientation);
-  v_offset := v_length / 2 + v_connection_gap;
-
-  if v_previous_direction is not null and v_turn_from_double then
-    if v_previous_direction = 'right' then
-      v_clearance_x := v_clearance_x + v_turn_clearance;
-    elsif v_previous_direction = 'left' then
-      v_clearance_x := v_clearance_x - v_turn_clearance;
-    elsif v_previous_direction = 'up' then
-      v_clearance_y := v_clearance_y - v_turn_clearance;
-    elsif v_previous_direction = 'down' then
-      v_clearance_y := v_clearance_y + v_turn_clearance;
-    end if;
-
-    if v_direction = 'right' then
-      v_clearance_x := v_clearance_x + v_turn_clearance;
-    elsif v_direction = 'left' then
-      v_clearance_x := v_clearance_x - v_turn_clearance;
-    elsif v_direction = 'up' then
-      v_clearance_y := v_clearance_y - v_turn_clearance;
-    elsif v_direction = 'down' then
-      v_clearance_y := v_clearance_y + v_turn_clearance;
-    end if;
-  elsif v_previous_direction is not null then
-    v_clearance_direction := case
-      when v_previous_direction in ('left', 'right') and v_direction in ('up', 'down')
-        then v_direction
-      else v_previous_direction
-    end;
-
-    if v_clearance_direction = 'right' then
-      v_clearance_x := v_turn_clearance;
-    elsif v_clearance_direction = 'left' then
-      v_clearance_x := -v_turn_clearance;
-    elsif v_clearance_direction = 'up' then
-      v_clearance_y := -v_turn_clearance;
-    elsif v_clearance_direction = 'down' then
-      v_clearance_y := v_turn_clearance;
-    end if;
-  end if;
+  v_offset := case when v_is_double then v_cell_size else v_cell_size * 1.5 end;
+  v_endpoint_advance := case when v_is_double then v_cell_size else v_cell_size * 2 end;
 
   if v_direction = 'right' then
-    v_center_x := v_endpoint_x + v_offset + v_clearance_x;
-    v_center_y := v_endpoint_y + v_clearance_y;
-    v_next_endpoint_x := v_endpoint_x + v_length + v_connection_gap + v_clearance_x;
-    v_next_endpoint_y := v_endpoint_y + v_clearance_y;
+    v_center_x := v_endpoint_x + v_offset;
+    v_center_y := v_endpoint_y;
+    v_next_endpoint_x := v_endpoint_x + v_endpoint_advance;
+    v_next_endpoint_y := v_endpoint_y;
   elsif v_direction = 'left' then
-    v_center_x := v_endpoint_x - v_offset + v_clearance_x;
-    v_center_y := v_endpoint_y + v_clearance_y;
-    v_next_endpoint_x := v_endpoint_x - v_length - v_connection_gap + v_clearance_x;
-    v_next_endpoint_y := v_endpoint_y + v_clearance_y;
+    v_center_x := v_endpoint_x - v_offset;
+    v_center_y := v_endpoint_y;
+    v_next_endpoint_x := v_endpoint_x - v_endpoint_advance;
+    v_next_endpoint_y := v_endpoint_y;
   elsif v_direction = 'up' then
-    v_center_x := v_endpoint_x + v_clearance_x;
-    v_center_y := v_endpoint_y - v_offset + v_clearance_y;
-    v_next_endpoint_x := v_endpoint_x + v_clearance_x;
-    v_next_endpoint_y := v_endpoint_y - v_length - v_connection_gap + v_clearance_y;
+    v_center_x := v_endpoint_x;
+    v_center_y := v_endpoint_y - v_offset;
+    v_next_endpoint_x := v_endpoint_x;
+    v_next_endpoint_y := v_endpoint_y - v_endpoint_advance;
   else
-    v_center_x := v_endpoint_x + v_clearance_x;
-    v_center_y := v_endpoint_y + v_offset + v_clearance_y;
-    v_next_endpoint_x := v_endpoint_x + v_clearance_x;
-    v_next_endpoint_y := v_endpoint_y + v_length + v_connection_gap + v_clearance_y;
+    v_center_x := v_endpoint_x;
+    v_center_y := v_endpoint_y + v_offset;
+    v_next_endpoint_x := v_endpoint_x;
+    v_next_endpoint_y := v_endpoint_y + v_endpoint_advance;
   end if;
 
   v_rotation := public.domino_visual_rotation_for_connection(
@@ -414,7 +408,7 @@ begin
     'connectedPip', v_connected_pip,
     'exposedPip', v_exposed_pip,
     'connectedTileSide', v_connected_tile_side,
-    'isDouble', public.domino_tile_is_double(p_tile),
+    'isDouble', v_is_double,
     'endpointX', round(v_next_endpoint_x)::integer,
     'endpointY', round(v_next_endpoint_y)::integer
   );
@@ -430,8 +424,9 @@ begin
 
   return jsonb_build_object('placement', v_placement, 'visual', v_visual);
 end;
-$domino_calculate_next_visual_placement$;
+$$;
 
+revoke all on function public.domino_fallback_visual_endpoint(jsonb, text) from public;
 revoke all on function public.domino_turn_visual_endpoint_if_needed(jsonb, jsonb) from public;
 revoke all on function public.domino_advance_visual_endpoint(jsonb, jsonb, text) from public;
 revoke all on function public.domino_calculate_next_visual_placement(jsonb, jsonb, text, uuid, integer, integer, integer) from public;
