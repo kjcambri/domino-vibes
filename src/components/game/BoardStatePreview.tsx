@@ -131,7 +131,6 @@ export function BoardStatePreview({ boardState }: { boardState: BoardStateDto })
                 }
                 isLatest={placement.isLatest}
                 isStart={placement.isStart}
-                playable={placement.isLatest}
                 orientation={placement.orientation}
                 size="board"
                 tileId={placement.tileId}

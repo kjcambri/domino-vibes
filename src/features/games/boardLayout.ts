@@ -9,6 +9,8 @@ type VisualEndpoint = {
   x: number
   y: number
   direction: Direction
+  pendingDirection?: Direction
+  isDoubleEndpoint?: boolean
   pip: number
   side: ChainSide
   row: number
@@ -43,8 +45,8 @@ export type VisualDominoPlacement = {
   connectedTileSide?: 'left' | 'right' | null
 }
 
-const REGULAR_LONG = 56
 const REGULAR_SHORT = 28
+const PIP_CELL_SIZE = REGULAR_SHORT
 const CONNECTION_GAP = 0
 const HORIZONTAL_RUN_LENGTH = 4
 const VERTICAL_RUN_LENGTH = 2
@@ -86,7 +88,7 @@ export function createDominoBoardLayout(
     sortedPlacements.find((placement) => placement.side === 'start') ??
     sortedPlacements[0]!
   const startOrientation = getStartOrientation(startPlacement)
-  const startHalfWidth = getHalfWidth(startOrientation)
+  const startEndpointOffset = getStartEndpointOffset(startPlacement)
   const leftPlacements = sortedPlacements.filter(
     (placement) =>
       placement.side === 'left' && placement.turnNumber !== startPlacement.turnNumber,
@@ -114,7 +116,7 @@ export function createDominoBoardLayout(
       side: 'left',
       latestTurnNumber,
       initialEndpoint: {
-        x: -startHalfWidth,
+        x: -startEndpointOffset,
         y: 0,
         direction: 'left',
         pip: startPlacement.leftValue,
@@ -131,7 +133,7 @@ export function createDominoBoardLayout(
       side: 'right',
       latestTurnNumber,
       initialEndpoint: {
-        x: startHalfWidth,
+        x: startEndpointOffset,
         y: 0,
         direction: 'right',
         pip: startPlacement.rightValue,
@@ -179,7 +181,7 @@ function layoutEndpointChain({
       endpoint.direction,
       placement.tile.isDouble,
     )
-    const geometry = getPlacementGeometry(endpoint, orientation)
+    const geometry = getPlacementGeometry(endpoint, placement.tile.isDouble)
     const visualPlacement = toVisualPlacement(placement, {
       x: geometry.center.x,
       y: geometry.center.y,
@@ -198,7 +200,12 @@ function layoutEndpointChain({
       connectedTileSide,
     })
 
-    endpoint = advanceVisualEndpoint(endpoint, geometry.nextEndpoint, exposedPip)
+    endpoint = advanceVisualEndpoint(
+      endpoint,
+      geometry.nextEndpoint,
+      exposedPip,
+      placement.tile.isDouble,
+    )
 
     return visualPlacement
   })
@@ -208,30 +215,74 @@ function turnEndpointIfNeeded(
   endpoint: VisualEndpoint,
   placement: BoardPlacementDto,
 ): VisualEndpoint {
+  if (endpoint.pendingDirection && !placement.tile.isDouble) {
+    return applyPendingDirection(endpoint)
+  }
+
   if (endpoint.direction === 'up' || endpoint.direction === 'down') {
     if (shouldTurnFromVertical(endpoint, placement)) {
-      return {
-        ...endpoint,
-        direction: reverseHorizontalDirection(endpoint.horizontalDirection),
-        horizontalRunCount: 0,
-        verticalRunCount: 0,
-      }
+      const nextDirection = reverseHorizontalDirection(endpoint.horizontalDirection)
+
+      return placement.tile.isDouble
+        ? {
+            ...endpoint,
+            pendingDirection: nextDirection,
+          }
+        : {
+            ...endpoint,
+            direction: nextDirection,
+            pendingDirection: undefined,
+            horizontalRunCount: 0,
+            verticalRunCount: 0,
+          }
     }
 
     return endpoint
   }
 
   if (shouldTurnFromHorizontal(endpoint, placement)) {
-    return {
-      ...endpoint,
-      direction: getVerticalDirectionForSide(endpoint.side),
-      horizontalDirection: endpoint.direction,
-      horizontalRunCount: 0,
-      verticalRunCount: 0,
-    }
+    const nextDirection = getVerticalDirectionForSide(endpoint.side)
+
+    return placement.tile.isDouble
+      ? {
+          ...endpoint,
+          horizontalDirection: endpoint.direction,
+          pendingDirection: nextDirection,
+        }
+      : {
+          ...endpoint,
+          direction: nextDirection,
+          pendingDirection: undefined,
+          horizontalDirection: endpoint.direction,
+          horizontalRunCount: 0,
+          verticalRunCount: 0,
+        }
   }
 
   return endpoint
+}
+
+function applyPendingDirection(endpoint: VisualEndpoint): VisualEndpoint {
+  const nextDirection = endpoint.pendingDirection!
+  const isHorizontalDirection = nextDirection === 'left' || nextDirection === 'right'
+  const adjustedEndpoint = endpoint.isDoubleEndpoint
+    ? shiftPoint({ x: endpoint.x, y: endpoint.y }, nextDirection, PIP_CELL_SIZE / 2)
+    : { x: endpoint.x, y: endpoint.y }
+
+  return {
+    ...endpoint,
+    x: adjustedEndpoint.x,
+    y: adjustedEndpoint.y,
+    direction: nextDirection,
+    pendingDirection: undefined,
+    isDoubleEndpoint: false,
+    horizontalDirection: isHorizontalDirection
+      ? nextDirection
+      : endpoint.horizontalDirection,
+    horizontalRunCount: 0,
+    verticalRunCount: 0,
+    runCount: 0,
+  }
 }
 
 function shouldTurnFromHorizontal(
@@ -242,11 +293,7 @@ function shouldTurnFromHorizontal(
     return true
   }
 
-  const orientation = getOrientationForDirection(
-    endpoint.direction,
-    placement.tile.isDouble,
-  )
-  const geometry = getPlacementGeometry(endpoint, orientation)
+  const geometry = getPlacementGeometry(endpoint, placement.tile.isDouble)
 
   return (
     (endpoint.direction === 'right' && geometry.nextEndpoint.x > MAX_X) ||
@@ -262,11 +309,7 @@ function shouldTurnFromVertical(
     return true
   }
 
-  const orientation = getOrientationForDirection(
-    endpoint.direction,
-    placement.tile.isDouble,
-  )
-  const geometry = getPlacementGeometry(endpoint, orientation)
+  const geometry = getPlacementGeometry(endpoint, placement.tile.isDouble)
 
   return (
     (endpoint.direction === 'down' && geometry.nextEndpoint.y > MAX_Y) ||
@@ -282,6 +325,7 @@ function advanceVisualEndpoint(
   endpoint: VisualEndpoint,
   nextEndpoint: Pick<VisualEndpoint, 'x' | 'y'>,
   exposedPip: number,
+  isDoubleEndpoint: boolean,
 ): VisualEndpoint {
   if (endpoint.direction === 'up' || endpoint.direction === 'down') {
     return {
@@ -289,6 +333,8 @@ function advanceVisualEndpoint(
       x: nextEndpoint.x,
       y: nextEndpoint.y,
       direction: endpoint.direction,
+      pendingDirection: endpoint.pendingDirection,
+      isDoubleEndpoint,
       pip: exposedPip,
       row: endpoint.row,
       runCount: endpoint.verticalRunCount + 1,
@@ -303,6 +349,8 @@ function advanceVisualEndpoint(
     x: nextEndpoint.x,
     y: nextEndpoint.y,
     direction: endpoint.direction,
+    pendingDirection: endpoint.pendingDirection,
+    isDoubleEndpoint,
     pip: exposedPip,
     runCount: endpoint.horizontalRunCount + 1,
     horizontalRunCount: endpoint.horizontalRunCount + 1,
@@ -312,22 +360,42 @@ function advanceVisualEndpoint(
   }
 }
 
+function shiftPoint(
+  point: Pick<VisualEndpoint, 'x' | 'y'>,
+  direction: Direction,
+  distance: number,
+) {
+  if (direction === 'right') {
+    return { x: point.x + distance, y: point.y }
+  }
+
+  if (direction === 'left') {
+    return { x: point.x - distance, y: point.y }
+  }
+
+  if (direction === 'up') {
+    return { x: point.x, y: point.y - distance }
+  }
+
+  return { x: point.x, y: point.y + distance }
+}
+
 function reverseHorizontalDirection(direction: HorizontalDirection) {
   return direction === 'right' ? 'left' : 'right'
 }
 
 function getPlacementGeometry(
   endpoint: VisualEndpoint,
-  orientation: DominoOrientation,
+  isDouble: boolean,
 ) {
-  const pathLength = getLengthAlongDirection(endpoint.direction, orientation)
-  const offset = pathLength / 2 + CONNECTION_GAP
+  const offset = (isDouble ? PIP_CELL_SIZE : PIP_CELL_SIZE * 1.5) + CONNECTION_GAP
+  const endpointAdvance = (isDouble ? PIP_CELL_SIZE : PIP_CELL_SIZE * 2) + CONNECTION_GAP
 
   if (endpoint.direction === 'right') {
     return {
       center: { x: endpoint.x + offset, y: endpoint.y },
       nextEndpoint: {
-        x: endpoint.x + pathLength + CONNECTION_GAP,
+        x: endpoint.x + endpointAdvance,
         y: endpoint.y,
       },
     }
@@ -337,7 +405,7 @@ function getPlacementGeometry(
     return {
       center: { x: endpoint.x - offset, y: endpoint.y },
       nextEndpoint: {
-        x: endpoint.x - pathLength - CONNECTION_GAP,
+        x: endpoint.x - endpointAdvance,
         y: endpoint.y,
       },
     }
@@ -348,7 +416,7 @@ function getPlacementGeometry(
       center: { x: endpoint.x, y: endpoint.y - offset },
       nextEndpoint: {
         x: endpoint.x,
-        y: endpoint.y - pathLength - CONNECTION_GAP,
+        y: endpoint.y - endpointAdvance,
       },
     }
   }
@@ -357,30 +425,17 @@ function getPlacementGeometry(
     center: { x: endpoint.x, y: endpoint.y + offset },
     nextEndpoint: {
       x: endpoint.x,
-      y: endpoint.y + pathLength + CONNECTION_GAP,
+      y: endpoint.y + endpointAdvance,
     },
   }
-}
-
-function getLengthAlongDirection(
-  direction: Direction,
-  orientation: DominoOrientation,
-) {
-  const isHorizontalDirection = direction === 'left' || direction === 'right'
-
-  if (isHorizontalDirection) {
-    return orientation === 'horizontal' ? REGULAR_LONG : REGULAR_SHORT
-  }
-
-  return orientation === 'vertical' ? REGULAR_LONG : REGULAR_SHORT
 }
 
 function getStartOrientation(placement: BoardPlacementDto): DominoOrientation {
   return placement.tile.isDouble ? 'vertical' : 'horizontal'
 }
 
-function getHalfWidth(orientation: DominoOrientation) {
-  return orientation === 'horizontal' ? REGULAR_LONG / 2 : REGULAR_SHORT / 2
+function getStartEndpointOffset(placement: BoardPlacementDto) {
+  return placement.tile.isDouble ? 0 : PIP_CELL_SIZE / 2
 }
 
 function getStartRotation(placement: BoardPlacementDto) {
