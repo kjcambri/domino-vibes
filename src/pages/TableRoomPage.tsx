@@ -10,7 +10,9 @@ import { ReadyToggle } from '../components/table/ReadyToggle'
 import { StartGamePanel } from '../components/table/StartGamePanel'
 import { TableRoomHeader } from '../components/table/TableRoomHeader'
 import { TableSeatGrid } from '../components/table/TableSeatGrid'
+import { useAppStore } from '../app/store'
 import { useAuth } from '../features/auth/useAuth'
+import { useTableSoundEvents } from '../features/audio/useSoundEvents'
 import { useTableRealtime } from '../features/tables/useTableRealtime'
 import {
   useLeaveTable,
@@ -27,12 +29,14 @@ export function TableRoomPage() {
   const { tableId } = useParams()
   const { user } = useAuth()
   const tableRoom = useTableRoom(tableId)
+  const tableSoundEnabled = useAppStore((state) => state.tableSoundEnabled)
   const sitAtTable = useSitAtTable(tableId)
   const leaveTable = useLeaveTable(tableId)
   const toggleReady = useToggleReady(tableId)
   const startGame = useStartGame(tableId)
   const [error, setError] = useState('')
   useTableRealtime(tableId)
+  useTableSoundEvents({ enabled: tableSoundEnabled, room: tableRoom.data ?? null })
 
   const room = tableRoom.data
   const currentUserSeat = room?.seats.find((seat) => seat.playerId === user?.id)
