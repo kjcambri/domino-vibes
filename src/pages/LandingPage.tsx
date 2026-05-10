@@ -12,6 +12,7 @@ import {
   UsersRound,
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { BetaFeedbackLink } from '../components/beta/BetaFeedbackLink'
 import { buttonClasses } from '../components/common/buttonStyles'
 import { DominoImageTile } from '../components/game/DominoImageTile'
 import { MiniBoardPreview } from '../components/game/MiniBoardPreview'
@@ -156,6 +157,44 @@ export function LandingPage() {
           </GameCard>
         </section>
 
+        <section className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
+          <GameCard variant="gold">
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-gold-100">
+              Private beta
+            </p>
+            <h2 className="mt-3 text-2xl font-black text-cream-50">
+              Help us test the real table flow.
+            </h2>
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-cream-100/74">
+              Start with Cutthroat 4: sign up, join a table, use chat, play a
+              round, refresh and rejoin, then return to the lobby after a game.
+              Please report anything that blocks a turn, hides an action, or
+              feels confusing on mobile.
+            </p>
+            <div className="mt-4 grid gap-2 sm:grid-cols-3">
+              <BetaMission label="Play one round" />
+              <BetaMission label="Check hidden hands" />
+              <BetaMission label="Try mobile Safari" />
+            </div>
+          </GameCard>
+          <GameCard className="flex flex-col justify-between gap-4" variant="felt">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.18em] text-teal-300">
+                Found an issue?
+              </p>
+              <p className="mt-3 text-sm leading-6 text-cream-100/72">
+                Send browser, device, URL, steps, what happened, and a
+                screenshot. Do not include passwords or hidden hand data.
+              </p>
+            </div>
+            <BetaFeedbackLink
+              className="w-full"
+              label="Send beta feedback"
+              source="Landing beta guidance"
+            />
+          </GameCard>
+        </section>
+
         <section className="grid gap-4 md:grid-cols-3">
           <ComingSoonCard
             copy="Invite-only and friend tables are planned after the core public rooms finish beta hardening."
@@ -172,6 +211,14 @@ export function LandingPage() {
         </section>
       </section>
     </MobileShell>
+  )
+}
+
+function BetaMission({ label }: { label: string }) {
+  return (
+    <div className="rounded-xl border border-cream-100/10 bg-green-950/35 px-3 py-3 text-sm font-black text-cream-50">
+      {label}
+    </div>
   )
 }
 

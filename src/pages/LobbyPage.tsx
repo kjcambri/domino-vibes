@@ -11,6 +11,7 @@ import {
 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { LogoutButton } from '../components/auth/LogoutButton'
+import { BetaFeedbackLink } from '../components/beta/BetaFeedbackLink'
 import { ChatPanel } from '../components/chat/ChatPanel'
 import { GameCard } from '../components/ui/GameCard'
 import { SectionHeader } from '../components/ui/SectionHeader'
@@ -232,6 +233,23 @@ export function LobbyPage() {
                     </p>
                   </div>
                 </div>
+              </GameCard>
+              <GameCard className="p-4" variant="gold">
+                <p className="text-xs font-black uppercase tracking-[0.16em] text-gold-100">
+                  Beta test missions
+                </p>
+                <ul className="mt-3 grid gap-2 text-sm font-bold leading-6 text-cream-100/76">
+                  <li>Join or rejoin a Cutthroat 4 table.</li>
+                  <li>Send lobby, table, and game chat messages.</li>
+                  <li>Refresh during a game and confirm you can return.</li>
+                  <li>Finish a round and return to lobby after game over.</li>
+                </ul>
+                <BetaFeedbackLink
+                  className="mt-4 w-full"
+                  label="Report beta issue"
+                  source="Lobby beta missions"
+                  variant="secondary"
+                />
               </GameCard>
               <ChatPanel
                 defaultOpen
