@@ -18,6 +18,12 @@ export const LandingPage = lazy(() =>
   })),
 )
 
+export const FriendsPage = lazy(() =>
+  import('../pages/FriendsPage').then((module) => ({
+    default: module.FriendsPage,
+  })),
+)
+
 export const LobbyPage = lazy(() =>
   import('../pages/LobbyPage').then((module) => ({
     default: module.LobbyPage,
@@ -51,6 +57,12 @@ export const ProfileSetupPage = lazy(() =>
 export const SignupPage = lazy(() =>
   import('../pages/SignupPage').then((module) => ({
     default: module.SignupPage,
+  })),
+)
+
+export const SpectatorGamePage = lazy(() =>
+  import('../pages/SpectatorGamePage').then((module) => ({
+    default: module.SpectatorGamePage,
   })),
 )
 

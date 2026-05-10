@@ -36,7 +36,20 @@ Use this checklist before inviting private testers and before every beta deploy.
 - Finish a game, return to lobby with every player, and confirm the table resets to waiting.
 - Confirm stale or old test data can be cleared with dev SQL.
 
-## 4. Table Room Testing
+## 4. Private Table Testing
+
+- Create a private table from the lobby Private Tables panel.
+- Confirm the creator is automatically seated at seat 1.
+- Confirm the private table does not appear in the public club table grid.
+- Confirm the ready room shows a Private Table badge and invite code.
+- Copy the invite code and join from a second logged-in account.
+- Confirm invalid, short, or unknown invite codes show friendly errors.
+- Confirm a user already seated at another active table cannot create or join a private table.
+- Confirm private table chat works for seated private-table users.
+- Confirm non-seated users cannot open the private table room by URL alone.
+- Fill four seats, ready up, start the game, and confirm gameplay is unchanged.
+
+## 5. Table Room Testing
 
 - Select each open seat.
 - Confirm occupied seats cannot be taken.
@@ -48,7 +61,7 @@ Use this checklist before inviting private testers and before every beta deploy.
 - Start game and confirm the route changes to `/games/:gameId`.
 - Confirm stale waiting seats can be cleaned with dev cleanup.
 
-## 5. Game Room Testing
+## 6. Game Room Testing
 
 - Confirm the current user's secure hand loads.
 - Confirm opponents show hand counts only.
@@ -69,7 +82,7 @@ Use this checklist before inviting private testers and before every beta deploy.
 - Finish a game and confirm Game Over panel.
 - Return to lobby and confirm finished seats clear.
 
-## 6. Multi-Browser Testing
+## 7. Multi-Browser Testing
 
 - Run a 2-browser simulation with two users and observe realtime/polling updates.
 - Run a full 4-player game with four separate users.
@@ -77,7 +90,7 @@ Use this checklist before inviting private testers and before every beta deploy.
 - Record browser, device, and OS for every issue.
 - Capture screenshots of broken board, turn, or hand states.
 
-## 7. Mobile Testing
+## 8. Mobile Testing
 
 - Test iPhone Safari around 390px width.
 - Test iPhone Chrome.
@@ -89,7 +102,7 @@ Use this checklist before inviting private testers and before every beta deploy.
 - Confirm action buttons are reachable with thumbs.
 - Confirm text does not overlap or clip.
 
-## 8. Asset and Game-Feel Testing
+## 9. Asset and Game-Feel Testing
 
 - Run `npm run assets:audit` and confirm all 28 tile fronts plus `domino-back` exist.
 - Confirm no `.DS_Store`, `__MACOSX/`, or `._filename.png` metadata files are present.
@@ -119,7 +132,7 @@ Use this checklist before inviting private testers and before every beta deploy.
 - Confirm mobile hand tray horizontal scrolling remains smooth after tile style changes.
 - Confirm current assets are acceptable for beta, while production-quality consistent assets remain future work.
 
-## 9. Security Testing
+## 10. Security Testing
 
 - Confirm hidden hands are never returned by `get_game_room`.
 - Confirm `get_my_hand` returns only the authenticated player's hand.
@@ -131,8 +144,11 @@ Use this checklist before inviting private testers and before every beta deploy.
 - Confirm users cannot start next round unless the round is finished and they are participants.
 - Confirm users cannot clear someone else's finished-game seat.
 - Confirm frontend code does not directly write hands, moves, or games tables.
+- Confirm private `game_tables` rows are readable only by seated users/creator through RLS.
+- Confirm `join_table` cannot join a private table by table id alone.
+- Confirm `join_private_table` requires a valid invite code and authenticated profile.
 
-## 10. Chat Testing
+## 11. Chat Testing
 
 - Send and read a lobby chat message from two logged-in users.
 - Confirm lobby chat blocks empty messages.
@@ -147,7 +163,7 @@ Use this checklist before inviting private testers and before every beta deploy.
 - Confirm Enter sends and Shift+Enter does not unexpectedly submit if multiline behavior is active.
 - Confirm chat does not expose hidden hands or gameplay RPC payloads.
 
-## 11. Regression Checklist Before Every Commit
+## 12. Regression Checklist Before Every Commit
 
 - Run `npm run lint`.
 - Run `npm run build`.
@@ -159,11 +175,12 @@ Use this checklist before inviting private testers and before every beta deploy.
 - Confirm the current route still loads in the browser.
 - Check mobile width for the changed screen.
 
-## 12. Known Issues
+## 13. Known Issues
 
 - Vite can warn about large chunks if route splitting regresses.
 - Private beta should use test accounts and test data only.
 - Old games created before server-saved geometry may not look like fresh games.
 - Stuck development seats may require dev SQL cleanup.
 - Chat is MVP only; advanced moderation, DMs, media uploads, bots, AFK takeover, ranked, and tournament support are not included yet.
+- Private Tables are invite-code MVP rooms only; no host controls, room passwords, or custom table settings yet.
 - Current domino artwork is beta-ready, but a fully consistent production asset set is still recommended.

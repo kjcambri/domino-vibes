@@ -2,6 +2,7 @@ import { supabase } from '../../lib/supabaseClient'
 import { logDebug } from '../../lib/logger'
 import {
   type CurrentTable,
+  type PrivateTableResult,
   type SeatActionResult,
   type StartGameResult,
   type TablePresenceHeartbeatResult,
@@ -34,6 +35,12 @@ type TablePresenceHeartbeatRow = {
   table_id: string
   player_id: string
   last_seen_at: string
+}
+
+type PrivateTableRow = {
+  table_id: string
+  invite_code: string
+  seat_number: number
 }
 
 function toCurrentTable(row: CurrentTableRow): CurrentTable {
@@ -110,6 +117,54 @@ export async function getMyCurrentTable(): Promise<CurrentTable | null> {
   const result = (data as CurrentTableRow[] | null)?.[0]
 
   return result ? toCurrentTable(result) : null
+}
+
+function toPrivateTableResult(row: PrivateTableRow): PrivateTableResult {
+  return {
+    tableId: row.table_id,
+    inviteCode: row.invite_code,
+    seatNumber: row.seat_number,
+  }
+}
+
+export async function createPrivateTable(
+  tableName?: string,
+): Promise<PrivateTableResult> {
+  const { data, error } = await supabase.rpc('create_private_table', {
+    p_table_name: tableName?.trim() ? tableName.trim() : null,
+  })
+
+  if (error) {
+    throw error
+  }
+
+  const result = (data as PrivateTableRow[])[0]
+
+  if (!result) {
+    throw new Error('private_table_create_failed')
+  }
+
+  return toPrivateTableResult(result)
+}
+
+export async function joinPrivateTableByInviteCode(
+  inviteCode: string,
+): Promise<PrivateTableResult> {
+  const { data, error } = await supabase.rpc('join_private_table', {
+    p_invite_code: inviteCode,
+  })
+
+  if (error) {
+    throw error
+  }
+
+  const result = (data as PrivateTableRow[])[0]
+
+  if (!result) {
+    throw new Error('private_table_join_failed')
+  }
+
+  return toPrivateTableResult(result)
 }
 
 export async function toggleReady({

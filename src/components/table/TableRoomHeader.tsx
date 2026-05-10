@@ -1,13 +1,35 @@
 import { Link } from 'react-router-dom'
-import { ArrowLeft, Crown, UsersRound } from 'lucide-react'
+import { useState } from 'react'
+import { ArrowLeft, Copy, Crown, LockKeyhole, UsersRound } from 'lucide-react'
 import { SoundToggleButton } from '../audio/SoundToggleButton'
+import { Button } from '../common/Button'
 import { buttonClasses } from '../common/buttonStyles'
 import { GameCard } from '../ui/GameCard'
 import { type TableRoomInfo } from '../../features/tables/types'
+import { formatPrivateInviteCode } from '../../features/tables/privateTables'
 import { GameModeLabel } from '../lobby/GameModeLabel'
 import { TableStatusBadge } from '../lobby/TableStatusBadge'
 
 export function TableRoomHeader({ table }: { table: TableRoomInfo }) {
+  const [copied, setCopied] = useState(false)
+  const formattedInviteCode = table.inviteCode
+    ? formatPrivateInviteCode(table.inviteCode)
+    : null
+
+  async function handleCopyInvite() {
+    if (!table.inviteCode) {
+      return
+    }
+
+    try {
+      await navigator.clipboard.writeText(table.inviteCode)
+      setCopied(true)
+      window.setTimeout(() => setCopied(false), 1800)
+    } catch {
+      setCopied(false)
+    }
+  }
+
   return (
     <header className="grid gap-4">
       <div className="flex items-center justify-between gap-3">
@@ -31,6 +53,12 @@ export function TableRoomHeader({ table }: { table: TableRoomInfo }) {
           <div>
             <div className="flex flex-wrap items-center gap-2">
               <GameModeLabel gameMode={table.gameMode} />
+              {table.isPrivate ? (
+                <span className="inline-flex items-center gap-2 rounded-full border border-teal-300/30 bg-teal-300/12 px-3 py-1 text-xs font-black uppercase tracking-[0.12em] text-teal-100">
+                  <LockKeyhole aria-hidden="true" size={13} />
+                  Private Table
+                </span>
+              ) : null}
               <span className="inline-flex items-center gap-2 rounded-full border border-gold-300/25 bg-gold-300/10 px-3 py-1 text-xs font-black uppercase tracking-[0.12em] text-gold-100">
                 <Crown aria-hidden="true" size={13} />
                 Ready room
@@ -54,6 +82,33 @@ export function TableRoomHeader({ table }: { table: TableRoomInfo }) {
         <div className="relative mt-4">
           <TableStatusBadge status={table.status} />
         </div>
+        {formattedInviteCode ? (
+          <div className="relative mt-4 rounded-2xl border border-teal-300/20 bg-green-950/45 p-4">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.16em] text-teal-300">
+                  Invite code
+                </p>
+                <p className="mt-1 font-mono text-2xl font-black tracking-[0.16em] text-cream-50">
+                  {formattedInviteCode}
+                </p>
+              </div>
+              <Button
+                className="gap-2"
+                onClick={handleCopyInvite}
+                type="button"
+                variant="secondary"
+              >
+                <Copy aria-hidden="true" size={17} />
+                {copied ? 'Copied' : 'Copy Code'}
+              </Button>
+            </div>
+            <p className="mt-3 text-sm leading-6 text-cream-100/68">
+              Share this code with invited players. They can join from the
+              Private Tables panel in the lobby.
+            </p>
+          </div>
+        ) : null}
       </GameCard>
     </header>
   )

@@ -212,7 +212,7 @@ function ProfileSideNav() {
         <ProfileNavItem icon={<Home size={20} />} label="Home" to="/" />
         <ProfileNavItem icon={<Table2 size={20} />} label="Play" to="/lobby" />
         <ProfileNavItem comingSoon icon={<Eye size={20} />} label="Watch" />
-        <ProfileNavItem comingSoon icon={<UsersRound size={20} />} label="Friends" />
+        <ProfileNavItem icon={<UsersRound size={20} />} label="Friends" to="/friends" />
         <ProfileNavItem comingSoon icon={<Crown size={20} />} label="Clubs" />
         <ProfileNavItem comingSoon icon={<Trophy size={20} />} label="Leaderboard" />
         <ProfileNavItem active icon={<UserRound size={20} />} label="Profile" to="/profile" />
@@ -289,6 +289,7 @@ function MobileBottomNav() {
     <nav className="fixed bottom-0 left-0 z-50 flex w-full items-center justify-around rounded-t-xl border-t border-[#4f4633] bg-[#3a3429] px-4 pb-4 pt-2 shadow-2xl lg:hidden">
       <MobileNavItem icon={<Home size={20} />} label="Home" to="/" />
       <MobileNavItem icon={<Table2 size={20} />} label="Play" to="/lobby" />
+      <MobileNavItem icon={<UsersRound size={20} />} label="Friends" to="/friends" />
       <MobileNavItem active icon={<UserRound size={20} />} label="Profile" to="/profile" />
     </nav>
   )

@@ -69,10 +69,14 @@ export function getFriendlyChatError(error: unknown) {
 
   if (
     message.includes('chat_room_access_denied') ||
+    message.includes('direct_chat_access_denied') ||
+    message.includes('direct_room_required') ||
     message.includes('not_game_participant') ||
     message.includes('not_seated')
   ) {
-    return 'You are not part of this chat room.'
+    return message.includes('direct')
+      ? 'Private messages are only available between accepted friends.'
+      : 'You are not part of this chat room.'
   }
 
   if (

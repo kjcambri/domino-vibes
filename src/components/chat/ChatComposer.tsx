@@ -10,9 +10,11 @@ import {
 export function ChatComposer({
   isSending,
   onSend,
+  placeholder = 'Talk across the table...',
 }: {
   isSending: boolean
   onSend: (body: string) => Promise<void>
+  placeholder?: string
 }) {
   const [body, setBody] = useState('')
   const [localError, setLocalError] = useState('')
@@ -63,7 +65,7 @@ export function ChatComposer({
           setLocalError('')
         }}
         onKeyDown={handleKeyDown}
-        placeholder="Talk across the table..."
+        placeholder={placeholder}
         value={body}
       />
       <div className="flex items-center justify-between gap-3">
