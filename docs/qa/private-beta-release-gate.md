@@ -43,6 +43,10 @@ Run at least one four-player test with throwaway accounts:
 - Return to lobby releases finished seats.
 - Lobby/table/game chat works only for allowed users.
 
+Use `docs/qa/private-beta-session-runbook.md` when coordinating a live tester
+session so each run captures the same account, browser, URL, and refresh/rejoin
+context.
+
 ## Mobile Gate
 
 Test at least one real mobile browser or equivalent device viewport:
