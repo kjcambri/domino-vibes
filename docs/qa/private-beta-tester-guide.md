@@ -23,6 +23,9 @@ Use this guide when inviting a small group of testers to `https://dominovibes.co
 
 ## Core Test Missions
 
+The in-app private beta checklist mirrors these missions on the landing page
+and lobby so testers can keep the same priorities in view while using the app.
+
 ### Lobby
 
 - Confirm the landing page and lobby feel polished on mobile and desktop.
