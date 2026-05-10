@@ -47,6 +47,13 @@ const folders = [
     largeFileThresholdBytes: 180 * 1024,
   },
   {
+    directory: path.join(projectRoot, 'public', 'assets', 'dominoes-real-board-webp'),
+    extension: 'webp',
+    key: 'realBoard',
+    label: 'Real WebP board-calibrated assets',
+    largeFileThresholdBytes: 180 * 1024,
+  },
+  {
     directory: path.join(projectRoot, 'public', 'assets', 'dominoes-real-webp'),
     extension: 'webp',
     key: 'real',
@@ -117,6 +124,7 @@ async function readDefaultFlags() {
   return {
     useNormalized: /USE_NORMALIZED_DOMINO_ASSETS\s*=\s*true/.test(source),
     useProcedural: /USE_PROCEDURAL_DOMINOES\s*=\s*true/.test(source),
+    useRealBoard: /USE_REAL_BOARD_DOMINO_ASSETS\s*=\s*true/.test(source),
     useReal: /USE_REAL_DOMINO_ASSETS\s*=\s*true/.test(source),
   }
 }
@@ -184,7 +192,7 @@ async function main() {
 
   console.log('Domino Vibes asset audit')
   console.log(
-    `Defaults: real=${flags.useReal}, normalized=${flags.useNormalized}, procedural=${flags.useProcedural}`,
+    `Defaults: real=${flags.useReal}, realBoard=${flags.useRealBoard}, normalized=${flags.useNormalized}, procedural=${flags.useProcedural}`,
   )
 
   for (const folder of folders) {
@@ -250,9 +258,11 @@ async function main() {
     }
   }
 
-  const defaultAudit = flags.useReal
-    ? audits.find((audit) => audit.key === 'real')
-    : audits.find((audit) => audit.key === 'optimized')
+  const defaultAudit = flags.useRealBoard
+    ? audits.find((audit) => audit.key === 'realBoard')
+    : flags.useReal
+      ? audits.find((audit) => audit.key === 'real')
+      : audits.find((audit) => audit.key === 'optimized')
 
   if (defaultAudit && defaultAudit.missing.length > 0) {
     console.error(

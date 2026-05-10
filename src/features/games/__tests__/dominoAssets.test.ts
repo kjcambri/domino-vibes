@@ -9,12 +9,14 @@ import {
   normalizeTileId,
   USE_NORMALIZED_DOMINO_ASSETS,
   USE_PROCEDURAL_DOMINOES,
+  USE_REAL_BOARD_DOMINO_ASSETS,
   USE_REAL_DOMINO_ASSETS,
 } from '../dominoAssets'
 
 describe('dominoAssets', () => {
   it('uses real image assets as the default tile renderer', () => {
     expect(USE_REAL_DOMINO_ASSETS).toBe(true)
+    expect(USE_REAL_BOARD_DOMINO_ASSETS).toBe(true)
     expect(USE_PROCEDURAL_DOMINOES).toBe(false)
     expect(USE_NORMALIZED_DOMINO_ASSETS).toBe(false)
   })
@@ -39,6 +41,9 @@ describe('dominoAssets', () => {
   it('returns stable public asset paths with safe fallback', () => {
     expect(getDominoImageSrc('6-4')).toBe(
       '/assets/dominoes-real-webp/domino-4-6.webp',
+    )
+    expect(getDominoImageSrc('6-4', { preferBoard: true })).toBe(
+      '/assets/dominoes-real-board-webp/domino-4-6.webp',
     )
     expect(getDominoImageSrc('6-4', { preferOptimized: true })).toBe(
       '/assets/dominoes-webp/domino-4-6.webp',
@@ -66,20 +71,34 @@ describe('dominoAssets', () => {
     ])
   })
 
+  it('orders board-calibrated assets first for board rendering only', () => {
+    expect(
+      getDominoImageFallbackSources('domino-2-6', { preferBoard: true }),
+    ).toEqual([
+      '/assets/dominoes-real-board-webp/domino-2-6.webp',
+      '/assets/dominoes-real-webp/domino-2-6.webp',
+      '/assets/dominoes-webp/domino-2-6.webp',
+      '/assets/dominoes/domino-2-6.png',
+    ])
+  })
+
   it('returns ordered optimized and fallback candidates for tile images', () => {
     expect(getDominoAssetCandidates('6-4')).toEqual({
+      boardSrc: '/assets/dominoes-real-board-webp/domino-4-6.webp',
       realSrc: '/assets/dominoes-real-webp/domino-4-6.webp',
       normalizedSrc: '/assets/dominoes-normalized-webp/domino-4-6.webp',
       optimizedSrc: '/assets/dominoes-webp/domino-4-6.webp',
       pngSrc: '/assets/dominoes/domino-4-6.png',
     })
     expect(getDominoAssetCandidates('not-a-tile')).toEqual({
+      boardSrc: '/assets/dominoes-real-board-webp/domino-back.webp',
       realSrc: '/assets/dominoes-real-webp/domino-back.webp',
       normalizedSrc: '/assets/dominoes-normalized-webp/domino-back.webp',
       optimizedSrc: '/assets/dominoes-webp/domino-back.webp',
       pngSrc: '/assets/dominoes/domino-back.png',
     })
     expect(getDominoAssetCandidates('domino-6-4')).toEqual({
+      boardSrc: '/assets/dominoes-real-board-webp/domino-4-6.webp',
       realSrc: '/assets/dominoes-real-webp/domino-4-6.webp',
       normalizedSrc: '/assets/dominoes-normalized-webp/domino-4-6.webp',
       optimizedSrc: '/assets/dominoes-webp/domino-4-6.webp',

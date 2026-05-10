@@ -1,4 +1,5 @@
 const DOMINO_ASSET_BASE = '/assets/dominoes'
+const DOMINO_REAL_BOARD_ASSET_BASE = '/assets/dominoes-real-board-webp'
 const DOMINO_REAL_ASSET_BASE = '/assets/dominoes-real-webp'
 const DOMINO_OPTIMIZED_ASSET_BASE = '/assets/dominoes-webp'
 const DOMINO_NORMALIZED_ASSET_BASE = '/assets/dominoes-normalized-webp'
@@ -7,6 +8,7 @@ const FALLBACK_TILE_ID = '0-0'
 const TILE_ID_PATTERN = /^(?:domino-)?([0-6])-([0-6])$/
 
 export const USE_PROCEDURAL_DOMINOES = false
+export const USE_REAL_BOARD_DOMINO_ASSETS = true
 export const USE_REAL_DOMINO_ASSETS = true
 export const USE_NORMALIZED_DOMINO_ASSETS = false
 
@@ -15,6 +17,7 @@ export const USE_NORMALIZED_DOMINO_ASSETS = false
 // In tile data, tile.left is the visual top pip and tile.right is the
 // visual bottom pip for an unrotated asset.
 type DominoAssetOptions = {
+  preferBoard?: boolean
   preferOptimized?: boolean
   preferNormalized?: boolean
 }
@@ -39,6 +42,7 @@ export function isValidDominoTileId(tileId: string): boolean {
 }
 
 export function getDominoAssetCandidates(tileId: string): {
+  boardSrc: string
   realSrc: string
   normalizedSrc: string
   optimizedSrc: string
@@ -48,6 +52,7 @@ export function getDominoAssetCandidates(tileId: string): {
   const assetName = isValidTile ? `domino-${normalizeTileId(tileId)}` : 'domino-back'
 
   return {
+    boardSrc: `${DOMINO_REAL_BOARD_ASSET_BASE}/${assetName}.webp`,
     realSrc: `${DOMINO_REAL_ASSET_BASE}/${assetName}.webp`,
     normalizedSrc: `${DOMINO_NORMALIZED_ASSET_BASE}/${assetName}.webp`,
     optimizedSrc: `${DOMINO_OPTIMIZED_ASSET_BASE}/${assetName}.webp`,
@@ -55,9 +60,15 @@ export function getDominoAssetCandidates(tileId: string): {
   }
 }
 
-export function getDominoImageFallbackSources(tileId: string): string[] {
+export function getDominoImageFallbackSources(
+  tileId: string,
+  options: DominoAssetOptions = {},
+): string[] {
   const sources = getDominoAssetCandidates(tileId)
   const orderedSources = [
+    ...(options.preferBoard && USE_REAL_BOARD_DOMINO_ASSETS
+      ? [sources.boardSrc]
+      : []),
     ...(USE_REAL_DOMINO_ASSETS ? [sources.realSrc] : []),
     sources.optimizedSrc,
     ...(USE_NORMALIZED_DOMINO_ASSETS ? [sources.normalizedSrc] : []),
@@ -72,6 +83,10 @@ export function getDominoImageSrc(
   options: DominoAssetOptions = {},
 ): string {
   const sources = getDominoAssetCandidates(tileId)
+
+  if (options.preferBoard && USE_REAL_BOARD_DOMINO_ASSETS) {
+    return sources.boardSrc
+  }
 
   if (options.preferOptimized) {
     return options.preferNormalized || USE_NORMALIZED_DOMINO_ASSETS
