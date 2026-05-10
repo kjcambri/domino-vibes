@@ -24,6 +24,10 @@ export type ProfileInput = {
   displayName: string
 }
 
+export type ProfileUpdateInput = ProfileInput & {
+  avatarUrl: string | null
+}
+
 function toProfile(row: ProfileRow): Profile {
   return {
     id: row.id,
@@ -61,6 +65,30 @@ export async function createProfile({
       username,
       display_name: displayName,
     })
+    .select('id, username, display_name, avatar_url, created_at, updated_at')
+    .single<ProfileRow>()
+
+  if (error) {
+    throw error
+  }
+
+  return toProfile(data)
+}
+
+export async function updateProfile({
+  userId,
+  username,
+  displayName,
+  avatarUrl,
+}: ProfileUpdateInput) {
+  const { data, error } = await supabase
+    .from('profiles')
+    .update({
+      username,
+      display_name: displayName,
+      avatar_url: avatarUrl,
+    })
+    .eq('id', userId)
     .select('id, username, display_name, avatar_url, created_at, updated_at')
     .single<ProfileRow>()
 
