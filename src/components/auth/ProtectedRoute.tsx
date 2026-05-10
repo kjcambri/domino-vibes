@@ -3,6 +3,7 @@ import { Navigate, useLocation } from 'react-router-dom'
 import { Card } from '../common/Card'
 import { MobileShell } from '../layout/MobileShell'
 import { useAuth } from '../../features/auth/useAuth'
+import { useUserPresenceHeartbeat } from '../../features/friends/useFriendsHub'
 import { useProfile } from '../../features/profiles/useProfile'
 
 type ProtectedRouteProps = {
@@ -17,6 +18,9 @@ export function ProtectedRoute({
   const location = useLocation()
   const { isAuthenticated, isLoading } = useAuth()
   const { hasProfile, isProfileLoading } = useProfile()
+  useUserPresenceHeartbeat(
+    isAuthenticated && hasProfile && !isLoading && !isProfileLoading,
+  )
 
   if (isLoading || (isAuthenticated && isProfileLoading)) {
     return <RouteLoading />

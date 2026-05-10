@@ -1,4 +1,4 @@
-export type ChatRoomType = 'lobby' | 'table' | 'game'
+export type ChatRoomType = 'lobby' | 'table' | 'game' | 'direct'
 
 export type ChatMessage = {
   id: string

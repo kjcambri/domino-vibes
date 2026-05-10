@@ -5,9 +5,11 @@ import { ChatMessageBubble } from './ChatMessageBubble'
 export function ChatMessageList({
   messages,
   currentUserId,
+  emptyCopy = 'No messages yet. Start the table talk.',
 }: {
   messages: ChatMessage[]
   currentUserId?: string | null
+  emptyCopy?: string
 }) {
   const endRef = useRef<HTMLDivElement | null>(null)
 
@@ -19,7 +21,7 @@ export function ChatMessageList({
     return (
       <div className="grid min-h-32 place-items-center rounded-2xl border border-cream-100/10 bg-green-950/35 px-4 py-6 text-center">
         <p className="text-sm font-bold text-cream-100/72">
-          No messages yet. Start the table talk.
+          {emptyCopy}
         </p>
       </div>
     )

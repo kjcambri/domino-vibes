@@ -308,6 +308,7 @@ function ClubLobbyRail() {
       >
         <ClubRailItem icon={<Home size={17} />} label="Home" to="/" />
         <ClubRailItem active icon={<Table2 size={17} />} label="Play" to="/lobby" />
+        <ClubRailItem icon={<UsersRound size={17} />} label="Friends" to="/friends" />
         <ClubRailItem icon={<UserRound size={17} />} label="Profile" to="/profile" />
         <ClubRailItem comingSoon icon={<Eye size={17} />} label="Watch" />
         <ClubRailItem comingSoon icon={<UsersRound size={17} />} label="Clubs" />
