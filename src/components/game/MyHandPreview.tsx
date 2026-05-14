@@ -34,11 +34,11 @@ export function MyHandPreview({
     : 'Tile play is closed for this round.'
 
   return (
-    <GameCard className="border-gold-300/22 bg-[radial-gradient(circle_at_18%_0%,rgba(242,193,78,0.14),transparent_16rem),linear-gradient(180deg,rgba(107,63,29,0.34),rgba(11,61,46,0.82)_58%,rgba(42,22,10,0.62))] p-4 shadow-[0_-14px_36px_rgba(42,22,10,0.24)]" variant="wood">
+    <GameCard className="border-gold-300/28 bg-[radial-gradient(circle_at_50%_0%,rgba(242,193,78,0.18),transparent_18rem),linear-gradient(180deg,rgba(107,63,29,0.46),rgba(11,61,46,0.8)_50%,rgba(42,22,10,0.72))] p-4 shadow-[0_-18px_42px_rgba(42,22,10,0.3)]" variant="wood">
       <div className="flex items-center justify-between gap-3">
         <div>
           <p className="text-xs font-black uppercase tracking-[0.18em] text-gold-200">
-            Your rack
+            Your seat
           </p>
           <p className="mt-1 text-sm text-cream-100/65">
             {helperText}
@@ -52,7 +52,7 @@ export function MyHandPreview({
           <StatusChip tone="cream">{hand?.tiles.length ?? 0} tiles</StatusChip>
         )}
       </div>
-      <div className="-mx-2 mt-4 flex snap-x gap-3 overflow-x-auto rounded-3xl border border-gold-200/20 bg-[radial-gradient(circle_at_50%_0%,rgba(255,244,214,0.16),transparent_13rem),linear-gradient(180deg,rgba(31,138,91,0.56),rgba(20,107,74,0.46)_52%,rgba(107,63,29,0.28))] px-3 pb-5 pt-5 shadow-[inset_0_1px_0_rgba(255,244,214,0.22),inset_0_-10px_22px_rgba(0,0,0,0.16),0_12px_28px_rgba(0,0,0,0.14)] [scrollbar-width:thin]">
+      <div className="-mx-2 mt-4 flex snap-x gap-3 overflow-x-auto rounded-[1.75rem] border border-gold-200/24 bg-[radial-gradient(circle_at_50%_0%,rgba(255,244,214,0.18),transparent_13rem),linear-gradient(180deg,rgba(31,138,91,0.58),rgba(20,107,74,0.48)_48%,rgba(107,63,29,0.36))] px-3 pb-5 pt-5 shadow-[inset_0_1px_0_rgba(255,244,214,0.24),inset_0_-14px_26px_rgba(0,0,0,0.18),0_14px_34px_rgba(0,0,0,0.18)] [scrollbar-width:thin]">
         {hand?.tiles.map((tile) => {
           const legalSides = getLegalSides(tile, boardState)
           const playable = canSelect && legalSides.length > 0
