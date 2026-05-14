@@ -1,20 +1,20 @@
 import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { ChatPanel } from '../components/chat/ChatPanel'
-import { GameCard } from '../components/ui/GameCard'
 import { StateCard } from '../components/ui/StateCard'
 import { BoardStatePreview } from '../components/game/BoardStatePreview'
 import { CurrentTurnBanner } from '../components/game/CurrentTurnBanner'
 import { GamePlayerList } from '../components/game/GamePlayerList'
 import { GameRoomHeader } from '../components/game/GameRoomHeader'
 import { MyHandPreview } from '../components/game/MyHandPreview'
-import { OpponentHandCounts } from '../components/game/OpponentHandCounts'
 import { RoundFinishedPanel } from '../components/game/RoundFinishedPanel'
+import { SeatedOpponentRack } from '../components/game/SeatedOpponentRack'
 import { TurnActionPanel } from '../components/game/TurnActionPanel'
 import { MobileShell } from '../components/layout/MobileShell'
 import { useAppStore } from '../app/store'
 import { useGameSoundEvents } from '../features/audio/useSoundEvents'
 import { canHandPlay, getLegalSides } from '../features/games/gameplayRules'
+import { getRelativeTableSeats } from '../features/games/tableSeating'
 import { type BoardSide } from '../features/games/types'
 import { useGamePresence } from '../features/games/useGamePresence'
 import { useGameRealtime } from '../features/games/useGameRealtime'
@@ -78,6 +78,10 @@ export function GameRoomPage() {
     ? getLegalSides(selectedTile, game.boardState)
     : []
   const activeSelectedTileId = selectedTile ? selectedTileId : null
+  const tableSeats = getRelativeTableSeats(
+    gameRoom.gameRoom.players,
+    currentUserPlayerId,
+  )
 
   const handlePlayTile = (tileId: string, side: BoardSide) => {
     void gameRoom.playTile
@@ -129,30 +133,39 @@ export function GameRoomPage() {
           roundWinnerPlayerId={game.roundWinnerPlayerId}
           status={game.status}
         />
-        <div className="grid gap-4 xl:grid-cols-[300px_minmax(0,1fr)_380px] xl:items-start">
-          <aside className="order-3 grid gap-4 xl:order-1 xl:sticky xl:top-4">
-            <GamePlayerList
-              currentTurnPlayerId={game.currentTurnPlayerId}
-              players={gameRoom.gameRoom.players}
-            />
-            <OpponentHandCounts
-              currentPlayerId={gameRoom.myHand?.playerId}
-              currentTurnPlayerId={game.currentTurnPlayerId}
-              players={gameRoom.gameRoom.players}
-            />
-            <GameCard className="border-teal-300/16 bg-green-950/42 p-4">
-              <p className="text-xs font-black uppercase tracking-[0.16em] text-teal-300">
-                Live presence
-              </p>
-              <p className="text-sm leading-6 text-cream-100/72">
-                Active and away status is visible now. Disconnected-player
-                handling arrives later, so players can return and continue.
-              </p>
-            </GameCard>
-          </aside>
-
-          <div className="order-1 grid min-w-0 gap-4 xl:order-2">
-            <BoardStatePreview boardState={game.boardState} />
+        <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_360px] xl:items-start">
+          <div className="grid min-w-0 gap-4">
+            <section
+              aria-label="Seated domino table"
+              className="grid gap-3 rounded-[2rem] border border-gold-300/18 bg-[radial-gradient(circle_at_50%_18%,rgba(242,193,78,0.12),transparent_20rem),linear-gradient(145deg,rgba(42,22,10,0.68),rgba(6,31,24,0.54))] p-3 shadow-[0_30px_80px_rgba(17,7,2,0.34)] xl:grid-cols-[190px_minmax(0,1fr)_190px] xl:p-4 2xl:grid-cols-[220px_minmax(0,1fr)_220px]"
+            >
+              <div className="xl:col-start-2">
+                <SeatedOpponentRack
+                  currentTurnPlayerId={game.currentTurnPlayerId}
+                  player={tableSeats.top}
+                  position="top"
+                />
+              </div>
+              <div className="grid gap-3 xl:col-span-3 xl:grid-cols-[190px_minmax(0,1fr)_190px] xl:items-center 2xl:grid-cols-[220px_minmax(0,1fr)_220px]">
+                <div className="xl:col-start-1">
+                  <SeatedOpponentRack
+                    currentTurnPlayerId={game.currentTurnPlayerId}
+                    player={tableSeats.left}
+                    position="left"
+                  />
+                </div>
+                <div className="min-w-0 xl:col-start-2">
+                  <BoardStatePreview boardState={game.boardState} />
+                </div>
+                <div className="xl:col-start-3">
+                  <SeatedOpponentRack
+                    currentTurnPlayerId={game.currentTurnPlayerId}
+                    player={tableSeats.right}
+                    position="right"
+                  />
+                </div>
+              </div>
+            </section>
             <MyHandPreview
               boardState={game.boardState}
               hand={gameRoom.myHand}
@@ -164,7 +177,7 @@ export function GameRoomPage() {
             />
           </div>
 
-          <aside className="order-2 grid gap-4 xl:order-3 xl:sticky xl:top-4">
+          <aside className="grid gap-4 xl:sticky xl:top-4">
             <RoundFinishedPanel
               currentUserPlayerId={currentUserPlayerId}
               game={game}
@@ -194,6 +207,10 @@ export function GameRoomPage() {
               openEnds={game.boardState.openEnds}
               selectedTileId={activeSelectedTileId}
               status={game.status}
+            />
+            <GamePlayerList
+              currentTurnPlayerId={game.currentTurnPlayerId}
+              players={gameRoom.gameRoom.players}
             />
             <ChatPanel
               compact
