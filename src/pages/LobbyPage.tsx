@@ -514,7 +514,7 @@ function DesktopClubRail({ onLogoutError }: { onLogoutError: (message: string) =
         <RailItem icon={<Home size={20} />} label="Home" to="/" />
         <RailItem active icon={<Table2 size={20} />} label="Play" to="/lobby" />
         <RailItem comingSoon icon={<Eye size={20} />} label="Watch" />
-        <RailItem comingSoon icon={<UsersRound size={20} />} label="Friends" />
+        <RailItem icon={<UsersRound size={20} />} label="Friends" to="/friends" />
         <RailItem comingSoon icon={<Crown size={20} />} label="Clubs" />
         <RailItem comingSoon icon={<Trophy size={20} />} label="Leaderboard" />
         <RailItem icon={<UserRound size={20} />} label="Profile" to="/profile" />
@@ -584,6 +584,7 @@ function MobileBottomNav() {
       <MobileNavItem icon={<Home size={20} />} label="Home" to="/" />
       <MobileNavItem active icon={<Table2 size={20} />} label="Play" to="/lobby" />
       <MobileNavItem comingSoon icon={<Eye size={20} />} label="Watch" />
+      <MobileNavItem icon={<UsersRound size={20} />} label="Friends" to="/friends" />
       <MobileNavItem icon={<UserRound size={20} />} label="Profile" to="/profile" />
     </nav>
   )

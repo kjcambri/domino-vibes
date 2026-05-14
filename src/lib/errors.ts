@@ -75,6 +75,26 @@ export function getFriendlyAuthError(error: unknown) {
     return 'That table is full. Choose another waiting table.'
   }
 
+  if (message.includes('private_table_not_found')) {
+    return 'That private table code did not match an open table.'
+  }
+
+  if (message.includes('invalid_invite_code')) {
+    return 'Enter a valid private table code.'
+  }
+
+  if (message.includes('private_invite_required')) {
+    return 'Use a private table invite code to join that table.'
+  }
+
+  if (message.includes('private_table_create_failed')) {
+    return 'Could not create a private table. Try again.'
+  }
+
+  if (message.includes('private_table_join_failed')) {
+    return 'Could not join that private table. Try again.'
+  }
+
   if (message.includes('table_not_found')) {
     return 'That table could not be found.'
   }

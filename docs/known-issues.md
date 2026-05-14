@@ -22,6 +22,7 @@ This document tracks private beta guardrails and known MVP limitations.
 - Chat is MVP text-only chat with basic room scoping and guardrails.
 - No advanced moderation, reports, blocks, or admin dashboard exist yet.
 - No direct messages or media uploads exist yet.
+- Private Tables are MVP invite-code rooms only. There are no room passwords, host moderation tools, custom seats, or private table history yet.
 - No tournaments or ranked play exist yet.
 - Future mode cards, if visible, are non-functional previews only.
 - No spectator or replay system exists yet.

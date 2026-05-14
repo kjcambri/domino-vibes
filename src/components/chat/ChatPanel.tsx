@@ -40,6 +40,21 @@ export function ChatPanel({
     enabled: tableSoundEnabled && isOpen,
     messages: messagesQuery.data ?? null,
   })
+  const isDirect = roomType === 'direct'
+  const roomLabel = isDirect ? 'Private' : 'Social'
+  const loadingCopy = isDirect ? 'Loading private messages...' : 'Loading table talk...'
+  const emptyCopy = isDirect
+    ? 'No private messages yet. Say hello to start the thread.'
+    : 'No messages yet. Start the table talk.'
+  const footerCopy = isDirect
+    ? 'Private messages are visible only to accepted friends.'
+    : 'MVP chat is visible to this room. Moderation, reports, and richer controls arrive later.'
+  const closedCopy = isDirect
+    ? 'Open your private thread without leaving the friends hub.'
+    : 'Open chat for quick table talk without covering the game.'
+  const composerPlaceholder = isDirect
+    ? 'Message your friend...'
+    : 'Talk across the table...'
 
   async function handleSend(body: string) {
     await sendMessage.mutateAsync(body)
@@ -53,7 +68,7 @@ export function ChatPanel({
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="text-xs font-black uppercase tracking-[0.18em] text-teal-300">
-            Social
+            {roomLabel}
           </p>
           <h2 className="mt-1 flex items-center gap-2 text-xl font-black text-cream-50">
             <MessageCircle aria-hidden="true" size={18} />
@@ -78,11 +93,12 @@ export function ChatPanel({
         <div className="mt-4 grid gap-4">
           {messagesQuery.isLoading ? (
             <div className="rounded-2xl border border-cream-100/10 bg-green-950/35 px-4 py-4 text-sm font-bold text-cream-100/72">
-              Loading table talk...
+              {loadingCopy}
             </div>
           ) : (
             <ChatMessageList
               currentUserId={user?.id}
+              emptyCopy={emptyCopy}
               messages={messagesQuery.data ?? []}
             />
           )}
@@ -96,15 +112,15 @@ export function ChatPanel({
           <ChatComposer
             isSending={sendMessage.isPending}
             onSend={handleSend}
+            placeholder={composerPlaceholder}
           />
           <p className="text-xs leading-5 text-cream-100/48">
-            MVP chat is visible to this room. Moderation, reports, and richer
-            controls arrive later.
+            {footerCopy}
           </p>
         </div>
       ) : (
         <p className="mt-3 text-sm leading-6 text-cream-100/62">
-          Open chat for quick table talk without covering the game.
+          {closedCopy}
         </p>
       )}
     </GameCard>

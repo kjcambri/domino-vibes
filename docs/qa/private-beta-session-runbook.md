@@ -34,6 +34,17 @@ Ask each tester to capture:
 10. Start the next round if time allows.
 11. Test one mobile browser or phone-sized viewport.
 
+## Private Table Mission
+
+Run this once before or after the public-table mission:
+
+1. Tester 1 creates a private table from the lobby.
+2. Tester 1 shares the invite code with Testers 2-4.
+3. Testers 2-4 join through the lobby invite-code form.
+4. Confirm the private table is not listed in the public table grid.
+5. Confirm a fifth/non-seated account cannot open the private table URL by guessing or copying it.
+6. Ready up, start the game, and confirm the game room, chat, hidden hands, and rejoin behavior match public tables.
+
 ## Stop The Session Immediately If
 
 - A tester sees another player's hand tiles.

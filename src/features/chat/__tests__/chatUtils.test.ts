@@ -47,6 +47,11 @@ describe('chatUtils', () => {
       'table',
       'table-1',
     ])
+    expect(chatKeys.messages('direct', 'friendship-1')).toEqual([
+      'chat-messages',
+      'direct',
+      'friendship-1',
+    ])
   })
 
   it('polls while open and stays quiet while closed', () => {
@@ -60,6 +65,9 @@ describe('chatUtils', () => {
     )
     expect(getFriendlyChatError(new Error('chat_room_access_denied'))).toBe(
       'You are not part of this chat room.',
+    )
+    expect(getFriendlyChatError(new Error('direct_chat_access_denied'))).toBe(
+      'Private messages are only available between accepted friends.',
     )
   })
 })

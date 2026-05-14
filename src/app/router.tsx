@@ -5,6 +5,7 @@ import { PublicOnlyRoute } from '../components/auth/PublicOnlyRoute'
 import { RouteLoadingFallback } from '../components/layout/RouteLoadingFallback'
 import {
   AuthCallbackPage,
+  FriendsPage,
   GameRoomPage,
   LandingPage,
   LobbyPage,
@@ -13,6 +14,7 @@ import {
   ProfilePage,
   ProfileSetupPage,
   SignupPage,
+  SpectatorGamePage,
   TableRoomPage,
 } from './lazyPages'
 
@@ -70,6 +72,14 @@ export const router = createBrowserRouter([
     ),
   },
   {
+    path: '/friends',
+    element: (
+      <ProtectedRoute>
+        {lazyRoute(<FriendsPage />)}
+      </ProtectedRoute>
+    ),
+  },
+  {
     path: '/tables/:tableId',
     element: (
       <ProtectedRoute>
@@ -82,6 +92,14 @@ export const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         {lazyRoute(<GameRoomPage />)}
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/spectate/games/:gameId',
+    element: (
+      <ProtectedRoute>
+        {lazyRoute(<SpectatorGamePage />)}
       </ProtectedRoute>
     ),
   },
